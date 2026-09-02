@@ -141,6 +141,17 @@ final class EngineOutputCaptureTests: XCTestCase {
         engine.stopEngineOutputCapture()
     }
 
+    func testStartingAudioGateRunWhileSweepStoppedThrowsWithoutCrashing() {
+        let engine = SweepAudioEngine()
+        XCTAssertThrowsError(try engine.startAudioGateRun(durationSeconds: 120)) { error in
+            guard let captureError = error as? SweepAudioEngine.CaptureError else {
+                return XCTFail("Expected CaptureError, got \(error)")
+            }
+            XCTAssertEqual(captureError, .sweepNotRunning)
+        }
+        engine.stopAudioGateRun()
+    }
+
     private func makeBuffer(frames: AVAudioFrameCount, fill: Float) throws -> AVAudioPCMBuffer {
         let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
         let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames))

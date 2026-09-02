@@ -8,6 +8,7 @@ import Foundation
 public final class SweepAudioEngine: @unchecked Sendable {
     public var onEvent: ((SweepEvent) -> Void)?
     public var onCaptureStateChange: ((EngineOutputCaptureState) -> Void)?
+    public var onAudioGateRunStateChange: ((AudioGateRunState) -> Void)?
     public var onRuntimeMessage: ((String) -> Void)?
 
     private let queue = DispatchQueue(label: "com.glinkplink.spiritbox.sweep-engine")
@@ -34,6 +35,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private var captureTickCounter = 0
     private var captureTapInstalled = false
     private var captureActive = false
+    private var audioGateRun: ActiveAudioGateRun?
 
     public init(eventLog: SweepEventLog = SweepEventLog()) {
         self.eventLog = eventLog
@@ -103,14 +105,45 @@ public final class SweepAudioEngine: @unchecked Sendable {
             guard running else {
                 throw CaptureError.sweepNotRunning
             }
-            try startCaptureLocked(durationSeconds: durationSeconds)
+            if audioGateRun != nil {
+                throw CaptureError.runInProgress
+            }
+            let url = EngineOutputCaptureLocator.makeFileURL(
+                in: EngineOutputCaptureLocator.documentsDirectory()
+            )
+            try startCaptureLocked(
+                durationSeconds: durationSeconds,
+                wavURL: url,
+                eventsURL: EngineOutputCaptureLocator.makeEventLogURL(forCaptureURL: url)
+            )
+        }
+    }
+
+    public func startAudioGateRun(
+        durationSeconds: Int = EngineOutputCaptureLocator.defaultDurationSeconds
+    ) throws {
+        try queue.sync {
+            guard running else {
+                throw CaptureError.sweepNotRunning
+            }
+            if audioGateRun != nil {
+                throw CaptureError.runInProgress
+            }
+            if captureActive {
+                finishCaptureLocked(reason: .userStopped)
+            }
+            try startAudioGateRunLocked(durationSeconds: durationSeconds)
         }
     }
 
     public func stopEngineOutputCapture() {
         queue.sync {
-            finishCaptureLocked(failed: nil)
+            finishCaptureLocked(reason: .userStopped)
         }
+    }
+
+    public func stopAudioGateRun() {
+        stopEngineOutputCapture()
     }
 
     private func startLocked() throws {
@@ -135,7 +168,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private func stopLocked(deactivateSession: Bool) {
         timer?.cancel()
         timer = nil
-        finishCaptureLocked(failed: nil)
+        finishCaptureLocked(reason: .userStopped)
 
         if fragmentPlayer.isPlaying {
             fragmentPlayer.stop()
@@ -262,7 +295,78 @@ public final class SweepAudioEngine: @unchecked Sendable {
         return converted
     }
 
-    private func startCaptureLocked(durationSeconds: Int) throws {
+    private func startAudioGateRunLocked(durationSeconds: Int) throws {
+        let location: AudioGateRunLocation
+        do {
+            location = try AudioGateRunLocator.createUniqueRunDirectory(
+                in: AudioGateRunLocator.documentsDirectory()
+            )
+        } catch {
+            let message = error.localizedDescription
+            publishAudioGateRun(
+                .finalized(
+                    runID: "uncreated",
+                    completion: .failed,
+                    capturedSeconds: 0,
+                    durationSeconds: durationSeconds,
+                    directoryName: AudioGateRunLocator.directoryName,
+                    corpusSource: describeCorpusSource(corpus.source),
+                    isDevFixture: corpus.isDevFixture,
+                    failureMessage: message
+                )
+            )
+            notifyRuntime("Audio-gate run directory failed: \(message)")
+            throw CaptureError.runDirectoryUnavailable(message)
+        }
+
+        var listeningNotesError: String?
+        do {
+            try AudioGateRunBundleWriter.writeListeningNotes(
+                to: location.listeningNotesURL,
+                runID: location.runID
+            )
+        } catch {
+            listeningNotesError = error.localizedDescription
+            notifyRuntime("LISTENING_NOTES.md was not written: \(error.localizedDescription)")
+        }
+
+        audioGateRun = ActiveAudioGateRun(
+            location: location,
+            startedAt: Date(),
+            requestedDurationSeconds: durationSeconds,
+            startingRate: sweepRate,
+            startingDirection: direction,
+            corpus: corpus,
+            events: [],
+            eventLogOpenFailed: false,
+            listeningNotesError: listeningNotesError
+        )
+
+        do {
+            try startCaptureLocked(
+                durationSeconds: durationSeconds,
+                wavURL: location.wavURL,
+                eventsURL: location.eventsURL
+            )
+        } catch {
+            finishCaptureLocked(reason: .failed(error.localizedDescription))
+            throw error
+        }
+
+        publishAudioGateRun(
+            .running(
+                runID: location.runID,
+                elapsedSeconds: 0,
+                durationSeconds: durationSeconds,
+                directoryName: location.directoryURL.lastPathComponent,
+                corpusSource: describeCorpusSource(corpus.source),
+                isDevFixture: corpus.isDevFixture
+            )
+        )
+    }
+
+    /// Reuses `EngineOutputCaptureWriter` with a caller-supplied WAV destination.
+    private func startCaptureLocked(durationSeconds: Int, wavURL: URL, eventsURL: URL) throws {
         let mixFormat = engine.mainMixerNode.outputFormat(forBus: 0)
         guard mixFormat.sampleRate > 0, mixFormat.channelCount > 0 else {
             throw CaptureError.engineFormatUnavailable
@@ -273,15 +377,22 @@ public final class SweepAudioEngine: @unchecked Sendable {
         }
         closeCaptureEventFileLocked()
 
-        let url = EngineOutputCaptureLocator.makeFileURL(
-            in: EngineOutputCaptureLocator.documentsDirectory()
-        )
         try captureWriteQueue.sync {
-            try captureWriter.start(url: url, format: mixFormat, durationSeconds: durationSeconds)
+            try captureWriter.start(url: wavURL, format: mixFormat, durationSeconds: durationSeconds)
         }
         captureTickCounter = 0
         captureActive = true
-        try openCaptureEventFileLocked(for: url)
+
+        do {
+            try openCaptureEventFileLocked(at: eventsURL)
+        } catch {
+            if audioGateRun != nil {
+                audioGateRun?.eventLogOpenFailed = true
+                notifyRuntime("events.jsonl was not opened: \(error.localizedDescription)")
+            } else {
+                throw error
+            }
+        }
 
         let writeQueue = captureWriteQueue
         let backpressure = captureBackpressure
@@ -302,7 +413,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         }
         captureTapInstalled = true
 
-        publishCapture(.capturing(elapsedSeconds: 0, durationSeconds: durationSeconds, url: url))
+        publishCapture(.capturing(elapsedSeconds: 0, durationSeconds: durationSeconds, url: wavURL))
     }
 
     private func handleCaptureBufferOnWriteQueue(_ buffer: AVAudioPCMBuffer) {
@@ -310,13 +421,13 @@ public final class SweepAudioEngine: @unchecked Sendable {
             let finished = try captureWriter.write(buffer)
             if finished {
                 queue.async { [weak self] in
-                    self?.finishCaptureLocked(failed: nil)
+                    self?.finishCaptureLocked(reason: .durationReached)
                 }
             }
         } catch {
             let message = error.localizedDescription
             queue.async { [weak self] in
-                self?.finishCaptureLocked(failed: message)
+                self?.finishCaptureLocked(reason: .failed(message))
             }
         }
     }
@@ -336,30 +447,120 @@ public final class SweepAudioEngine: @unchecked Sendable {
                     url: url
                 )
             )
+            if let run = audioGateRun {
+                publishAudioGateRun(
+                    .running(
+                        runID: run.location.runID,
+                        elapsedSeconds: snapshot.elapsed,
+                        durationSeconds: snapshot.duration,
+                        directoryName: run.location.directoryURL.lastPathComponent,
+                        corpusSource: describeCorpusSource(run.corpus.source),
+                        isDevFixture: run.corpus.isDevFixture
+                    )
+                )
+            }
         }
     }
 
-    private func finishCaptureLocked(failed: String?) {
-        guard captureActive || captureTapInstalled else { return }
+    private func finishCaptureLocked(reason: AudioGateRunFinishReason) {
+        guard captureActive || captureTapInstalled || audioGateRun != nil else { return }
         captureActive = false
         let stopped = captureWriteQueue.sync {
             captureWriter.stop()
         }
         closeCaptureEventFileLocked()
-        if let url = stopped.url {
+        let run = audioGateRun
+        audioGateRun = nil
+        if run == nil, let url = stopped.url {
             writeFullEventLogSnapshotLocked(nextTo: url)
         }
         if captureTapInstalled {
             engine.mainMixerNode.removeTap(onBus: 0)
             captureTapInstalled = false
         }
-        if let failed {
-            publishCapture(.failed(failed))
-        } else if let url = stopped.url {
-            publishCapture(.finished(url: url, seconds: stopped.seconds))
-        } else {
-            publishCapture(.idle)
+        if let run {
+            finalizeAudioGateRunLocked(run: run, capturedSeconds: stopped.seconds, reason: reason)
         }
+        switch reason {
+        case .failed(let message):
+            publishCapture(.failed(message))
+        case .durationReached, .userStopped:
+            if let url = stopped.url {
+                publishCapture(.finished(url: url, seconds: stopped.seconds))
+            } else {
+                publishCapture(.idle)
+            }
+        }
+    }
+
+    private func finalizeAudioGateRunLocked(
+        run: ActiveAudioGateRun,
+        capturedSeconds: Int,
+        reason: AudioGateRunFinishReason
+    ) {
+        var reportingParts: [String] = []
+        if run.eventLogOpenFailed {
+            reportingParts.append("events.jsonl could not be opened")
+        }
+        if let listeningNotesError = run.listeningNotesError {
+            reportingParts.append("LISTENING_NOTES.md: \(listeningNotesError)")
+        }
+
+        let endedAt = Date()
+        var completion = AudioGateRunCompletionResolver.resolve(
+            reason: reason,
+            reportingError: reportingParts.isEmpty ? nil : reportingParts.joined(separator: "; ")
+        )
+        let failureMessage = AudioGateRunCompletionResolver.failureMessage(
+            reason: reason,
+            reportingError: reportingParts.isEmpty ? nil : reportingParts.joined(separator: "; ")
+        )
+
+        let summary = AudioGateRunSummary.make(
+            runID: run.location.runID,
+            startedAt: run.startedAt,
+            endedAt: endedAt,
+            requestedDurationSeconds: run.requestedDurationSeconds,
+            capturedDurationSeconds: capturedSeconds,
+            completion: completion,
+            failureMessage: failureMessage,
+            corpus: run.corpus,
+            startingSweepRate: run.startingRate,
+            startingDirection: run.startingDirection,
+            events: run.events
+        )
+
+        do {
+            try AudioGateRunBundleWriter.writeSummaries(summary, location: run.location)
+        } catch {
+            reportingParts.append("summary write: \(error.localizedDescription)")
+            completion = AudioGateRunCompletionResolver.resolve(
+                reason: reason,
+                reportingError: reportingParts.joined(separator: "; ")
+            )
+            notifyRuntime("Audio-gate summary write issue: \(error.localizedDescription)")
+        }
+
+        let publishedFailure = AudioGateRunCompletionResolver.failureMessage(
+            reason: reason,
+            reportingError: reportingParts.isEmpty ? nil : reportingParts.joined(separator: "; ")
+        )
+        if completion == .failed {
+            notifyRuntime(publishedFailure.map { "Audio-gate run failed: \($0)" } ?? "Audio-gate run failed.")
+        }
+
+        publishAudioGateRun(
+            .finalized(
+                runID: run.location.runID,
+                completion: completion,
+                capturedSeconds: capturedSeconds,
+                durationSeconds: run.requestedDurationSeconds,
+                directoryName: run.location.directoryURL.lastPathComponent,
+                corpusSource: describeCorpusSource(run.corpus.source),
+                isDevFixture: run.corpus.isDevFixture,
+                failureMessage: publishedFailure
+            )
+        )
     }
 
     private func publishCapture(_ state: EngineOutputCaptureState) {
@@ -369,13 +570,35 @@ public final class SweepAudioEngine: @unchecked Sendable {
         }
     }
 
-    private func openCaptureEventFileLocked(for captureURL: URL) throws {
-        let eventsURL = EngineOutputCaptureLocator.makeEventLogURL(forCaptureURL: captureURL)
+    private func publishAudioGateRun(_ state: AudioGateRunState) {
+        let callback = onAudioGateRunStateChange
+        DispatchQueue.main.async {
+            callback?(state)
+        }
+    }
+
+    private func describeCorpusSource(_ source: CorpusSource) -> String {
+        switch source {
+        case .documentsPhase1:
+            return "Documents/SpiritBoxPhase1Corpus"
+        case .bundlePhase1:
+            return "Bundle/Phase1"
+        case .bundleDevFixtures:
+            return "Bundle/DevFixtures"
+        case .empty:
+            return "none"
+        }
+    }
+
+    private func openCaptureEventFileLocked(at eventsURL: URL) throws {
         FileManager.default.createFile(atPath: eventsURL.path, contents: nil)
         captureEventFileHandle = try FileHandle(forWritingTo: eventsURL)
     }
 
     private func appendCaptureEventLocked(_ event: SweepEvent) {
+        if audioGateRun != nil {
+            audioGateRun?.events.append(event)
+        }
         guard let handle = captureEventFileHandle,
               let data = (event.diagnosticJSONLine() + "\n").data(using: .utf8)
         else { return }
@@ -403,6 +626,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
     enum CaptureError: Error, LocalizedError, Equatable {
         case sweepNotRunning
         case engineFormatUnavailable
+        case runInProgress
+        case runDirectoryUnavailable(String)
 
         var errorDescription: String? {
             switch self {
@@ -410,7 +635,23 @@ public final class SweepAudioEngine: @unchecked Sendable {
                 return "START the sweep before capturing engine output."
             case .engineFormatUnavailable:
                 return "Engine mix format is not available."
+            case .runInProgress:
+                return "An audio-gate run is already in progress. Stop the run before starting another capture."
+            case .runDirectoryUnavailable(let message):
+                return message
             }
         }
+    }
+
+    private struct ActiveAudioGateRun {
+        var location: AudioGateRunLocation
+        var startedAt: Date
+        var requestedDurationSeconds: Int
+        var startingRate: SweepRate
+        var startingDirection: SweepDirection
+        var corpus: LoadedCorpus
+        var events: [SweepEvent]
+        var eventLogOpenFailed: Bool
+        var listeningNotesError: String?
     }
 }

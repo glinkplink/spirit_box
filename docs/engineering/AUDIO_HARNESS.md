@@ -217,6 +217,57 @@ Alongside the WAV:
 
 On Simulator, that Documents folder is inside the app container. Copy the WAV out with Finder, `xcrun simctl`, or Xcode’s Devices window.
 
+For canonical listening evidence, prefer an **audio-gate run bundle** (below) instead of assembling these files by hand.
+
+## Audio-gate run bundles
+
+Private-harness only. One unique folder per evaluation run:
+
+`Documents/AudioGateRuns/<yyyyMMdd-HHmmss>-<short-id>/`
+
+Contents:
+
+| File | Role |
+|---|---|
+| `engine-output.wav` | Existing final engine mix (noise + scheduled fragments). Not microphone / session recording. |
+| `events.jsonl` | Fragment events **from this run only** |
+| `summary.json` | Deterministic descriptive metrics |
+| `summary.md` | Human-readable copy of the same metrics |
+| `LISTENING_NOTES.md` | Neutral listening template |
+
+The folder name includes a short unique ID so two runs in the same second cannot collide. An existing run directory is never overwritten or deleted.
+
+Run-scoped events are collected from the moment the run starts. The longer-lived in-memory event log is **not** dumped into the bundle.
+
+Automated summaries are diagnostic (coverage, repetition distances, family distribution, scheduler relaxation). They do **not** declare the audio convincing, and they do **not** pass the canonical gate.
+
+**DEV FIXTURES CANNOT PASS THE CANONICAL AUDIO GATE.** A 2-minute smoke run with DevFixtures is for plumbing only. A completed 20-minute DevFixtures run is not a canonical gate attempt.
+
+Project gate status remains:
+
+`NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
+
+### How to produce and retrieve a bundle
+
+Physical Files-app retrieval of a gate bundle has **not** been verified in this change.
+
+1. Load corpus (Reload corpus). For a real evaluation, Source must be Phase 1, not DevFixtures.
+2. Start **2-minute smoke run** first to exercise bundle generation.
+3. Confirm the bundle appears under:
+   **Files → On My iPhone → Audio Harness → AudioGateRuns**
+   (Files shows the app display name, not a container UUID.)
+4. For a real Phase 1 corpus, start **20-minute evaluation run**.
+5. Let it finish naturally when possible. **Stop run early** still finalizes the WAV, closes `events.jsonl`, writes summaries when possible, marks `stopped_early`, and keeps the partial folder.
+6. Retrieve:
+   - `engine-output.wav`
+   - `events.jsonl`
+   - `summary.json`
+   - `summary.md`
+   - `LISTENING_NOTES.md`
+7. Listen without being primed. Fill `LISTENING_NOTES.md` using the canonical/QA questions already in that template.
+8. Correlate reported timestamps with `events.jsonl`.
+9. Automated summaries are not the gate verdict. Human listening remains mandatory.
+
 ## Event log
 
 Each scheduled fragment records:

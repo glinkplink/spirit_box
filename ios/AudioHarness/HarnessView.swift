@@ -13,6 +13,7 @@ struct HarnessView: View {
                 directionSection
                 corpusSection
                 nowSection
+                audioGateRunSection
                 captureSection
                 logSection
             }
@@ -123,6 +124,82 @@ struct HarnessView: View {
                     .font(.system(.body, design: .monospaced))
             }
         }
+    }
+
+    private var audioGateRunSection: some View {
+        Section("AUDIO GATE RUN") {
+            Text("Creates a Documents/AudioGateRuns bundle (WAV, events, summaries, listening notes). Diagnostic only — this does not decide the canonical audio gate.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            if model.isDevFixtureCorpus {
+                Text("ENGINEERING ONLY — DEV FIXTURES CANNOT PASS THE AUDIO GATE")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.orange)
+            }
+            Button("2-minute smoke run") {
+                model.startTwoMinuteSmokeRun()
+            }
+            Text("Exercises the full bundle-generation pathway. Usable with DevFixtures.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Button("20-minute evaluation run") {
+                model.startTwentyMinuteEvaluationRun()
+            }
+            Text(
+                model.isDevFixtureCorpus
+                    ? "A 20-minute DevFixtures run is not a canonical gate attempt."
+                    : "Produces a full artifact set for the canonical listening procedure once a real Phase 1 corpus is loaded."
+            )
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            Button("Stop run early") {
+                model.stopAudioGateRun()
+            }
+            audioGateRunStatusBlock
+            Text(model.audioGateFilesInstruction)
+                .font(.footnote)
+            Text("Retrieve the run folder there. Do not rely on a container UUID path.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private var audioGateRunStatusBlock: some View {
+        switch model.audioGateRunState {
+        case .idle:
+            LabeledContent("Run status", value: "idle")
+        case .running(let runID, let elapsed, let duration, let directoryName, let corpusSource, let isDevFixture):
+            LabeledContent("Run status", value: "running")
+            LabeledContent("Run ID", value: runID)
+            LabeledContent("Elapsed / requested", value: "\(elapsed)s / \(duration)s")
+            LabeledContent("Corpus source", value: corpusSource)
+            LabeledContent("Artifact folder", value: directoryName)
+            if isDevFixture {
+                Text("ENGINEERING ONLY — DEV FIXTURES CANNOT PASS THE AUDIO GATE")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.orange)
+            }
+        case .finalized(let runID, let completion, let captured, let duration, let directoryName, let corpusSource, let isDevFixture, let failureMessage):
+            LabeledContent("Run status", value: completion.rawValue)
+            LabeledContent("Run ID", value: runID)
+            LabeledContent("Elapsed / requested", value: "\(captured)s / \(duration)s")
+            LabeledContent("Corpus source", value: corpusSource)
+            LabeledContent("Artifact folder", value: directoryName)
+            if let failureMessage {
+                Text(failureMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+            }
+            if isDevFixture {
+                Text("ENGINEERING ONLY — DEV FIXTURES CANNOT PASS THE AUDIO GATE")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.orange)
+            }
+        }
+        Text(model.audioGateRunsDirectoryPath)
+            .font(.system(.caption, design: .monospaced))
+            .textSelection(.enabled)
     }
 
     private var captureSection: some View {

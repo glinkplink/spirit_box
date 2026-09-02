@@ -22,6 +22,9 @@ final class HarnessViewModel: ObservableObject {
     @Published var expectedDocumentsFolderName = CorpusLoader.documentsDirectoryName
     @Published var filesAppInstruction = ""
     @Published var captureDirectoryPath = ""
+    @Published var audioGateRunState: AudioGateRunState = .idle
+    @Published var audioGateRunsDirectoryPath = ""
+    @Published var audioGateFilesInstruction = ""
 
     let audioGateStatus = AudioGateStatus.notYetRunWaitingForPhase1Corpus
 
@@ -38,6 +41,11 @@ final class HarnessViewModel: ObservableObject {
                 self?.handleCapture(state)
             }
         }
+        engine.onAudioGateRunStateChange = { [weak self] state in
+            Task { @MainActor in
+                self?.audioGateRunState = state
+            }
+        }
         engine.onRuntimeMessage = { [weak self] message in
             Task { @MainActor in
                 self?.lastMessage = message
@@ -48,7 +56,13 @@ final class HarnessViewModel: ObservableObject {
         captureDirectoryPath = EngineOutputCaptureLocator.directory(
             in: EngineOutputCaptureLocator.documentsDirectory()
         ).path
+        audioGateRunsDirectoryPath = AudioGateRunLocator.directory(
+            in: AudioGateRunLocator.documentsDirectory()
+        ).path
         filesAppInstruction = CorpusLoader.filesAppCorpusInstruction(
+            appDisplayName: Self.resolvedAppDisplayName()
+        )
+        audioGateFilesInstruction = AudioGateRunLocator.filesAppInstruction(
             appDisplayName: Self.resolvedAppDisplayName()
         )
         reloadCorpus()
@@ -113,6 +127,18 @@ final class HarnessViewModel: ObservableObject {
         startCapture(seconds: EngineOutputCaptureLocator.manualEvaluationDurationSeconds)
     }
 
+    func startTwoMinuteSmokeRun() {
+        startAudioGateRun(seconds: EngineOutputCaptureLocator.defaultDurationSeconds)
+    }
+
+    func startTwentyMinuteEvaluationRun() {
+        startAudioGateRun(seconds: EngineOutputCaptureLocator.manualEvaluationDurationSeconds)
+    }
+
+    func stopAudioGateRun() {
+        engine.stopAudioGateRun()
+    }
+
     func stopCapture() {
         engine.stopEngineOutputCapture()
     }
@@ -122,6 +148,18 @@ final class HarnessViewModel: ObservableObject {
             try engine.startEngineOutputCapture(durationSeconds: seconds)
         } catch {
             captureStatusText = error.localizedDescription
+        }
+    }
+
+    private func startAudioGateRun(seconds: Int) {
+        if !isRunning {
+            start()
+            guard isRunning else { return }
+        }
+        do {
+            try engine.startAudioGateRun(durationSeconds: seconds)
+        } catch {
+            lastMessage = "Audio-gate run failed to start: \(error.localizedDescription)"
         }
     }
 

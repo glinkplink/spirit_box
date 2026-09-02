@@ -11,6 +11,8 @@ public enum EngineOutputCaptureState: Equatable, Sendable {
 /// Diagnostic capture of the engine's final mixed output.
 ///
 /// This is NOT customer session recording and does NOT use the microphone.
+/// Callers may pass a destination WAV URL into `EngineOutputCaptureWriter.start`
+/// (for example an audio-gate run folder) instead of using `makeFileURL`.
 public enum EngineOutputCaptureLocator {
     public static let directoryName = "EngineOutputCaptures"
     public static let defaultDurationSeconds = 120
