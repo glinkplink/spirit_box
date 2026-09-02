@@ -90,11 +90,11 @@ final class AudioGateRunTests: XCTestCase {
 
         XCTAssertEqual(summary.totalEvents, 8)
         XCTAssertEqual(summary.uniqueAssetIDs, 4)
-        XCTAssertEqual(summary.corpusCoverage, 0.4, accuracy: 0.000_1)
+        XCTAssertEqual(try XCTUnwrap(summary.corpusCoverage), 0.4, accuracy: 0.000_1)
         XCTAssertEqual(summary.firstUseEventCount, 4)
         XCTAssertEqual(summary.repeatUseEventCount, 4)
         XCTAssertEqual(summary.minimumRepeatDistance, 3)
-        XCTAssertEqual(summary.medianRepeatDistance, 9.5, accuracy: 0.000_1)
+        XCTAssertEqual(try XCTUnwrap(summary.medianRepeatDistance), 9.5, accuracy: 0.000_1)
         XCTAssertEqual(summary.repeatDistanceBuckets["0-4"], 1)
         XCTAssertEqual(summary.repeatDistanceBuckets["5-9"], 1)
         XCTAssertEqual(summary.repeatDistanceBuckets["10-19"], 1)
