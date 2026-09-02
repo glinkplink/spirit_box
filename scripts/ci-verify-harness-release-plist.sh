@@ -43,25 +43,33 @@ python3 - <<'PY' "${PLIST_PATH}"
 import plistlib
 import sys
 
+def plist_bool(value):
+    if value is True or value == 1:
+        return True
+    if value is False or value == 0:
+        return False
+    return None
+
 path = sys.argv[1]
 with open(path, "rb") as handle:
     plist = plistlib.load(handle)
 
-required = {
-    "UIFileSharingEnabled": True,
-    "LSSupportsOpeningDocumentsInPlace": True,
-}
+required = (
+    "UIFileSharingEnabled",
+    "LSSupportsOpeningDocumentsInPlace",
+)
 
 missing = []
-for key, expected in required.items():
-    actual = plist.get(key)
-    if actual is not expected:
-        missing.append(f"{key}={actual!r} (expected {expected!r})")
+for key in required:
+    actual = plist_bool(plist.get(key))
+    if actual is not True:
+        missing.append(f"{key}={plist.get(key)!r} (expected true)")
 
 if missing:
     print("::error::SpiritBoxAudioHarness Release Info.plist is missing required Files-app keys:")
     for item in missing:
         print(f"::error::  {item}")
+    print("::error::Info.plist keys present:", ", ".join(sorted(plist.keys())))
     sys.exit(1)
 
 print("Verified SpiritBoxAudioHarness Info.plist file-sharing keys:")
