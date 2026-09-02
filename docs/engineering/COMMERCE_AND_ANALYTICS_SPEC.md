@@ -1,12 +1,12 @@
 # Spirit Box — Commerce & Analytics Implementation Spec
 
-**Status:** Implementation contract (documentation only)  
-**Audience:** Future commerce engineering PR after audio-harness/scaffold merge  
-**Authority:** `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` wins on product scope, pricing, and workflow  
-**Companion QA:** `docs/engineering/QA_AND_FIELD_TEST_PLAN.md`  
-**Paywall copy:** `docs/launch/APP-STORE-CONVERSION-AND-ASO-PLAYBOOK.md` §10  
+**Status:** Implementation contract (documentation only)
+**Audience:** Future commerce engineering PR after audio-harness/scaffold merge
+**Authority:** `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` wins on product scope, pricing, and workflow
+**Companion QA:** `docs/engineering/QA_AND_FIELD_TEST_PLAN.md`
+**Paywall copy:** `docs/launch/APP-STORE-CONVERSION-AND-ASO-PLAYBOOK.md` §10
 
-This document answers: **What exactly should the future commerce engineering agent build?**  
+This document answers: **What exactly should the future commerce engineering agent build?**
 It does **not** implement StoreKit, RevenueCat, analytics SDKs, Xcode project changes, audio harness changes, MVP UI, or pricing/product-scope changes.
 
 ---
@@ -54,12 +54,12 @@ Canonical allows RevenueCat **only if** it materially improves entitlement/paywa
 
 ### What native StoreKit 2 already covers cheaply enough
 
-- Product loading and localized prices  
-- Purchase / pending / cancel / failure  
-- Verified transactions (`VerificationResult`)  
-- Lifetime ownership via `Transaction.currentEntitlements`  
-- Latest finished non-renewing purchase via `Transaction.currentEntitlements` (**VERIFIED PLATFORM FACT** — Apple documents that current entitlements include the latest non-renewing subscription transaction, including finished ones)  
-- Restore UX via StoreKit 2 sync + entitlement refresh  
+- Product loading and localized prices
+- Purchase / pending / cancel / failure
+- Verified transactions (`VerificationResult`)
+- Lifetime ownership via `Transaction.currentEntitlements`
+- Latest finished non-renewing purchase via `Transaction.currentEntitlements` (**VERIFIED PLATFORM FACT** — Apple documents that current entitlements include the latest non-renewing subscription transaction, including finished ones)
+- Restore UX via StoreKit 2 sync + entitlement refresh
 - Revocation absence from current entitlements after refund (**VERIFIED PLATFORM FACT** — refunded/revoked products do not appear in `currentEntitlements`)
 
 ---
@@ -79,9 +79,9 @@ Canonical allows RevenueCat **only if** it materially improves entitlement/paywa
 
 **VERIFIED PLATFORM FACT** (App Store Connect Help — In-App Purchase types):
 
-- **Non-Renewing Subscription:** limited duration; does not renew automatically; content may be static.  
-- **Consumable:** used once, then depleted; must be purchased again.  
-- **Non-Consumable:** purchased once; does not expire.  
+- **Non-Renewing Subscription:** limited duration; does not renew automatically; content may be static.
+- **Consumable:** used once, then depleted; must be purchased again.
+- **Non-Consumable:** purchased once; does not expire.
 - **Auto-Renewable Subscription:** renews unless cancelled — **forbidden for V1**.
 
 Tonight Pass requirements (24h, does not auto-renew, may be purchased again, deterministic expiry) match **Non-Renewing Subscription**, not consumable or non-consumable.
@@ -90,8 +90,8 @@ Tonight Pass requirements (24h, does not auto-renew, may be purchased again, det
 
 For non-renewing subscriptions:
 
-1. The **app** calculates the active time period.  
-2. The **app** detects approaching expiry and can prompt repurchase.  
+1. The **app** calculates the active time period.
+2. The **app** detects approaching expiry and can prompt repurchase.
 3. The **app** is responsible for making purchases available across devices and for restore. Apple notes that most such subscriptions use a server to associate purchases with a user.
 
 **Platform constraint (material):** Perfect cross-device Tonight Pass continuity without an account/backend is **not** something Apple guarantees. V1 accepts **best-effort same–Apple ID StoreKit reconciliation** plus durable local cache. We do **not** add a backend solely for Tonight Pass clock fraud or multi-device sync.
@@ -158,11 +158,11 @@ Do **not** invent dozens of entitlement enums. Keep these as **process flags** o
 
 ## 3.3 Precedence (highest wins)
 
-1. `LIFETIME`  
-2. `TONIGHT_ACTIVE`  
+1. `LIFETIME`
+2. `TONIGHT_ACTIVE`
 3. Else trial path: `FREE_AVAILABLE` → `FREE_IN_PROGRESS` → `FREE_CONSUMED` / `TONIGHT_EXPIRED`
 
-`LIFETIME` **always** overrides any Tonight state.  
+`LIFETIME` **always** overrides any Tonight state.
 Expired Tonight never impersonates Lifetime.
 
 ## 3.4 Derived capability: `canStartFullSession`
@@ -212,20 +212,17 @@ QA open item E-04 (crash fairness) is **closed by this section**.
 | **CONSUMED** | The free entitlement is spent; next full START requires paid access |
 | **Valid runtime** | Continuous time while session is active and not in a hard technical-failure abort |
 
-## 4.2 Recommended consumption rule (locked)
+## 4.2 Consumption rule (locked)
 
 **OUR IMPLEMENTATION DECISION:**
 
-1. **STARTED** when START succeeds (sweep running + session record created). Enter `FREE_IN_PROGRESS`.  
-2. **CONSUMED** when **any** of the following occurs during that free attempt:  
-   - Session reaches the designed **180-second** free-session end (complete trial), **or**  
-   - User manually stops after **≥ 60 seconds** of valid runtime, **or**  
-   - Session is successfully finalized with duration **≥ 60 seconds**.  
-3. **Not consumed** when:  
-   - START fails before the session begins,  
-   - App crashes / iOS kills the app with valid runtime **< 60 seconds**,  
-   - Immediate technical abort (e.g. recording pipeline hard-fails at launch) within the first **~15 seconds** and the session is discarded as failed,  
-   - User cancels/stops with valid runtime **< 60 seconds**.
+1. **STARTED** when START succeeds (sweep running + session record created). Enter `FREE_IN_PROGRESS`.
+2. **CONSUMED** only when the session reaches the designed **180-second** free-session end (complete trial).
+3. **Not consumed** when:
+   - START fails before the session begins,
+   - App crashes / iOS kills the app before the 180-second free-session end,
+   - Immediate technical abort (e.g. recording pipeline hard-fails at launch) within the first **~15 seconds** and the session is discarded as failed,
+   - User cancels/stops before the 180-second free-session end.
 
 ### Edge-case answers
 
@@ -235,16 +232,16 @@ QA open item E-04 (crash fairness) is **closed by this section**.
 | Crash after 30s | Not consumed; `FREE_AVAILABLE` again |
 | Recording fails at t≈0 | Not consumed if treated as technical abort |
 | User stops after 20s | Not consumed |
-| User stops after 90s | Consumed |
-| iOS kills after 2+ minutes | Consumed (threshold met) |
+| User stops after 90s | Not consumed; `FREE_AVAILABLE` again |
+| iOS kills after 2+ minutes | Not consumed; `FREE_AVAILABLE` again |
 | Full 3 minutes | Consumed |
 | After consume | Replay/export of saved session still works |
 
-### Why 60s (not “only at 180s” and not “on first START”)
+### Why only at 180s
 
-- Consuming on first START punishes crash/launch failure (conversion poison).  
-- Consuming only at exact 180s enables unlimited short free sessions (abuse).  
-- 60s is long enough to hear the real product and short enough to stop free-session farming.
+- The canonical product promise is one **complete 3-minute** real session before the paywall.
+- Consuming on first START, early manual stop, crash, or interruption would break that promise.
+- Repeated short-session abuse is an accepted V1 tradeoff; do not weaken the promised trial to prevent it.
 
 Do **not** optimize for theoretical fraud at the expense of legitimate conversion.
 
@@ -290,19 +287,19 @@ Also allow opening paywall from an explicit Settings/Help “Unlock” entry **a
 
 Paywall must **not** block:
 
-- Session history  
-- Replay of existing recordings  
-- MARK navigation on saved sessions  
-- Export/share of existing recordings  
-- Powered-off instrument browse / trust copy / settings that do not start a full session  
+- Session history
+- Replay of existing recordings
+- MARK navigation on saved sessions
+- Export/share of existing recordings
+- Powered-off instrument browse / trust copy / settings that do not start a full session
 
 ## 5.3 After free session
 
 User may still:
 
-- Replay free-session recording  
-- Inspect MARKs  
-- Export/share  
+- Replay free-session recording
+- Inspect MARKs
+- Export/share
 
 Matches canonical §12.6 / §15.2 and ASO playbook free-trial completion explanation.
 
@@ -314,7 +311,7 @@ Matches canonical §12.6 / §15.2 and ASO playbook free-trial completion explana
 
 **OUR IMPLEMENTATION DECISION:**
 
-- 24-hour window starts at the **verified StoreKit transaction `purchaseDate`** for that Tonight purchase.  
+- 24-hour window starts at the **verified StoreKit transaction `purchaseDate`** for that Tonight purchase.
 - Duration = **exactly 24 hours** = `purchaseDate + 24 * 60 * 60` seconds (absolute), not calendar “tonight” or local midnight.
 
 **VERIFIED PLATFORM FACT:** Apple requires the app to calculate non-renewing active periods; Apple does not auto-expire non-renewing products the way auto-renewable subscriptions expose `expiresDate`.
@@ -347,7 +344,7 @@ Prefer absolute `Date` math over wall-clock “days” to reduce DST/timezone su
 
 ## 6.4 Commercially acceptable client-side abuse
 
-Acceptable for V1: clock rollback, Keychain wipe + reinstall trial reset, shared Apple ID edge cases.  
+Acceptable for V1: clock rollback, Keychain wipe + reinstall trial reset, shared Apple ID edge cases.
 Unacceptable: false purchase success, locking owned recordings, requiring network for already-verified entitled use.
 
 Do **not** build a backend merely to solve clock fraud.
@@ -358,16 +355,16 @@ Do **not** build a backend merely to solve clock fraud.
 
 ## 7.1 Purchase → access
 
-1. User completes StoreKit purchase for `spiritbox.lifetime`.  
-2. App accepts only `VerificationResult.verified`.  
-3. Persist local `lifetimeOwned = true`.  
-4. `transaction.finish()` after durable grant.  
+1. User completes StoreKit purchase for `spiritbox.lifetime`.
+2. App accepts only `VerificationResult.verified`.
+3. Persist local `lifetimeOwned = true`.
+4. `transaction.finish()` after durable grant.
 5. Entitlement state → `LIFETIME`.
 
 ## 7.2 Persistence / reinstall / restore
 
-- Survives reinstall via Apple purchase history + StoreKit entitlements (**VERIFIED PLATFORM FACT** for non-consumables).  
-- Restore button reconciles Lifetime (primary restore promise in UI helper copy).  
+- Survives reinstall via Apple purchase history + StoreKit entitlements (**VERIFIED PLATFORM FACT** for non-consumables).
+- Restore button reconciles Lifetime (primary restore promise in UI helper copy).
 - Offline after verified ownership: allowed via cached verified flag (§10).
 
 ## 7.3 Refund / revocation
@@ -382,7 +379,7 @@ Do **not** build a backend merely to solve clock fraud.
 
 **OUR IMPLEMENTATION DECISION (recommended default):**
 
-- Lifetime (`spiritbox.lifetime`): **Enable Family Sharing** at App Store Connect setup (goodwill; matches one-time unlock). Confirm product-owner OK before flipping (irreversible).  
+- Lifetime (`spiritbox.lifetime`): **Enable Family Sharing** at App Store Connect setup (goodwill; matches one-time unlock). Confirm product-owner OK before flipping (irreversible).
 - Tonight Pass: **N/A** (not eligible).
 
 Open question listed in §24 only if product owner wants Family Sharing off.
@@ -435,11 +432,11 @@ No manipulative purchase UX (no fake timers, fake discounts, preselected dark pa
 
 **OUR IMPLEMENTATION DECISION (StoreKit 2):**
 
-1. Set `isRestoring`.  
-2. Call StoreKit 2 account sync (`AppStore.sync()` or current documented equivalent).  
-3. Re-read `Transaction.currentEntitlements`.  
-4. Recompute Lifetime + Tonight expiry.  
-5. Update local caches.  
+1. Set `isRestoring`.
+2. Call StoreKit 2 account sync (`AppStore.sync()` or current documented equivalent).
+3. Re-read `Transaction.currentEntitlements`.
+4. Recompute Lifetime + Tonight expiry.
+5. Update local caches.
 6. Clear `isRestoring` and show result messaging.
 
 **VERIFIED PLATFORM FACT:** Apple requires a restore mechanism for customers; do **not** automatically restore on every launch in a way that interrupts with credential prompts. Launch may **silently** read `currentEntitlements` without a full credentialed sync.
@@ -464,7 +461,7 @@ No manipulative purchase UX (no fake timers, fake discounts, preselected dark pa
 | Nothing to restore | “No purchases found for this Apple ID.” |
 | Failure | “Couldn’t restore right now. Check connection and try again.” |
 
-Paywall helper (ASO): **Already unlocked Lifetime? Restore your purchase.**  
+Paywall helper (ASO): **Already unlocked Lifetime? Restore your purchase.**
 Do not imply Tonight renews.
 
 ---
@@ -486,7 +483,7 @@ Core instrument is offline-first. Purchases may need network; entitled use must 
 
 ## 10.2 Cache trust policy
 
-Write paid cache **only** after verified transaction grant/reconcile.  
+Write paid cache **only** after verified transaction grant/reconcile.
 Include: product id, transaction id, `purchaseDate`, derived `expiresAt` (Tonight), `lastVerifiedAt`.
 
 Do **not** require permanent network for normal entitled use.
@@ -497,7 +494,7 @@ Do **not** require permanent network for normal entitled use.
 
 **Absolute rule (canonical §12.6):**
 
-> Entitlement expiration must not lock existing recordings.  
+> Entitlement expiration must not lock existing recordings.
 > Paid access controls ability to start **new** full sessions, not ownership of already-created local recordings.
 
 | State | New full session | Replay / MARK nav / export |
@@ -517,18 +514,18 @@ Use locked conversion copy from `docs/launch/APP-STORE-CONVERSION-AND-ASO-PLAYBO
 
 ### Structure
 
-- **Headline:** `USE IT TONIGHT. OWN IT FOREVER.`  
-- **Explanation:** `Your free session is saved.` + supporting sentence (real sweep/REC/MARK/replay; no ads; nothing renews automatically).  
-- **Tonight first**, Lifetime second with stronger visual hierarchy (amber outline / `ONE-TIME` badge OK).  
-- **Tonight:** `TONIGHT PASS` / `24 HOURS — DOES NOT RENEW` / CTA `USE IT TONIGHT`  
-- **Lifetime:** `LIFETIME` / `ONE-TIME PURCHASE` / CTA `OWN IT FOREVER`  
-- **Restore Purchases** visible  
+- **Headline:** `USE IT TONIGHT. OWN IT FOREVER.`
+- **Explanation:** `Your free session is saved.` + supporting sentence (real sweep/REC/MARK/replay; no ads; nothing renews automatically).
+- **Tonight first**, Lifetime second with stronger visual hierarchy (amber outline / `ONE-TIME` badge OK).
+- **Tonight:** `TONIGHT PASS` / `24 HOURS — DOES NOT RENEW` / CTA `USE IT TONIGHT`
+- **Lifetime:** `LIFETIME` / `ONE-TIME PURCHASE` / CTA `OWN IT FOREVER`
+- **Restore Purchases** visible
 
 ### Hard rules
 
-- Prices from StoreKit localization only  
-- No hardcoded `$1.99` / `$9.99` in production UI  
-- No 7-day tier, subscription, fake sale, fake discount, countdown, preselected dark pattern, fake BEST VALUE  
+- Prices from StoreKit localization only
+- No hardcoded `$1.99` / `$9.99` in production UI
+- No 7-day tier, subscription, fake sale, fake discount, countdown, preselected dark pattern, fake BEST VALUE
 
 ---
 
@@ -556,16 +553,16 @@ Suggested single façade optional: `CommerceController` coordinating the four �
 
 Profitability is the objective. Track the **smallest** set that answers:
 
-1. Do installers start the free session?  
-2. Do they complete it?  
-3. Do they use REC?  
-4. Do they use MARK?  
-5. Do they open replay?  
-6. Do they see the paywall?  
-7. Do they buy Tonight?  
-8. Do they buy Lifetime?  
-9. What is payer conversion?  
-10. Are recording/save failures hurting users?  
+1. Do installers start the free session?
+2. Do they complete it?
+3. Do they use REC?
+4. Do they use MARK?
+5. Do they open replay?
+6. Do they see the paywall?
+7. Do they buy Tonight?
+8. Do they buy Lifetime?
+9. What is payer conversion?
+10. Are recording/save failures hurting users?
 11. Are purchasers returning for repeat sessions?
 
 Do not collect “might be useful someday” data.
@@ -616,7 +613,7 @@ Do not duplicate Apple sales dashboards inside the app.
 | --- | --- | --- |
 | `app_first_open` | First launch after install | — |
 | `free_session_started` | Free session STARTED | — |
-| `free_session_completed` | Free session CONSUMED via full 180s path | `completion`: `full` \| `early_stop` |
+| `free_session_completed` | Free session reaches 180 seconds and is CONSUMED | — |
 | `recording_started` | User successfully starts REC | `session_type`: `free` \| `paid` |
 | `recording_save_failed` | Finalize/save fails | `category`: coarse enum (`disk`, `permission`, `codec`, `unknown`) |
 | `mark_used` | MARK tapped successfully | — |
@@ -630,11 +627,11 @@ Do not duplicate Apple sales dashboards inside the app.
 
 ### Do not collect
 
-- Microphone audio / transcripts / spoken questions  
-- MARK audio content  
-- Paranormal interpretations / “what they heard”  
-- Exact location, contacts, IDFA, fingerprinting  
-- Per-fragment audio IDs as surveillance  
+- Microphone audio / transcripts / spoken questions
+- MARK audio content
+- Paranormal interpretations / “what they heard”
+- Exact location, contacts, IDFA, fingerprinting
+- Per-fragment audio IDs as surveillance
 
 ---
 
@@ -679,8 +676,8 @@ StoreKit 2 (commerce)
 + One privacy-friendly product analytics provider (default recommendation: TelemetryDeck)
 ```
 
-**No RevenueCat.**  
-**No second product-analytics SDK.**  
+**No RevenueCat.**
+**No second product-analytics SDK.**
 **No advertising attribution SDK.**
 
 If TelemetryDeck is unavailable or unacceptable at implementation time, substitute **one** equivalent privacy-first provider with the same constraints (no IDFA, offline non-blocking, minimal events). Do not silently expand scope to Firebase Analytics + ATT.
@@ -695,10 +692,10 @@ Tiny app-facing API:
 Analytics.track(_ event: AnalyticsEvent)
 ```
 
-- Central enum/struct for the §16 taxonomy  
-- Single implementation module talks to the provider  
-- Debug/test sink records events in-memory without network  
-- Kill-switch / no-op mode if provider misconfigured  
+- Central enum/struct for the §16 taxonomy
+- Single implementation module talks to the provider
+- Debug/test sink records events in-memory without network
+- Kill-switch / no-op mode if provider misconfigured
 
 Benefits: swap/disable provider, privacy audit in one file, test without network, keep instrument code free of SDK calls.
 
@@ -711,7 +708,7 @@ Do not duplicate `docs/engineering/QA_AND_FIELD_TEST_PLAN.md`. Extend it with th
 | QA IDs | Spec detail to implement/verify |
 | --- | --- |
 | E-01…E-03 | Full free session; no premature paywall; second START gated |
-| E-04 | Apply §4 60s fairness rule |
+| E-04 | Apply §4 full-180s consumption and interruption fairness rule |
 | E-10…E-17 | Non-renewing purchase; 24h from `purchaseDate`; no auto-renew; expiry locks START only; restart persistence; restore best-effort; timezone absolute math; no Lifetime bleed |
 | E-20…E-22 | Non-consumable Lifetime; restore; reinstall |
 | E-30…E-32 | Recordings remain accessible |
@@ -720,16 +717,16 @@ Do not duplicate `docs/engineering/QA_AND_FIELD_TEST_PLAN.md`. Extend it with th
 
 ### Additional automation targets (`UNIT`)
 
-- Tonight expiry math (`purchaseDate + 24h`)  
-- Entitlement precedence  
-- Trial STARTED/CONSUMED transitions  
-- `canStartFullSession` matrix  
+- Tonight expiry math (`purchaseDate + 24h`)
+- Entitlement precedence
+- Trial STARTED/CONSUMED transitions
+- `canStartFullSession` matrix
 
 ### Sandbox / TestFlight
 
-- StoreKit Configuration file for local  
-- Sandbox Apple ID for device  
-- Ask to Buy / pending if available  
+- StoreKit Configuration file for local
+- Sandbox Apple ID for device
+- Ask to Buy / pending if available
 - Refund simulation where tooling allows; else manual revocation reconcile test
 
 ---
@@ -738,26 +735,26 @@ Do not duplicate `docs/engineering/QA_AND_FIELD_TEST_PLAN.md`. Extend it with th
 
 ## 21.1 Local StoreKit Configuration (development)
 
-- [ ] `.storekit` file in app project (future engineering PR)  
-- [ ] Products: `spiritbox.tonight.24h` (Non-Renewing Subscription), `spiritbox.lifetime` (Non-Consumable)  
-- [ ] Local prices matching launch hypotheses for US storefront testing  
-- [ ] Clear/renew purchase helpers for iterative QA  
-- [ ] Never ship production relying only on local config  
+- [ ] `.storekit` file in app project (future engineering PR)
+- [ ] Products: `spiritbox.tonight.24h` (Non-Renewing Subscription), `spiritbox.lifetime` (Non-Consumable)
+- [ ] Local prices matching launch hypotheses for US storefront testing
+- [ ] Clear/renew purchase helpers for iterative QA
+- [ ] Never ship production relying only on local config
 
 ## 21.2 Real App Store Connect products
 
-- [ ] Create Non-Renewing Subscription: Tonight Pass  
-- [ ] Create Non-Consumable: Lifetime  
-- [ ] Product IDs match app constants (or constants updated before submit)  
-- [ ] Display name / localized description (honest duration / one-time language)  
-- [ ] Price tiers for launch hypotheses  
-- [ ] Availability / storefronts  
-- [ ] Review screenshot / review notes if ASC requires for IAP  
-- [ ] Tax category as required by ASC at setup time (do not invent; follow current ASC prompts)  
-- [ ] Family Sharing decision for Lifetime (§7.4) — irreversible if enabled  
-- [ ] Sandbox testers  
-- [ ] TestFlight commerce verification  
-- [ ] Production smoke: purchase, restore, offline entitled launch, recording access after expiry  
+- [ ] Create Non-Renewing Subscription: Tonight Pass
+- [ ] Create Non-Consumable: Lifetime
+- [ ] Product IDs match app constants (or constants updated before submit)
+- [ ] Display name / localized description (honest duration / one-time language)
+- [ ] Price tiers for launch hypotheses
+- [ ] Availability / storefronts
+- [ ] Review screenshot / review notes if ASC requires for IAP
+- [ ] Tax category as required by ASC at setup time (do not invent; follow current ASC prompts)
+- [ ] Family Sharing decision for Lifetime (§7.4) — irreversible if enabled
+- [ ] Sandbox testers
+- [ ] TestFlight commerce verification
+- [ ] Production smoke: purchase, restore, offline entitled launch, recording access after expiry
 
 Separate **local config products** from **ASC products** in checklists and engineering notes.
 
@@ -794,8 +791,8 @@ After audio/scaffold work is merged and commerce is authorized:
 | **PR B — Trial gate + paywall** | `TrialStore` (Keychain), START gating, paywall UI/copy, restore button, recording-access guarantees | PR A | Product behavior reviewable alone |
 | **PR C — Minimal analytics** | `Analytics` façade + TelemetryDeck (or chosen provider) + §16 events only | PR B (so funnel events exist) | Privacy/disclosure review isolated |
 
-**Not recommended:** one giant commerce+analytics PR.  
-**Not recommended:** analytics before gating (useless/noisy).  
+**Not recommended:** one giant commerce+analytics PR.
+**Not recommended:** analytics before gating (useless/noisy).
 **Optional merge of A+B** only if staffing forces speed — still keep analytics separate for privacy review.
 
 ---
@@ -812,24 +809,24 @@ Only items that still need product-owner input or cannot be fully closed from ca
 
 ### Explicitly not open
 
-- Pricing ($1.99 / $9.99 hypotheses)  
-- Presence of Tonight + Lifetime  
-- No 7-day / no auto-renewing subscription / no ads  
-- No account / no backend for V1  
-- Paywall after real free session, not before  
-- Recordings remain accessible after expiry  
-- RevenueCat for V1 (**No**)  
-- Tonight product type (**Non-Renewing Subscription**)  
-- Lifetime product type (**Non-Consumable**)  
-- Free-session fairness rule (§4)
+- Pricing ($1.99 / $9.99 hypotheses)
+- Presence of Tonight + Lifetime
+- No 7-day / no auto-renewing subscription / no ads
+- No account / no backend for V1
+- Paywall after real free session, not before
+- Recordings remain accessible after expiry
+- RevenueCat for V1 (**No**)
+- Tonight product type (**Non-Renewing Subscription**)
+- Lifetime product type (**Non-Consumable**)
+- Free-session consumption rule (§4: only after the full 180 seconds)
 
 ---
 
 ## Platform constraints that materially affect implementation (not product intent)
 
-1. **Non-renewing expiry is app-calculated** — Apple will not enforce our 24h window for us.  
-2. **Non-renewing cross-device restore is app-responsible** — without a server/account, V1 is best-effort via StoreKit on the user’s Apple ID + local cache.  
-3. **Family Sharing is not available for Tonight Pass** — only Lifetime (non-consumable) is eligible.  
+1. **Non-renewing expiry is app-calculated** — Apple will not enforce our 24h window for us.
+2. **Non-renewing cross-device restore is app-responsible** — without a server/account, V1 is best-effort via StoreKit on the user’s Apple ID + local cache.
+3. **Family Sharing is not available for Tonight Pass** — only Lifetime (non-consumable) is eligible.
 4. **“Private by design” is conditional** — third-party analytics require honest privacy copy and Nutrition Labels even when recordings remain local.
 
 These constraints do **not** change canonical pricing or the START → LISTEN → MARK → REPLAY loop; they constrain how entitlement persistence is engineered.
@@ -838,29 +835,29 @@ These constraints do **not** change canonical pricing or the START → LISTEN �
 
 ## Verification checklist (docs PR)
 
-- [x] Canonical product SoT not modified by this task  
-- [x] No Swift / Xcode / app code changes in this task  
-- [x] No SDK/dependency added in this task  
-- [x] No 7-day tier  
-- [x] No auto-renewing subscription  
-- [x] Recordings remain accessible after entitlement expiry  
-- [x] No paywall before first real free session  
-- [x] Platform claims cited from current Apple docs  
-- [x] Product types explicit  
-- [x] RevenueCat decision explicit: **NO for V1**  
-- [x] Analytics stack explicit  
-- [x] Analytics cannot block core offline use  
-- [x] Minimal user-data collection  
+- [x] Canonical product SoT not modified by this task
+- [x] No Swift / Xcode / app code changes in this task
+- [x] No SDK/dependency added in this task
+- [x] No 7-day tier
+- [x] No auto-renewing subscription
+- [x] Recordings remain accessible after entitlement expiry
+- [x] No paywall before first real free session
+- [x] Platform claims cited from current Apple docs
+- [x] Product types explicit
+- [x] RevenueCat decision explicit: **NO for V1**
+- [x] Analytics stack explicit
+- [x] Analytics cannot block core offline use
+- [x] Minimal user-data collection
 
 ---
 
 ## References (authoritative / verification)
 
-1. `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` — product, pricing, privacy, analytics goals, technical direction  
-2. `docs/launch/APP-STORE-CONVERSION-AND-ASO-PLAYBOOK.md` §10 — paywall copy  
-3. `docs/engineering/QA_AND_FIELD_TEST_PLAN.md` §8–9 — entitlement/offline QA IDs  
-4. Apple App Store Connect Help — [In-App Purchase types](https://developer.apple.com/help/app-store-connect/reference/in-app-purchases-and-subscriptions/in-app-purchase-types/)  
-5. Apple StoreKit — [Transaction.currentEntitlements](https://developer.apple.com/documentation/storekit/transaction/currententitlements)  
-6. Apple StoreKit — [Handling Subscriptions Billing](https://developer.apple.com/documentation/storekit/handling-subscriptions-billing) (non-renewing app responsibilities)  
-7. Apple StoreKit — [Restoring purchased products](https://developer.apple.com/documentation/storekit/restoring-purchased-products)  
-8. Apple App Store Connect Help — [Family Sharing for IAPs](https://developer.apple.com/help/app-store-connect/configure-in-app-purchase-settings/turn-on-family-sharing-for-in-app-purchases)  
+1. `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` — product, pricing, privacy, analytics goals, technical direction
+2. `docs/launch/APP-STORE-CONVERSION-AND-ASO-PLAYBOOK.md` §10 — paywall copy
+3. `docs/engineering/QA_AND_FIELD_TEST_PLAN.md` §8–9 — entitlement/offline QA IDs
+4. Apple App Store Connect Help — [In-App Purchase types](https://developer.apple.com/help/app-store-connect/reference/in-app-purchases-and-subscriptions/in-app-purchase-types/)
+5. Apple StoreKit — [Transaction.currentEntitlements](https://developer.apple.com/documentation/storekit/transaction/currententitlements)
+6. Apple StoreKit — [Handling Subscriptions Billing](https://developer.apple.com/documentation/storekit/handling-subscriptions-billing) (non-renewing app responsibilities)
+7. Apple StoreKit — [Restoring purchased products](https://developer.apple.com/documentation/storekit/restoring-purchased-products)
+8. Apple App Store Connect Help — [Family Sharing for IAPs](https://developer.apple.com/help/app-store-connect/configure-in-app-purchase-settings/turn-on-family-sharing-for-in-app-purchases)
