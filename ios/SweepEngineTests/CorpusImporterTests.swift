@@ -68,12 +68,12 @@ final class CorpusImporterTests: XCTestCase {
         let source = scratch.appendingPathComponent("new", isDirectory: true)
         try FileManager.default.createDirectory(at: source, withIntermediateDirectories: true)
         try writeManifest(at: source.appendingPathComponent("manifest.json"), id: "NEW")
-        try Data([0xBB]).write(to: source.appendingPathComponent("new.wav"))
+        try Data([0xBB]).write(to: source.appendingPathComponent("NEW.wav"))
 
         _ = try CorpusImporter.importItems(urls: [source], into: destination)
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: destination.appendingPathComponent("old.wav").path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: destination.appendingPathComponent("new.wav").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: destination.appendingPathComponent("NEW.wav").path))
         let loaded = try String(contentsOf: destination.appendingPathComponent("manifest.json"), encoding: .utf8)
         XCTAssertTrue(loaded.contains("NEW"))
         XCTAssertFalse(loaded.contains("\"OLD\""))

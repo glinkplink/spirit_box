@@ -102,6 +102,10 @@ final class CorpusModelTests: XCTestCase {
             id: "PHASE1_A",
             kind: "phase1"
         )
+        FileManager.default.createFile(
+            atPath: documents.appendingPathComponent("PHASE1_A.wav").path,
+            contents: Data([0x01])
+        )
 
         let loaded = try CorpusLoader.load(
             fileManager: .default,
