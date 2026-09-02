@@ -117,18 +117,16 @@ final class EngineOutputCaptureTests: XCTestCase {
         XCTAssertLessThanOrEqual(abs(file.length - 12_000), 2)
     }
 
-    func testMismatchedBufferFailsWithoutCrashing() throws {
-        let writerFormat = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
-        let otherFormat = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 44_100, channels: 1))
-        let captureURL = scratchDirectory.appendingPathComponent("writer-mismatch.wav")
+    func testStartFailsGracefullyWhenOutputDirectoryCannotBeCreated() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let blocker = scratchDirectory.appendingPathComponent("not-a-directory")
+        try Data("x".utf8).write(to: blocker)
+        let badURL = blocker.appendingPathComponent("out.wav")
         let writer = EngineOutputCaptureWriter()
-        try writer.start(url: captureURL, format: writerFormat, durationSeconds: 1)
 
-        let mismatched = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: otherFormat, frameCapacity: 1_024))
-        mismatched.frameLength = 1_024
-
-        XCTAssertThrowsError(try writer.write(mismatched))
-        _ = writer.stop()
+        XCTAssertThrowsError(try writer.start(url: badURL, format: format, durationSeconds: 1))
+        XCTAssertFalse(writer.isWriting)
+        XCTAssertNil(writer.url)
     }
 
     func testStartingCaptureWhileSweepStoppedThrowsWithoutCrashing() {
