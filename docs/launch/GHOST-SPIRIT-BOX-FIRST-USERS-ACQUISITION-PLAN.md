@@ -69,7 +69,7 @@ Sources: [r/GhostHunting](https://www.reddit.com/r/GhostHunting/), [r/Paranormal
 
 **VERIFIED FACT:** The market contains both established paid apps and high-rating free/freemium tools, including Necrophonic, GhostTube VOX, Ghost Hunting Tools, Spirit Talker, Ghost Radar, and multiple recent “spirit box / EVP” entrants.  
 **INFERENCE:** App Store search likely matters because exact equipment terms are repeatedly used in titles/subtitles, but that is **not** proof of meaningful search volume or rankability.  
-**UNKNOWN:** Whether the proposed 24-hour / 7-day / lifetime price architecture converts better than a simple lifetime purchase. Beta users receiving free access cannot validate that.
+**UNKNOWN:** Whether the canonical launch architecture — free download, one complete 3-minute trial session, **$1.99 Tonight Pass (24 hours, non-renewing)**, and **$9.99 Lifetime** — converts better than a simple lifetime-only purchase. A previously considered **$4.99 / 7-day** tier was removed from V1; beta users receiving free access cannot validate any paywall conversion.
 
 ---
 
@@ -494,7 +494,7 @@ Do **not** build an in-app feedback system yet. Do not create a giant research p
 7. **Haptics:** useful / distracting / unnoticed. Which events should trigger haptics, if any?
 8. **Would you use this during an actual investigation?** If no, what is the **single biggest blocker**?
 9. **What app or physical device would you use instead, and why?**
-10. **Ignoring any tester free access, which launch option best matches what you would personally consider?** Wouldn’t pay / $1.99 day / $4.99 week / $9.99 lifetime / other. *This is stated preference, not conversion proof.*
+10. **Ignoring any tester free access, which launch option best matches what you would personally consider?** Wouldn’t pay / $1.99 Tonight Pass (24 hours) / $9.99 Lifetime / other. *This is stated preference, not conversion proof.*
 
 ### One forced ranking after question 10
 
@@ -581,7 +581,7 @@ Many current apps use the same exact generic phrases. That proves semantic deman
 
 ## 9. The rental-style pricing could create distrust
 
-$1.99 for 24 hours and $4.99 for 7 days may map nicely to one-night investigations or Halloween use, but serious hobbyists may read time-limited access as arbitrary friction next to $9.99 lifetime competitors.
+The canonical **$1.99 Tonight Pass (24 hours, non-renewing)** may map nicely to one-night investigations or Halloween use, but serious hobbyists may still read any time-limited access as arbitrary friction next to **$9.99 Lifetime** competitors. A previously considered **$4.99 / 7-day** tier was removed from V1 for this reason.
 
 **Cheapest test:** show the same working product with two paywall treatments to existing app users after they have completed a session; ask what they would choose and why. Do not build complicated billing logic until the reaction is known.
 
