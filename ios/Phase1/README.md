@@ -10,4 +10,4 @@ PYTHONPATH=. python3 tools/prepare_corpus.py recordings/me_test.m4a \
 cp -a build/corpus/me_test/SpiritBoxPhase1Corpus/. ios/Phase1/
 ```
 
-Loader order: `Documents/SpiritBoxPhase1Corpus` → this folder → `DevFixtures`.
+Loader order: `Documents/SpiritBoxPhase1Corpus` (if manifest + at least one WAV present) → this folder → `DevFixtures`.

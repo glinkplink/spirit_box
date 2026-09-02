@@ -102,6 +102,10 @@ final class CorpusModelTests: XCTestCase {
             id: "PHASE1_A",
             kind: "phase1"
         )
+        FileManager.default.createFile(
+            atPath: documents.appendingPathComponent("PHASE1_A.wav").path,
+            contents: Data([0x01])
+        )
 
         let loaded = try CorpusLoader.load(
             fileManager: .default,
@@ -209,6 +213,31 @@ final class CorpusModelTests: XCTestCase {
         }
     }
 
+    func testManifestOnlyDocumentsFallsThroughToBundle() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let corpus = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: true)
+        try FileManager.default.createDirectory(at: corpus, withIntermediateDirectories: true)
+        try writeManifest(
+            at: corpus.appendingPathComponent(CorpusLoader.manifestFileName),
+            id: "DOCS_BROKEN",
+            kind: "phase1"
+        )
+
+        let loaded = try CorpusLoader.load(
+            fileManager: .default,
+            bundle: .main,
+            documentsDirectory: corpus
+        )
+
+        XCTAssertNotEqual(loaded.source, .documentsPhase1)
+        XCTAssertTrue(
+            loaded.source == .bundleDevFixtures || loaded.source == .bundlePhase1,
+            "manifest without WAV files must not block bundled corpus; got \(loaded.source)"
+        )
+        XCTAssertGreaterThan(loaded.assetCount, 0)
+    }
+
     func testDocumentsCorpusTakesPrecedenceOverBundleAfterManifestIsCopied() throws {
         let temp = try makeTempRoot()
         defer { try? FileManager.default.removeItem(at: temp) }
@@ -218,6 +247,10 @@ final class CorpusModelTests: XCTestCase {
             at: corpus.appendingPathComponent(CorpusLoader.manifestFileName),
             id: "DOCS_WINS",
             kind: "phase1"
+        )
+        FileManager.default.createFile(
+            atPath: corpus.appendingPathComponent("DOCS_WINS.wav").path,
+            contents: Data([0x01])
         )
 
         let loaded = try CorpusLoader.load(

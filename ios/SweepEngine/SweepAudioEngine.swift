@@ -201,7 +201,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         engine.attach(fragmentPlayer)
         engine.connect(noise, to: engine.mainMixerNode, format: format)
         engine.connect(fragmentPlayer, to: engine.mainMixerNode, format: format)
-        fragmentPlayer.volume = 0.62
+        fragmentPlayer.volume = 0.88
         engine.mainMixerNode.outputVolume = 0.82
     }
 
