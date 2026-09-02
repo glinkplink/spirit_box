@@ -1,0 +1,4 @@
+{
+  "name": "Spirit Box docs",
+  "install": "node scripts/check-docs.mjs"
+}
