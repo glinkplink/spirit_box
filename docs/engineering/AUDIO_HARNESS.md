@@ -138,12 +138,13 @@ This procedure has **not** been physically verified on a TestFlight iPhone in th
 1. Install the private harness through TestFlight.
 2. Open the app once so it can create `Documents/SpiritBoxPhase1Corpus/` if missing. Directory creation failure is reported as a harness diagnostic; it does not crash.
 3. Open **Files** on the iPhone.
-4. Locate the harness under **On My iPhone**. Files should show the app **display name** (`Audio Harness` in the current Info.plist). Do not rely on an internal container UUID path.
-5. Place the complete `SpiritBoxPhase1Corpus` folder contents into that folder (`manifest.json` + WAV files).
-6. Confirm `manifest.json` and the WAV files are present.
-7. Return to the harness.
-8. Tap **Reload corpus**.
-9. Confirm **Source** is `Documents/SpiritBoxPhase1Corpus` and the expected asset count appears.
+4. Under **On My iPhone**, open the harness app. Files should show the app **display name** (`Audio Harness` in the current Info.plist). Do not rely on an internal container UUID path.
+5. Open the `SpiritBoxPhase1Corpus` subfolder (not the app Documents root).
+6. Copy `manifest.json` and the WAV files **into** `SpiritBoxPhase1Corpus`. Do not leave them only under `On My iPhone → Audio Harness`.
+7. Confirm `SpiritBoxPhase1Corpus/manifest.json` and the WAV files are present.
+8. Return to the harness.
+9. Tap **Reload corpus**.
+10. Confirm **Source** is `Documents/SpiritBoxPhase1Corpus` and the expected asset count appears.
 
 Loader precedence is unchanged: Documents Phase 1 → bundled Phase1 → bundled DevFixtures → empty.
 

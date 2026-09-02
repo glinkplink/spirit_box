@@ -199,7 +199,11 @@ final class CorpusModelTests: XCTestCase {
             documentsDirectory: corpus
         )
 
-        XCTAssertNotEqual(loaded.source, .documentsPhase1)
+        XCTAssertTrue(
+            loaded.source == .bundleDevFixtures || loaded.source == .bundlePhase1,
+            "empty Documents folder must fall through to a bundled corpus, not stop as documents/empty; got \(loaded.source)"
+        )
+        XCTAssertGreaterThan(loaded.assetCount, 0)
         if loaded.source == .bundleDevFixtures {
             XCTAssertTrue(loaded.isDevFixture)
         }
@@ -243,6 +247,18 @@ final class CorpusModelTests: XCTestCase {
         XCTAssertTrue(status.diagnostic?.contains(CorpusLoader.documentsDirectoryName) == true)
         let leftover = try String(contentsOf: blocker, encoding: .utf8)
         XCTAssertEqual(leftover, "not-a-folder")
+
+        let loaded = CorpusLoader.load(
+            fileManager: .default,
+            bundle: .main,
+            documentsDirectory: blocker
+        )
+        XCTAssertNotEqual(loaded.source, .documentsPhase1)
+        XCTAssertTrue(
+            loaded.source == .bundleDevFixtures || loaded.source == .bundlePhase1,
+            "a file at the Documents corpus path must not claim Documents Phase 1; got \(loaded.source)"
+        )
+        XCTAssertGreaterThan(loaded.assetCount, 0)
     }
 
     func testFilesAppInstructionUsesDisplayNameNotContainerPath() {
