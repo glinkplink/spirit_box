@@ -78,6 +78,15 @@ private-corpus/
 recordings/
 build/corpus/
 
+# Local acoustic reference material — never commit or ship
+reference_audio/
+
+# Local Kokoro / Hugging Face caches (never commit model weights)
+.venv-kokoro/
+.cache/
+**/kokoro-v1*.pth
+**/voices/*.pt
+
 # IDE / editor
 .idea/
 *.swp
