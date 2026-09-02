@@ -69,9 +69,18 @@ secrets/
 credentials.json
 AuthKey_*.p8
 
+# Private corpus production workspace (keep outside public repo)
+private-corpus/
+**/signed-releases/
+**/raw-masters-private/
+
 # IDE / editor
 .idea/
 *.swp
 *~
 .vscode/
 *.xcdebugger
+
+# Python
+__pycache__/
+*.pyc

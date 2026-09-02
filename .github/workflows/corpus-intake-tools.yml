@@ -1,0 +1,28 @@
+name: Corpus intake tools
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/corpus_intake/**'
+      - '.github/workflows/corpus-intake-tools.yml'
+      - 'docs/engineering/CORPUS_INTAKE_QA.md'
+  push:
+    branches: [main, tools/corpus-intake-qa]
+    paths:
+      - 'tools/corpus_intake/**'
+      - '.github/workflows/corpus-intake-tools.yml'
+      - 'docs/engineering/CORPUS_INTAKE_QA.md'
+
+jobs:
+  validate-tooling:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Python syntax check
+        run: python3 -m compileall tools/corpus_intake
+
+      - name: Run corpus intake unit tests
+        run: PYTHONPATH=. python3 -m unittest discover -s tools/corpus_intake/tests -v
