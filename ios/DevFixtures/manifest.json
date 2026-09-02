@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "label": "DEV fixtures — TEST ONLY. Synthetic non-speech tones. Cannot pass the canonical audio gate.",
+  "kind": "dev_fixture",
+  "assets": [
+    {
+      "asset_id": "DEV_TEST_ONLY_P01_NOISE_001",
+      "performer_id": "DEV_P01",
+      "voice_family": "low_dry",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_a",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P01_NOISE_001.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P01_NOISE_002",
+      "performer_id": "DEV_P01",
+      "voice_family": "low_dry",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_b",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P01_NOISE_002.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P01_NOISE_003",
+      "performer_id": "DEV_P01",
+      "voice_family": "low_dry",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_c",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P01_NOISE_003.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P02_NOISE_001",
+      "performer_id": "DEV_P02",
+      "voice_family": "mid_neutral",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_a",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P02_NOISE_001.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P02_NOISE_002",
+      "performer_id": "DEV_P02",
+      "voice_family": "mid_neutral",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_b",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P02_NOISE_002.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P02_NOISE_003",
+      "performer_id": "DEV_P02",
+      "voice_family": "mid_neutral",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_c",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P02_NOISE_003.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P03_NOISE_001",
+      "performer_id": "DEV_P03",
+      "voice_family": "high_light",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_a",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P03_NOISE_001.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P03_NOISE_002",
+      "performer_id": "DEV_P03",
+      "voice_family": "high_light",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_b",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P03_NOISE_002.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P03_NOISE_003",
+      "performer_id": "DEV_P03",
+      "voice_family": "high_light",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_c",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P03_NOISE_003.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P04_NOISE_001",
+      "performer_id": "DEV_P04",
+      "voice_family": "textured",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_a",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P04_NOISE_001.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P04_NOISE_002",
+      "performer_id": "DEV_P04",
+      "voice_family": "textured",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_b",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P04_NOISE_002.wav"
+    },
+    {
+      "asset_id": "DEV_TEST_ONLY_P04_NOISE_003",
+      "performer_id": "DEV_P04",
+      "voice_family": "textured",
+      "source_type": "dev_noise",
+      "phonetic_family": "band_c",
+      "duration_ms": 400,
+      "forward_allowed": true,
+      "reverse_allowed": true,
+      "relative_path": "DEV_TEST_ONLY_P04_NOISE_003.wav"
+    }
+  ]
+}
