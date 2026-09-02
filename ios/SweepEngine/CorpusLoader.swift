@@ -6,6 +6,14 @@ import Foundation
 /// 1. Documents/SpiritBoxPhase1Corpus/manifest.json  (drop-in Phase 1, no rebuild)
 /// 2. Bundle Phase1/manifest.json
 /// 3. Bundle DevFixtures/manifest.json  (DEV / TEST ONLY)
+public struct DocumentsCorpusFolderStatus: Equatable, Sendable {
+    public let url: URL
+    public let directoryExists: Bool
+    public let manifestExists: Bool
+    public let createdDirectory: Bool
+    public let diagnostic: String?
+}
+
 public enum CorpusLoader {
     public static let documentsDirectoryName = "SpiritBoxPhase1Corpus"
     public static let manifestFileName = "manifest.json"
@@ -16,6 +24,62 @@ public enum CorpusLoader {
         let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory
         return documents.appendingPathComponent(documentsDirectoryName, isDirectory: true)
+    }
+
+    /// Files-app copy target. Uses the app display name, not a container UUID path.
+    public static func filesAppCorpusInstruction(appDisplayName: String) -> String {
+        "Files → On My iPhone → \(appDisplayName) → \(documentsDirectoryName)"
+    }
+
+    /// Creates `Documents/SpiritBoxPhase1Corpus` if missing. Never deletes or overwrites files.
+    public static func ensureDocumentsCorpusDirectory(
+        fileManager: FileManager = .default,
+        at documentsCorpusURL: URL? = nil
+    ) -> DocumentsCorpusFolderStatus {
+        let url = documentsCorpusURL ?? self.documentsCorpusURL(fileManager: fileManager)
+        let manifestURL = url.appendingPathComponent(manifestFileName)
+
+        var isDirectory: ObjCBool = false
+        let exists = fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory)
+
+        if exists && isDirectory.boolValue {
+            return DocumentsCorpusFolderStatus(
+                url: url,
+                directoryExists: true,
+                manifestExists: fileManager.fileExists(atPath: manifestURL.path),
+                createdDirectory: false,
+                diagnostic: nil
+            )
+        }
+
+        if exists && !isDirectory.boolValue {
+            return DocumentsCorpusFolderStatus(
+                url: url,
+                directoryExists: false,
+                manifestExists: false,
+                createdDirectory: false,
+                diagnostic: "Could not create Documents/\(documentsDirectoryName): a file already exists at that name. Move it aside, then tap Reload corpus."
+            )
+        }
+
+        do {
+            try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
+            return DocumentsCorpusFolderStatus(
+                url: url,
+                directoryExists: true,
+                manifestExists: fileManager.fileExists(atPath: manifestURL.path),
+                createdDirectory: true,
+                diagnostic: nil
+            )
+        } catch {
+            return DocumentsCorpusFolderStatus(
+                url: url,
+                directoryExists: false,
+                manifestExists: false,
+                createdDirectory: false,
+                diagnostic: "Could not create Documents/\(documentsDirectoryName): \(error.localizedDescription)"
+            )
+        }
     }
 
     public static func load(

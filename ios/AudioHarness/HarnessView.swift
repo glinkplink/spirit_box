@@ -92,18 +92,23 @@ struct HarnessView: View {
 
     private var corpusSection: some View {
         Section("Corpus") {
+            LabeledContent("Source", value: model.corpusSourceDescription)
             LabeledContent("Asset count", value: "\(model.corpusCount)")
             LabeledContent("Skipped malformed", value: "\(model.skippedMalformedCount)")
-            LabeledContent("Source", value: model.corpusSourceDescription)
+            LabeledContent("Documents folder exists", value: model.documentsDirectoryExists ? "yes" : "no")
+            LabeledContent("manifest.json exists", value: model.documentsManifestExists ? "yes" : "no")
+            LabeledContent("Expected folder", value: model.expectedDocumentsFolderName)
             Text(model.corpusLabel)
             if model.isDevFixtureCorpus {
                 Text("DEV / TEST ONLY — synthetic fixtures, not Phase 1 human source")
                     .font(.footnote)
                     .foregroundStyle(.orange)
             }
-            Text("Drop Phase 1 here:\n\(model.documentsCorpusPath)")
-                .font(.system(.caption, design: .monospaced))
-                .textSelection(.enabled)
+            Text(model.filesAppInstruction)
+                .font(.footnote)
+            Text("Copy the complete Phase 1 folder contents there (manifest.json + WAV files), then tap Reload corpus. Files shows the app display name; it may differ from the internal target name.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
         }
     }
 

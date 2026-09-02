@@ -17,6 +17,10 @@ final class HarnessViewModel: ObservableObject {
     @Published var captureStatusText = "Idle — engine mix only, not microphone / session recording"
     @Published var lastMessage: String?
     @Published var documentsCorpusPath = ""
+    @Published var documentsDirectoryExists = false
+    @Published var documentsManifestExists = false
+    @Published var expectedDocumentsFolderName = CorpusLoader.documentsDirectoryName
+    @Published var filesAppInstruction = ""
     @Published var captureDirectoryPath = ""
 
     let audioGateStatus = AudioGateStatus.notYetRunWaitingForPhase1Corpus
@@ -44,10 +48,19 @@ final class HarnessViewModel: ObservableObject {
         captureDirectoryPath = EngineOutputCaptureLocator.directory(
             in: EngineOutputCaptureLocator.documentsDirectory()
         ).path
+        filesAppInstruction = CorpusLoader.filesAppCorpusInstruction(
+            appDisplayName: Self.resolvedAppDisplayName()
+        )
         reloadCorpus()
     }
 
     func reloadCorpus() {
+        let folder = CorpusLoader.ensureDocumentsCorpusDirectory()
+        documentsCorpusPath = folder.url.path
+        documentsDirectoryExists = folder.directoryExists
+        documentsManifestExists = folder.manifestExists
+        expectedDocumentsFolderName = CorpusLoader.documentsDirectoryName
+
         let loaded = CorpusLoader.load()
         engine.load(loaded)
         corpusCount = loaded.assetCount
@@ -55,9 +68,13 @@ final class HarnessViewModel: ObservableObject {
         corpusLabel = loaded.label
         isDevFixtureCorpus = loaded.isDevFixture
         corpusSourceDescription = Self.describe(loaded.source)
-        lastMessage = loaded.assetCount == 0
-            ? "Zero assets. START will run the noise bed only."
-            : nil
+        if let diagnostic = folder.diagnostic {
+            lastMessage = diagnostic
+        } else if loaded.assetCount == 0 {
+            lastMessage = "Zero assets. START will run the noise bed only."
+        } else {
+            lastMessage = nil
+        }
     }
 
     func start() {
@@ -141,5 +158,17 @@ final class HarnessViewModel: ObservableObject {
         case .empty:
             return "none"
         }
+    }
+
+    private static func resolvedAppDisplayName() -> String {
+        if let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String,
+           !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return name
+        }
+        if let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String,
+           !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return name
+        }
+        return "Audio Harness"
     }
 }
