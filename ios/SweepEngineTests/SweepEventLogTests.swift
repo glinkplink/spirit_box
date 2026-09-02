@@ -45,5 +45,13 @@ final class SweepEventLogTests: XCTestCase {
         XCTAssertFalse(url.path.contains("microphone"))
         XCTAssertEqual(EngineOutputCaptureLocator.defaultDurationSeconds, 120)
         XCTAssertGreaterThanOrEqual(EngineOutputCaptureLocator.manualEvaluationDurationSeconds, 1200)
+        let events = EngineOutputCaptureLocator.makeEventLogURL(forCaptureURL: url)
+        XCTAssertEqual(events.pathExtension, "jsonl")
+        XCTAssertTrue(events.lastPathComponent.contains("engine-output-capture-"))
+        XCTAssertFalse(events.lastPathComponent.contains("session"))
+    }
+
+    func testDefaultLogCapacityCoversATwentyMinuteFastSweep() {
+        XCTAssertGreaterThanOrEqual(SweepEventLog().capacity, 16_000)
     }
 }

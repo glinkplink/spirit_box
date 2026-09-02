@@ -26,6 +26,10 @@ public enum EngineOutputCaptureLocator {
             .appendingPathComponent("engine-output-capture-\(stamp).wav")
     }
 
+    public static func makeEventLogURL(forCaptureURL url: URL) -> URL {
+        url.deletingPathExtension().appendingPathExtension("events.jsonl")
+    }
+
     public static func documentsDirectory(fileManager: FileManager = .default) -> URL {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory

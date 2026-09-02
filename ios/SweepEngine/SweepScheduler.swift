@@ -80,10 +80,11 @@ public final class SweepScheduler: @unchecked Sendable {
 
         let passes: [[RelaxedConstraint]] = [
             [],
-            [.phoneticFamily],
-            [.phoneticFamily, .performerOrVoiceFamily],
-            [.phoneticFamily, .performerOrVoiceFamily, .recentWindow],
-            [.phoneticFamily, .performerOrVoiceFamily, .recentWindow, .consecutiveAsset],
+            [.highRecognitionRisk],
+            [.highRecognitionRisk, .phoneticFamily],
+            [.highRecognitionRisk, .phoneticFamily, .performerOrVoiceFamily],
+            [.highRecognitionRisk, .phoneticFamily, .performerOrVoiceFamily, .recentWindow],
+            [.highRecognitionRisk, .phoneticFamily, .performerOrVoiceFamily, .recentWindow, .consecutiveAsset],
         ]
 
         for relaxed in passes {
@@ -131,6 +132,14 @@ public final class SweepScheduler: @unchecked Sendable {
         relaxing: Set<RelaxedConstraint>
     ) -> Bool {
         let alternativesExist = bank.count > 1
+
+        if !relaxing.contains(.highRecognitionRisk),
+           asset.isHighRecognitionRisk {
+            let hasSafer = bank.contains { !$0.isHighRecognitionRisk }
+            if hasSafer {
+                return false
+            }
+        }
 
         if !relaxing.contains(.consecutiveAsset),
            alternativesExist,

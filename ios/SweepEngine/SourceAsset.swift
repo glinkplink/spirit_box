@@ -156,7 +156,19 @@ public struct SourceAsset: Identifiable, Hashable, Codable, Sendable, Equatable 
         if let left = a.voiceFamily?.nonEmpty, let right = b.voiceFamily?.nonEmpty, left == right {
             return true
         }
+        if a.voiceFamily?.nonEmpty == nil,
+           b.voiceFamily?.nonEmpty == nil,
+           a.performerID?.nonEmpty == nil,
+           b.performerID?.nonEmpty == nil,
+           let left = a.register?.nonEmpty,
+           let right = b.register?.nonEmpty {
+            return left == right
+        }
         return false
+    }
+
+    public var isHighRecognitionRisk: Bool {
+        recognitionRisk?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "high"
     }
 
     public static func sharesPhoneticOrSourceFamily(_ a: SourceAsset, _ b: SourceAsset) -> Bool {
@@ -216,7 +228,7 @@ public struct LoadedCorpus: Equatable, Sendable {
         skippedMalformedCount: 0,
         source: .empty,
         label: "No corpus loaded",
-        isDevFixture: true,
+        isDevFixture: false,
         rootURL: nil
     )
 }

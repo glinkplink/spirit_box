@@ -41,4 +41,35 @@ final class FragmentBufferFactoryTests: XCTestCase {
         )
         XCTAssertEqual(Int(cropped.frameLength), 3_600)
     }
+
+    func testCropLengthFollowsEachLockedSweepRate() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let frames: AVAudioFrameCount = 48_000
+        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames))
+        buffer.frameLength = frames
+        let asset = SourceAsset(assetID: "RATES", durationMs: 1000, relativePath: "rates.wav")
+
+        let expected = [SweepRate.ms75: 3_600, .ms125: 6_000, .ms200: 9_600, .ms300: 14_400]
+        for (rate, framesExpected) in expected {
+            let cropped = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: rate, startJitterFraction: 0)
+            XCTAssertEqual(Int(cropped.frameLength), framesExpected, "Crop must follow \(rate.milliseconds) ms cadence")
+        }
+    }
+
+    func testCropDoesNotExceedCropSafeWindow() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let frames: AVAudioFrameCount = 48_000
+        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames))
+        buffer.frameLength = frames
+        let asset = SourceAsset(
+            assetID: "SAFE",
+            durationMs: 1000,
+            cropSafeStartMs: 100,
+            cropSafeEndMs: 250,
+            relativePath: "safe.wav"
+        )
+
+        let cropped = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 0)
+        XCTAssertEqual(Int(cropped.frameLength), 7_200)
+    }
 }

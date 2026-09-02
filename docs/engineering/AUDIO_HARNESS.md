@@ -138,7 +138,9 @@ When alternatives exist it:
 3. prefers a different performer / voice family than the last pick
 4. prefers a different phonetic family (or `source_type` if phonetic family is missing)
 
-If the bank is too small, constraints relax in that order. The event log records what was relaxed. The scheduler never deadlocks.
+If the bank is too small, constraints relax in that order, after first preferring to skip `recognition_risk = high` when safer assets exist. The event log records what was relaxed. The scheduler never deadlocks.
+
+Runtime crop stays inside `crop_safe_start_ms` / `crop_safe_end_ms` when those fields are present.
 
 ## Forward / Reverse
 
@@ -175,6 +177,11 @@ In the harness:
 Files are written to:
 
 `Documents/EngineOutputCaptures/engine-output-capture-YYYYMMDD-HHmmss.wav`
+
+Alongside the WAV:
+
+- `*.events.jsonl` — fragment events recorded while that capture was running
+- `*.eventlog.jsonl` — snapshot of the in-memory log at capture stop (sized for a 15–20 minute / 75 ms session)
 
 On Simulator, that Documents folder is inside the app container. Copy the WAV out with Finder, `xcrun simctl`, or Xcode’s Devices window.
 

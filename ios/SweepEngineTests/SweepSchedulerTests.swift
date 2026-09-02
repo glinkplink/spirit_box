@@ -190,6 +190,18 @@ final class SweepSchedulerTests: XCTestCase {
         XCTAssertEqual(scheduler.next(direction: .forward), .emptyCorpus)
     }
 
+    func testHighRecognitionRiskIsAvoidedWhenSaferAlternativesExist() {
+        let scheduler = SweepScheduler(
+            assets: [
+                SourceAsset(assetID: "A", recognitionRisk: "high", relativePath: "a.wav"),
+                SourceAsset(assetID: "B", recognitionRisk: "low", relativePath: "b.wav"),
+            ],
+            configuration: .unconstrained
+        )
+
+        XCTAssertEqual(id(scheduler.next(direction: .forward)), "B")
+    }
+
     func testEventIncludesRequiredDiagnosticFields() {
         let scheduler = SweepScheduler(
             assets: [

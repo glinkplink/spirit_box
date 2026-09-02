@@ -41,7 +41,8 @@ final class ProceduralNoiseState: @unchecked Sendable {
 
 enum ProceduralNoiseSource {
     static func makeNode(format: AVAudioFormat, state: ProceduralNoiseState, amplitude: Float = 0.045) -> AVAudioSourceNode {
-        AVAudioSourceNode(format: format) { _, _, frameCount, audioBufferList -> OSStatus in
+        AVAudioSourceNode(format: format) { isSilence, _, frameCount, audioBufferList -> OSStatus in
+            isSilence.pointee = false
             let abl = UnsafeMutableAudioBufferListPointer(audioBufferList)
             for buffer in abl {
                 guard let raw = buffer.mData else { continue }

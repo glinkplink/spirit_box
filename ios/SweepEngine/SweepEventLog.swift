@@ -65,6 +65,28 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
         let phonetic = phoneticFamily ?? sourceType ?? "—"
         return "\(timestamp.formatted(date: .omitted, time: .standard))  \(assetID)  \(family)  \(phonetic)  \(sweepRate.milliseconds)ms  \(direction.debugLabel)  since=\(since)  \(decisionSummary)"
     }
+
+    public func diagnosticJSONLine() -> String {
+        var payload: [String: Any] = [
+            "timestamp": timestamp.timeIntervalSince1970,
+            "asset_id": assetID,
+            "sweep_rate_ms": sweepRate.milliseconds,
+            "direction": direction.debugLabel,
+            "relaxed_constraints": relaxedConstraints.map(\.rawValue),
+            "decision_summary": decisionSummary,
+        ]
+        if let performerID { payload["performer_id"] = performerID }
+        if let voiceFamily { payload["voice_family"] = voiceFamily }
+        if let phoneticFamily { payload["phonetic_family"] = phoneticFamily }
+        if let sourceType { payload["source_type"] = sourceType }
+        if let eventsSincePreviousUse { payload["events_since_previous_use"] = eventsSincePreviousUse }
+        guard let data = try? JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys]),
+              let line = String(data: data, encoding: .utf8)
+        else {
+            return "{\"asset_id\":\"\(assetID)\"}"
+        }
+        return line
+    }
 }
 
 public final class SweepEventLog: @unchecked Sendable {
@@ -72,7 +94,7 @@ public final class SweepEventLog: @unchecked Sendable {
     private var storage: [SweepEvent] = []
     public let capacity: Int
 
-    public init(capacity: Int = 400) {
+    public init(capacity: Int = 20_000) {
         self.capacity = max(1, capacity)
     }
 

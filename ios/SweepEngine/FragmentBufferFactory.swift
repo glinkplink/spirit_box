@@ -2,6 +2,37 @@ import AVFoundation
 import Foundation
 
 enum FragmentBufferFactory {
+    static func loadConvertedSource(fileURL: URL, outputFormat: AVAudioFormat) throws -> AVAudioPCMBuffer {
+        let file = try AVAudioFile(forReading: fileURL)
+        let sourceFormat = file.processingFormat
+        let totalFrames = AVAudioFrameCount(file.length)
+        guard totalFrames > 0,
+              let source = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: totalFrames)
+        else {
+            throw FragmentError.emptyFile(fileURL.lastPathComponent)
+        }
+        try file.read(into: source)
+        return try convert(source, to: outputFormat)
+    }
+
+    static func makeBuffer(
+        convertedSource: AVAudioPCMBuffer,
+        asset: SourceAsset,
+        sweepRate: SweepRate,
+        direction: SweepDirection,
+        startJitterFraction: Double
+    ) -> AVAudioPCMBuffer {
+        let cropped = crop(
+            convertedSource,
+            asset: asset,
+            sweepRate: sweepRate,
+            startJitterFraction: min(1, max(0, startJitterFraction))
+        )
+        let oriented = direction == .reverse ? reverse(cropped) : cropped
+        applyFades(oriented, fadeSeconds: 0.006)
+        return oriented
+    }
+
     static func makeBuffer(
         fileURL: URL,
         asset: SourceAsset,
@@ -10,26 +41,14 @@ enum FragmentBufferFactory {
         outputFormat: AVAudioFormat,
         startJitterFraction: Double
     ) throws -> AVAudioPCMBuffer {
-        let file = try AVAudioFile(forReading: fileURL)
-        let sourceFormat = file.processingFormat
-        let totalFrames = AVAudioFrameCount(file.length)
-        guard totalFrames > 0,
-              let source = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: totalFrames)
-        else {
-            throw FragmentError.emptyFile(asset.assetID)
-        }
-        try file.read(into: source)
-
-        let converted = try convert(source, to: outputFormat)
-        let cropped = crop(
-            converted,
+        let converted = try loadConvertedSource(fileURL: fileURL, outputFormat: outputFormat)
+        return makeBuffer(
+            convertedSource: converted,
             asset: asset,
             sweepRate: sweepRate,
-            startJitterFraction: min(1, max(0, startJitterFraction))
+            direction: direction,
+            startJitterFraction: startJitterFraction
         )
-        let oriented = direction == .reverse ? reverse(cropped) : cropped
-        applyFades(oriented, fadeSeconds: 0.006)
-        return oriented
     }
 
     static func convert(_ buffer: AVAudioPCMBuffer, to format: AVAudioFormat) throws -> AVAudioPCMBuffer {
@@ -75,7 +94,6 @@ enum FragmentBufferFactory {
         guard total > 0 else { return buffer }
 
         let desired = max(1, Int((sampleRate * sweepRate.timeInterval).rounded()))
-        let playFrames = min(total, desired)
 
         let safeStartMs = max(0, asset.cropSafeStartMs ?? 0)
         let safeEndMs: Int
@@ -89,10 +107,12 @@ enum FragmentBufferFactory {
 
         let safeStart = min(total - 1, Int((Double(safeStartMs) / 1000.0) * sampleRate))
         let safeEnd = min(total, max(safeStart + 1, Int((Double(safeEndMs) / 1000.0) * sampleRate)))
-        let maxStart = max(safeStart, min(safeEnd, total) - playFrames)
+        let available = max(1, safeEnd - safeStart)
+        let playFrames = min(total, desired, available)
+        let maxStart = max(safeStart, safeEnd - playFrames)
         let span = max(0, maxStart - safeStart)
-        let start = safeStart + Int(Double(span) * startJitterFraction)
-        let end = min(total, start + playFrames)
+        let start = min(safeEnd - 1, safeStart + Int(Double(span) * startJitterFraction))
+        let end = min(safeEnd, start + playFrames)
         let length = max(1, end - start)
 
         guard let sliced = AVAudioPCMBuffer(pcmFormat: buffer.format, frameCapacity: AVAudioFrameCount(length)) else {

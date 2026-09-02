@@ -33,6 +33,7 @@ public enum SweepDirection: String, CaseIterable, Equatable, Sendable {
 
 /// Constraints the scheduler may drop, in order, when the bank is too small.
 public enum RelaxedConstraint: String, CaseIterable, Equatable, Sendable {
+    case highRecognitionRisk = "high_recognition_risk"
     case phoneticFamily = "phonetic_family"
     case performerOrVoiceFamily = "performer_or_voice_family"
     case recentWindow = "recent_window"

@@ -12,7 +12,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
     private let queue = DispatchQueue(label: "com.glinkplink.spiritbox.sweep-engine")
     private let engine = AVAudioEngine()
-    private let fragmentPlayer = AVAudioPlayerNode()
+    private var fragmentPlayer = AVAudioPlayerNode()
     private let noiseState = ProceduralNoiseState()
     private let captureWriter = EngineOutputCaptureWriter()
     private let eventLog: SweepEventLog
@@ -22,6 +22,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private var scheduler = SweepScheduler(assets: [])
     private var corpus = LoadedCorpus.empty
     private var graphFormat: AVAudioFormat?
+    private var convertedBufferCache: [String: AVAudioPCMBuffer] = [:]
+    private var captureEventFileHandle: FileHandle?
     private var jitterSeed: UInt64 = 0xC0FFEE
 
     private var running = false
@@ -58,6 +60,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         queue.sync {
             corpus = loaded
             scheduler = SweepScheduler(assets: loaded.assets)
+            convertedBufferCache.removeAll(keepingCapacity: false)
         }
     }
 
@@ -156,6 +159,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
         let noise = ProceduralNoiseSource.makeNode(format: format, state: noiseState, amplitude: 0.045)
         noiseNode = noise
+        fragmentPlayer = AVAudioPlayerNode()
 
         engine.attach(noise)
         engine.attach(fragmentPlayer)
@@ -200,6 +204,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
             playLocked(pick)
             let event = SweepEvent(pick: pick, rate: sweepRate, direction: direction, timestamp: Date())
             eventLog.append(event)
+            appendCaptureEventLocked(event)
             let callback = onEvent
             DispatchQueue.main.async {
                 callback?(event)
@@ -219,13 +224,13 @@ public final class SweepAudioEngine: @unchecked Sendable {
         }
 
         do {
+            let converted = try cachedConvertedBufferLocked(assetID: pick.asset.assetID, url: url, format: format)
             let jitter = nextJitterLocked()
-            let buffer = try FragmentBufferFactory.makeBuffer(
-                fileURL: url,
+            let buffer = FragmentBufferFactory.makeBuffer(
+                convertedSource: converted,
                 asset: pick.asset,
                 sweepRate: sweepRate,
                 direction: direction,
-                outputFormat: format,
                 startJitterFraction: jitter
             )
             if fragmentPlayer.engine == nil {
@@ -245,22 +250,34 @@ public final class SweepAudioEngine: @unchecked Sendable {
         return Double(jitterSeed % 1_000) / 1_000.0
     }
 
+    private func cachedConvertedBufferLocked(assetID: String, url: URL, format: AVAudioFormat) throws -> AVAudioPCMBuffer {
+        if let cached = convertedBufferCache[assetID] {
+            return cached
+        }
+        let converted = try FragmentBufferFactory.loadConvertedSource(fileURL: url, outputFormat: format)
+        convertedBufferCache[assetID] = converted
+        return converted
+    }
+
     private func startCaptureLocked(durationSeconds: Int) throws {
-        guard let format = graphFormat else {
+        let mixFormat = engine.mainMixerNode.outputFormat(forBus: 0)
+        guard mixFormat.sampleRate > 0, mixFormat.channelCount > 0 else {
             throw CaptureError.engineFormatUnavailable
         }
         if captureTapInstalled {
             engine.mainMixerNode.removeTap(onBus: 0)
             captureTapInstalled = false
         }
+        closeCaptureEventFileLocked()
 
         let url = EngineOutputCaptureLocator.makeFileURL(
             in: EngineOutputCaptureLocator.documentsDirectory()
         )
-        try captureWriter.start(url: url, format: format, durationSeconds: durationSeconds)
+        try captureWriter.start(url: url, format: mixFormat, durationSeconds: durationSeconds)
         captureTickCounter = 0
+        try openCaptureEventFileLocked(for: url)
 
-        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: format) { [weak self] buffer, _ in
+        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: mixFormat) { [weak self] buffer, _ in
             self?.queue.async {
                 self?.handleCaptureBufferLocked(buffer)
             }
@@ -299,6 +316,10 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private func finishCaptureLocked(failed: String?) {
         let capturedSeconds = captureWriter.elapsedSeconds
         let url = captureWriter.stop()
+        closeCaptureEventFileLocked()
+        if let url {
+            writeFullEventLogSnapshotLocked(nextTo: url)
+        }
         if captureTapInstalled {
             engine.mainMixerNode.removeTap(onBus: 0)
             captureTapInstalled = false
@@ -317,6 +338,30 @@ public final class SweepAudioEngine: @unchecked Sendable {
         DispatchQueue.main.async {
             callback?(state)
         }
+    }
+
+    private func openCaptureEventFileLocked(for captureURL: URL) throws {
+        let eventsURL = EngineOutputCaptureLocator.makeEventLogURL(forCaptureURL: captureURL)
+        FileManager.default.createFile(atPath: eventsURL.path, contents: nil)
+        captureEventFileHandle = try FileHandle(forWritingTo: eventsURL)
+    }
+
+    private func appendCaptureEventLocked(_ event: SweepEvent) {
+        guard let handle = captureEventFileHandle,
+              let data = (event.diagnosticJSONLine() + "\n").data(using: .utf8)
+        else { return }
+        handle.write(data)
+    }
+
+    private func writeFullEventLogSnapshotLocked(nextTo captureURL: URL) {
+        let snapshotURL = captureURL.deletingPathExtension().appendingPathExtension("eventlog.jsonl")
+        let lines = eventLog.allChronological().map { $0.diagnosticJSONLine() }.joined(separator: "\n")
+        try? (lines + (lines.isEmpty ? "" : "\n")).write(to: snapshotURL, atomically: true, encoding: .utf8)
+    }
+
+    private func closeCaptureEventFileLocked() {
+        try? captureEventFileHandle?.close()
+        captureEventFileHandle = nil
     }
 
     private func notifyRuntime(_ message: String) {
