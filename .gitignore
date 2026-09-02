@@ -74,6 +74,10 @@ private-corpus/
 **/signed-releases/
 **/raw-masters-private/
 
+# Local developer recordings and generated intake corpora (never commit voice data)
+recordings/
+build/corpus/
+
 # IDE / editor
 .idea/
 *.swp

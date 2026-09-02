@@ -14,7 +14,27 @@ Only the human physical-device audio gate can answer that.
 
 ## Quick start
 
-From the repository root:
+### Prepare a continuous recording (new)
+
+Segment a Voice Memos M4A (or WAV) into a harness-loadable `SpiritBoxPhase1Corpus/` folder:
+
+```bash
+python3 tools/prepare_corpus.py recordings/me_test.m4a \
+  --family me_test \
+  --output build/corpus/me_test
+```
+
+This writes:
+
+- `build/corpus/me_test/SpiritBoxPhase1Corpus/manifest.json`
+- `build/corpus/me_test/SpiritBoxPhase1Corpus/me_test_###.wav`
+- `build/corpus/me_test/intake-qa-report.md`
+
+`recordings/`, `build/corpus/`, and `private-corpus/` are gitignored. Never commit source recordings or generated voice assets.
+
+Requires `ffmpeg` and `ffprobe` on PATH. Tunable flags: `--noise-threshold-db`, `--min-silence-sec`, `--min-event-sec`, `--max-event-sec`, `--region-pad-sec`, `--silence-merge-gap-sec`. Run `python3 tools/prepare_corpus.py --help` for defaults.
+
+### Validate an existing corpus
 
 ```bash
 python3 tools/corpus_intake/validate_corpus.py /path/to/SpiritBoxPhase1Corpus \
@@ -126,10 +146,25 @@ Reports use performer IDs (P01–P04) from manifest metadata. They do not print 
 
 ## Handoff to harness
 
-1. Run strict validation and fix all ERRORs.
-2. Copy the validated `SpiritBoxPhase1Corpus/` folder to the simulator/device Documents directory **or** `ios/Phase1/`.
+1. Prepare or validate the corpus locally (see Quick start above).
+2. Copy the validated `SpiritBoxPhase1Corpus/` folder contents to the TestFlight device (see below) **or** `ios/Phase1/`.
 3. Launch `SpiritBoxAudioHarness` and confirm the corpus label is not “DEV fixtures”.
 4. Run the manual 15–20 minute physical-device listening gate.
+
+### Linux → TestFlight iPhone (Documents loading)
+
+The harness exposes its Documents folder through the iOS Files app (`UIFileSharingEnabled`). No ZIP unpacker is built in — copy `manifest.json` and the WAV files directly.
+
+1. Install the private harness through TestFlight and open it once (creates `Documents/SpiritBoxPhase1Corpus/`).
+2. On the iPhone, open **Files → On My iPhone → Audio Harness → SpiritBoxPhase1Corpus**.
+3. From Linux, transfer the generated files using one of:
+   - **USB + libimobiledevice:** `pip install ifuse` (or distro package), mount the app container, copy into `SpiritBoxPhase1Corpus/`.
+   - **Cloud staging:** upload `build/corpus/me_test/SpiritBoxPhase1Corpus/*` to iCloud Drive / Dropbox from Linux, then on iPhone move them into `Audio Harness → SpiritBoxPhase1Corpus` (not the app root).
+4. Confirm `manifest.json` and all `me_test_###.wav` files are present in `SpiritBoxPhase1Corpus/`.
+5. Return to the harness, tap **Reload corpus**, and confirm **Source** is `Documents/SpiritBoxPhase1Corpus` with the expected asset count.
+6. Run the 15–20 minute listening gate per `docs/engineering/AUDIO_HARNESS.md`.
+
+Loader precedence: Documents Phase 1 → bundled Phase1 → bundled DevFixtures → empty.
 
 ## Running tests
 
@@ -137,7 +172,7 @@ Reports use performer IDs (P01–P04) from manifest metadata. They do not print 
 PYTHONPATH=. python3 -m unittest discover -s tools/corpus_intake/tests -v
 ```
 
-Tests use synthetic WAV fixtures only — no real performer audio is committed.
+Tests use synthetic WAV fixtures only — no real performer audio is committed. Preparation tests cover segmentation, naming, manifest fields, and source-overwrite guards.
 
 ## Private workspace convention
 

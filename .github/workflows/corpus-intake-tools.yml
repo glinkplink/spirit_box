@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - 'tools/corpus_intake/**'
+      - 'tools/prepare_corpus.py'
       - '.github/workflows/corpus-intake-tools.yml'
       - 'docs/engineering/CORPUS_INTAKE_QA.md'
   push:
     branches: [main, tools/corpus-intake-qa]
     paths:
       - 'tools/corpus_intake/**'
+      - 'tools/prepare_corpus.py'
       - '.github/workflows/corpus-intake-tools.yml'
       - 'docs/engineering/CORPUS_INTAKE_QA.md'
 
@@ -22,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Python syntax check
-        run: python3 -m compileall tools/corpus_intake
+        run: python3 -m compileall tools/corpus_intake tools/prepare_corpus.py
 
       - name: Run corpus intake unit tests
         run: PYTHONPATH=. python3 -m unittest discover -s tools/corpus_intake/tests -v
