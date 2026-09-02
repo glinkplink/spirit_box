@@ -13,6 +13,7 @@
 		A00000000000000000000017 /* SweepEngine/SweepScheduler.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000004 /* SweepScheduler.swift */; };
 		A00000000000000000000018 /* SweepEngine/SweepEventLog.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000005 /* SweepEventLog.swift */; };
 		A00000000000000000000019 /* SweepEngine/EngineOutputCapture.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000006 /* EngineOutputCapture.swift */; };
+		A00000000000000000000055 /* SweepEngine/AudioGateRun.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000054 /* AudioGateRun.swift */; };
 		A0000000000000000000001A /* SweepEngine/ProceduralNoiseSource.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000007 /* ProceduralNoiseSource.swift */; };
 		A0000000000000000000001B /* SweepEngine/FragmentBufferFactory.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000008 /* FragmentBufferFactory.swift */; };
 		A0000000000000000000001C /* SweepEngine/SweepAudioEngine.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000009 /* SweepAudioEngine.swift */; };
@@ -27,6 +28,7 @@
 		A00000000000000000000023 /* SweepEventLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000010 /* SweepEventLogTests.swift */; };
 		A00000000000000000000024 /* FragmentBufferFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* FragmentBufferFactoryTests.swift */; };
 		A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000052 /* EngineOutputCaptureTests.swift */; };
+		A00000000000000000000057 /* AudioGateRunTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000056 /* AudioGateRunTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +40,7 @@
 		A00000000000000000000004 /* SweepScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepScheduler.swift; sourceTree = "<group>"; };
 		A00000000000000000000005 /* SweepEventLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepEventLog.swift; sourceTree = "<group>"; };
 		A00000000000000000000006 /* EngineOutputCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineOutputCapture.swift; sourceTree = "<group>"; };
+		A00000000000000000000054 /* AudioGateRun.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioGateRun.swift; sourceTree = "<group>"; };
 		A00000000000000000000007 /* ProceduralNoiseSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProceduralNoiseSource.swift; sourceTree = "<group>"; };
 		A00000000000000000000008 /* FragmentBufferFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FragmentBufferFactory.swift; sourceTree = "<group>"; };
 		A00000000000000000000009 /* SweepAudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepAudioEngine.swift; sourceTree = "<group>"; };
@@ -50,6 +53,7 @@
 		A00000000000000000000010 /* SweepEventLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepEventLogTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000011 /* FragmentBufferFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FragmentBufferFactoryTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000052 /* EngineOutputCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineOutputCaptureTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000056 /* AudioGateRunTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioGateRunTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000012 /* DevFixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DevFixtures; sourceTree = "<group>"; };
 		A00000000000000000000013 /* Phase1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Phase1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -102,6 +106,7 @@
 				A00000000000000000000004 /* SweepScheduler.swift */,
 				A00000000000000000000005 /* SweepEventLog.swift */,
 				A00000000000000000000006 /* EngineOutputCapture.swift */,
+				A00000000000000000000054 /* AudioGateRun.swift */,
 				A00000000000000000000007 /* ProceduralNoiseSource.swift */,
 				A00000000000000000000008 /* FragmentBufferFactory.swift */,
 				A00000000000000000000009 /* SweepAudioEngine.swift */,
@@ -128,6 +133,7 @@
 				A00000000000000000000010 /* SweepEventLogTests.swift */,
 				A00000000000000000000011 /* FragmentBufferFactoryTests.swift */,
 				A00000000000000000000052 /* EngineOutputCaptureTests.swift */,
+				A00000000000000000000056 /* AudioGateRunTests.swift */,
 			);
 			path = SweepEngineTests;
 			sourceTree = "<group>";
@@ -238,6 +244,7 @@
 				A00000000000000000000017 /* SweepScheduler.swift in Sources */,
 				A00000000000000000000018 /* SweepEventLog.swift in Sources */,
 				A00000000000000000000019 /* EngineOutputCapture.swift in Sources */,
+				A00000000000000000000055 /* AudioGateRun.swift in Sources */,
 				A0000000000000000000001A /* ProceduralNoiseSource.swift in Sources */,
 				A0000000000000000000001B /* FragmentBufferFactory.swift in Sources */,
 				A0000000000000000000001C /* SweepAudioEngine.swift in Sources */,
@@ -257,6 +264,7 @@
 				A00000000000000000000023 /* SweepEventLogTests.swift in Sources */,
 				A00000000000000000000024 /* FragmentBufferFactoryTests.swift in Sources */,
 				A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */,
+				A00000000000000000000057 /* AudioGateRunTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
