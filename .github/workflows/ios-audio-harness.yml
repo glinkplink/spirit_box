@@ -4,17 +4,49 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [feat/audio-harness, main]
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  classify-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      ios_relevant: ${{ steps.classify.outputs.ios_relevant }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Classify changed files
+        id: classify
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: ./scripts/ci-classify-ios-changes.sh
+
   build-and-test:
-    runs-on: macos-15
+    needs: classify-changes
+    runs-on: ${{ needs.classify-changes.outputs.ios_relevant == 'true' && 'macos-15' || 'ubuntu-latest' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Skip full iOS CI (no iOS-relevant changes)
+        if: needs.classify-changes.outputs.ios_relevant != 'true'
+        run: |
+          echo "No iOS-relevant files changed in this event."
+          echo "ios_relevant=false — skipping Xcode, simulator, and ./scripts/ci-ios-test.sh."
+          echo "The build-and-test required check still resolves successfully on Ubuntu."
+
       - name: Show Xcode version
+        if: needs.classify-changes.outputs.ios_relevant == 'true'
         run: xcodebuild -version
 
       - name: Build iOS target and run unit tests
+        if: needs.classify-changes.outputs.ios_relevant == 'true'
         run: ./scripts/ci-ios-test.sh
