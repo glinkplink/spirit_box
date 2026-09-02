@@ -129,6 +129,32 @@ Supported metadata includes the Phase 1 production fields. Optional fields may b
 
 Do not download random voice samples. Do not treat DevFixtures as Phase 1.
 
+## Physical iPhone / TestFlight corpus loading
+
+The private harness target enables Apple document sharing (`UIFileSharingEnabled` + `LSSupportsOpeningDocumentsInPlace`) so Files can see the app’s Documents folder. There is no custom importer, ZIP unpacker, iCloud entitlement, or backend.
+
+This procedure has **not** been physically verified on a TestFlight iPhone in this change.
+
+1. Install the private harness through TestFlight.
+2. Open the app once so it can create `Documents/SpiritBoxPhase1Corpus/` if missing. Directory creation failure is reported as a harness diagnostic; it does not crash.
+3. Open **Files** on the iPhone.
+4. Under **On My iPhone**, open the harness app. Files should show the app **display name** (`Audio Harness` in the current Info.plist). Do not rely on an internal container UUID path.
+5. Open the `SpiritBoxPhase1Corpus` subfolder (not the app Documents root).
+6. Copy `manifest.json` and the WAV files **into** `SpiritBoxPhase1Corpus`. Do not leave them only under `On My iPhone → Audio Harness`.
+7. Confirm `SpiritBoxPhase1Corpus/manifest.json` and the WAV files are present.
+8. Return to the harness.
+9. Tap **Reload corpus**.
+10. Confirm **Source** is `Documents/SpiritBoxPhase1Corpus` and the expected asset count appears.
+
+Loader precedence is unchanged: Documents Phase 1 → bundled Phase1 → bundled DevFixtures → empty.
+
+**DEV FIXTURES CANNOT PASS THE CANONICAL AUDIO GATE.** Copying files onto a device only makes a real Phase 1 bank loadable. It does not pass the gate.
+
+Audio gate status remains:
+
+`NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
+
+
 ## Anti-repeat scheduling
 
 The scheduler is non-semantic. It walks eligible assets in a stable `asset_id` order.

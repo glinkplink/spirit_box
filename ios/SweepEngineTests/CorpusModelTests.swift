@@ -143,6 +143,142 @@ final class CorpusModelTests: XCTestCase {
         XCTAssertTrue(loaded.assets.allSatisfy { $0.assetID.hasPrefix("DEV_TEST_ONLY_") })
     }
 
+    func testEnsureCreatesDocumentsCorpusDirectoryWhenMissing() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let corpus = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: true)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: corpus.path))
+
+        let status = CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
+
+        XCTAssertTrue(status.directoryExists)
+        XCTAssertTrue(status.createdDirectory)
+        XCTAssertFalse(status.manifestExists)
+        XCTAssertNil(status.diagnostic)
+        var isDirectory: ObjCBool = false
+        XCTAssertTrue(FileManager.default.fileExists(atPath: corpus.path, isDirectory: &isDirectory))
+        XCTAssertTrue(isDirectory.boolValue)
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: corpus.appendingPathComponent(CorpusLoader.manifestFileName).path)
+        )
+    }
+
+    func testEnsureLeavesExistingDirectoryAndFilesUntouched() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let corpus = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: true)
+        try FileManager.default.createDirectory(at: corpus, withIntermediateDirectories: true)
+        let manifestURL = corpus.appendingPathComponent(CorpusLoader.manifestFileName)
+        let wavURL = corpus.appendingPathComponent("KEEP.wav")
+        try writeManifest(at: manifestURL, id: "KEEP_ME", kind: "phase1")
+        try Data("wav-bytes".utf8).write(to: wavURL)
+        let manifestBefore = try Data(contentsOf: manifestURL)
+        let wavBefore = try Data(contentsOf: wavURL)
+
+        let status = CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
+
+        XCTAssertTrue(status.directoryExists)
+        XCTAssertFalse(status.createdDirectory)
+        XCTAssertTrue(status.manifestExists)
+        XCTAssertNil(status.diagnostic)
+        XCTAssertEqual(try Data(contentsOf: manifestURL), manifestBefore)
+        XCTAssertEqual(try Data(contentsOf: wavURL), wavBefore)
+    }
+
+    func testEmptyDocumentsFolderDoesNotOverrideBundleFixtures() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let corpus = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: true)
+        let status = CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
+        XCTAssertTrue(status.directoryExists)
+        XCTAssertFalse(status.manifestExists)
+
+        let loaded = CorpusLoader.load(
+            fileManager: .default,
+            bundle: .main,
+            documentsDirectory: corpus
+        )
+
+        XCTAssertTrue(
+            loaded.source == .bundleDevFixtures || loaded.source == .bundlePhase1,
+            "empty Documents folder must fall through to a bundled corpus, not stop as documents/empty; got \(loaded.source)"
+        )
+        XCTAssertGreaterThan(loaded.assetCount, 0)
+        if loaded.source == .bundleDevFixtures {
+            XCTAssertTrue(loaded.isDevFixture)
+        }
+    }
+
+    func testDocumentsCorpusTakesPrecedenceOverBundleAfterManifestIsCopied() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let corpus = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: true)
+        _ = CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
+        try writeManifest(
+            at: corpus.appendingPathComponent(CorpusLoader.manifestFileName),
+            id: "DOCS_WINS",
+            kind: "phase1"
+        )
+
+        let loaded = CorpusLoader.load(
+            fileManager: .default,
+            bundle: .main,
+            documentsDirectory: corpus
+        )
+
+        XCTAssertEqual(loaded.source, .documentsPhase1)
+        XCTAssertEqual(loaded.assets.first?.assetID, "DOCS_WINS")
+        XCTAssertFalse(loaded.isDevFixture)
+        XCTAssertEqual(loaded.skippedMalformedCount, 0)
+    }
+
+    func testEnsureReportsUsefulDiagnosticWhenPathIsAFile() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let blocker = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: false)
+        try Data("not-a-folder".utf8).write(to: blocker)
+
+        let status = CorpusLoader.ensureDocumentsCorpusDirectory(at: blocker)
+
+        XCTAssertFalse(status.directoryExists)
+        XCTAssertFalse(status.createdDirectory)
+        XCTAssertFalse(status.manifestExists)
+        XCTAssertNotNil(status.diagnostic)
+        XCTAssertTrue(status.diagnostic?.contains(CorpusLoader.documentsDirectoryName) == true)
+        let leftover = try String(contentsOf: blocker, encoding: .utf8)
+        XCTAssertEqual(leftover, "not-a-folder")
+
+        let loaded = CorpusLoader.load(
+            fileManager: .default,
+            bundle: .main,
+            documentsDirectory: blocker
+        )
+        XCTAssertNotEqual(loaded.source, .documentsPhase1)
+        XCTAssertTrue(
+            loaded.source == .bundleDevFixtures || loaded.source == .bundlePhase1,
+            "a file at the Documents corpus path must not claim Documents Phase 1; got \(loaded.source)"
+        )
+        XCTAssertGreaterThan(loaded.assetCount, 0)
+    }
+
+    func testFilesAppInstructionUsesDisplayNameNotContainerPath() {
+        let instruction = CorpusLoader.filesAppCorpusInstruction(appDisplayName: "Audio Harness")
+        XCTAssertEqual(
+            instruction,
+            "Files → On My iPhone → Audio Harness → SpiritBoxPhase1Corpus"
+        )
+        XCTAssertFalse(instruction.contains("/var/mobile"))
+        XCTAssertFalse(instruction.contains("Containers"))
+        XCTAssertFalse(instruction.contains("Application"))
+    }
+
+    private func makeTempRoot() throws -> URL {
+        let temp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("SpiritBoxCorpusTests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
+        return temp
+    }
+
     private func writeManifest(at url: URL, id: String, kind: String) throws {
         let json = """
         {
