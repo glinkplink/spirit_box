@@ -21,6 +21,20 @@ def _read_exact(f, n: int) -> bytes:
     return data
 
 
+WAVE_FORMAT_PCM = 1
+WAVE_FORMAT_EXTENSIBLE = 0xFFFE
+
+
+def _effective_format_tag(data: bytes, chunk_start: int, chunk_size: int, fmt_tag: int) -> int:
+    """Normalize WAVE_FORMAT_EXTENSIBLE PCM files produced by modern ffmpeg."""
+    if fmt_tag != WAVE_FORMAT_EXTENSIBLE or chunk_size < 40:
+        return fmt_tag
+    subformat_tag = struct.unpack_from("<H", data, chunk_start + 24)[0]
+    if subformat_tag == WAVE_FORMAT_PCM:
+        return WAVE_FORMAT_PCM
+    return fmt_tag
+
+
 def parse_wav(path: Path, *, compute_qc: bool = True, compute_hash: bool = True) -> WavInfo:
     """Parse a RIFF/WAVE file and optionally compute QC metrics."""
     data = path.read_bytes()
@@ -53,6 +67,7 @@ def parse_wav(path: Path, *, compute_qc: bool = True, compute_hash: bool = True)
             fmt_tag, channels, sample_rate, byte_rate, block_align, bits_per_sample = struct.unpack_from(
                 "<HHIIHH", data, chunk_start
             )
+            fmt_tag = _effective_format_tag(data, chunk_start, chunk_size, fmt_tag)
         elif chunk_id == b"data":
             pcm_data = data[chunk_start:chunk_end]
 
