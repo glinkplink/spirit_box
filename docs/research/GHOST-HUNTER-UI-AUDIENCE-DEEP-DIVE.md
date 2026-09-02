@@ -137,7 +137,7 @@ Apple’s current haptic guidance says short, intentional haptics are generally 
 
 Apple’s audio API explicitly defaults to **not allowing haptics/system sounds while recording from audio input**, underscoring that recording and vibration are a real interaction conflict. [S57]
 
-**Conclusion:** haptics should make controls feel mechanical. Do **not** make the phone randomly buzz as if it has “detected a spirit.” Magnetic-event and scan haptics should be secondary, optional, and OFF by default.
+**Conclusion:** haptics should make controls feel mechanical. Do **not** make the phone randomly buzz as if it has “detected a spirit.” Magnetic-event haptics were considered during research but are **out of V1** per the canonical source of truth. Optional scan haptics remain secondary and OFF by default.
 
 ---
 
@@ -261,13 +261,13 @@ GhostTube VOX demonstrates that paranormal users will accept a clean, modern bla
 | Scan start/stop | Strong | **Power starts/stops the sweep** | Always | POWER state | Avoid separate SCAN unless later testing shows pause demand |
 | Frequency display | Strong visual cue on radio hardware | **Conditional** | Central display | Large monospaced numeric | Label MHz/kHz only if it actually represents the engine |
 | Band/channel display | Strong if radio-based | **Conditional** | Central display | Compact mode label | Truthfulness overrides aesthetics |
-| Signal meter | Familiar but high risk of implying “spirit strength” | **Do not include generic signal meter** | — | — | A raw magnetic bar is acceptable if clearly labeled |
+| Signal meter | Familiar but high risk of implying “spirit strength” | **Do not include generic signal meter** | — | — | Do not substitute a raw magnetic bar in V1; magnetometer is out of scope |
 | Record | Repeated high-value evidence | **Include** | Always | Large latching REC key with red status LED | First mic permission only when user taps REC |
 | MARK | Strong workflow need, although not traditional hardware | **Include prominently** | Always; disabled when nothing is recordable | Largest thumb-zone key | Metadata timestamp; no audible beep |
 | Timer | Strong session utility | **Include** | Always | Top status strip | Session elapsed and REC elapsed state |
 | Flashlight | Present on hardware; iPhone already provides it | **Exclude V1** | — | — | Feature-bloat risk |
-| Magnetometer | Relevant to audience, real iPhone sensor available | **Include only as compact raw MAG reading** | Small secondary area; toggleable | Segmented bar + µT numeric | Never label “ghost level” |
-| Magnetic alert | Some hardware uses lights/tones; audience appreciates alerts | **Optional** | Settings | Haptic, default OFF | Requires cooldown and truthful threshold logic |
+| Magnetometer | Relevant to audience, real iPhone sensor available | **V1 decision: EXCLUDE** — superseded by canonical source of truth. Audience research showed potential relevance, but magnetometer/EMF functionality is explicitly out of V1. | — | — | Preserve research finding; do not ship in V1 |
+| Magnetic alert | Some hardware uses lights/tones; audience appreciates alerts | **V1 decision: EXCLUDE** — superseded by canonical source of truth. Historical research only; no magnetic-alert feature in V1. | — | — | Preserve research finding; do not ship in V1 |
 | Temperature | Present on physical SB7/MEL hardware | **Exclude** | — | — | iPhone cannot be treated as a dedicated ambient thermometer |
 | Noise / white noise | Common spirit-box/ITC option | **Engine-dependent** | Settings, not main | Minimal selector | Avoid turning main UI into a mixer |
 | Echo / reverb / distortion | Present in Necrophonic/VOX; also source of intelligibility complaints | **Exclude from V1** | — | — | Default clarity is more important |
@@ -462,9 +462,11 @@ The recurring suspicions are:
 
 ### Magnetometer
 
+> **V1 product decision (superseded):** Magnetometer / raw MAG / EMF-meter functionality is **out of V1** per the canonical source of truth. The research below is retained as audience/competitor evidence only.
+
 Apple’s Core Motion APIs expose three-axis magnetic field measurements in microteslas. Raw measurements include the Earth’s field plus device/surrounding bias; calibrated motion data can remove device bias and reports accuracy. [S49][S50]
 
-**Rule:** call the feature `MAGNETIC FIELD` or `MAG`, display `µT`, and explain conventional causes.
+**Research rule (if ever revisited post-V1):** call the feature `MAGNETIC FIELD` or `MAG`, display `µT`, and explain conventional causes.
 
 **Recommended copy:**
 
@@ -543,7 +545,7 @@ Therefore the correct strategy is **a small tactile vocabulary that feels like i
 | **MARK** | Confirm an interesting moment was captured without looking | Distinct double transient: crisp + stronger crisp | Medium-high | ~30 ms + 65 ms gap + ~45 ms | ON when not restricted by recording mode | MARK is the most important blind-use action; must be unmistakable |
 | **Record Start** | Confirm capture has begun | Firm single impact followed by very light tick | Medium | ~40 ms + 80 ms gap + ~20 ms | ON, **played before capture begins** | Recording state must be unambiguous; avoid polluting captured audio [S21][S32][S57] |
 | **Record Stop** | Confirm capture has ended/saved | Single firm rounded impact | Medium | ~60–80 ms | ON, **played after capture finalizes** | Different feel from start and protects recording [S57] |
-| **Magnetic Event** | Optional eyes-free notice of a user-defined/raw field change | Single soft rounded pulse; no “alarm” pattern | Medium-low | ~50–70 ms | **OFF** | Physical gear uses event alerts, but iPhone magnetometer changes have mundane causes; avoid implying spirit detection [S25][S28][S49] |
+| **Magnetic Event** | Optional eyes-free notice of a user-defined/raw field change | Single soft rounded pulse; no “alarm” pattern | Medium-low | ~50–70 ms | **N/A — excluded from V1** | Research only; magnetometer/EMF is out of V1 per canonical source of truth [S25][S28][S49] |
 | **Optional Tactile Scan** | Experimental “instrument motor” feel | Very light crisp tick, rate-linked but hard-capped at <=2 Hz | Very light | ~10–15 ms each | **OFF** | **INFERENCE only.** No strong user demand; continuous haptics risk fatigue/distraction and recording interference [S56] |
 | **Purchase confirmation** | Confirm transaction result | Native system success feedback | System | System | ON | Do not create a paranormal-specific money vibration; use platform semantics |
 
@@ -555,7 +557,7 @@ Apple’s `AVAudioSession` defaults to **disallowing haptics and system sounds w
 
 - `Record Start` haptic happens **before** the recording capture boundary.
 - `Record Stop` haptic happens **after** the final audio sample is committed.
-- background Magnetic Event haptics are automatically suppressed while recording unless the user explicitly opts in later;
+- Magnetic Event haptics are not in V1 (magnetometer/EMF excluded per canonical scope);
 - Optional Tactile Scan is suppressed during recording;
 - MARK is the only candidate haptic during recording because it is user-triggered and operationally important.
 
@@ -587,7 +589,7 @@ These are either unsupported by audience evidence, likely to annoy during listen
 - **Primary instrument display:** warm amber-red / red-orange, low bloom.
 - **Primary text outside display:** off-white / light gray.
 - **Recording:** a single clear red REC indicator.
-- **Magnetic meter:** restrained 5-segment neutral-to-warning scale; if a multicolor scale is used, use green → amber → red only for magnitude, never “safe → ghost.”
+- **Magnetic meter (research only; not V1):** restrained 5-segment neutral-to-warning scale; if a multicolor scale is used, use green → amber → red only for magnitude, never “safe → ghost.”
 
 ### Evidence
 
@@ -636,7 +638,7 @@ Use an LCD-*inspired* panel, not an exact seven-segment replica.
 
 ## Meters
 
-**Use:** segmented horizontal field bar when raw magnetic field is visible.  
+**Use:** segmented horizontal field bar when raw magnetic field is visible — **research note only; magnetometer/EMF is excluded from V1.**  
 **Do not use:** analog needle meter unless future evidence proves it improves comprehension. The strongest hardware references here are digital displays and LED bars, not analog dials.
 
 ## Graphs
@@ -746,11 +748,13 @@ Only if technically true, show 3 concise claims:
 
 If the engine uses a finite audio bank, do **not** say “No prerecorded audio.” Say exactly what it uses.
 
-### Screenshot 5 — raw sensor, if included
+### Screenshot 5 — raw sensor (superseded; not in V1)
 
 Headline: **`RAW MAGNETIC FIELD. NO FAKE “GHOST LEVEL.”`**
 
 Show `MAG 48 µT` and one line: `Uses the iPhone magnetometer. Electronics and magnets affect readings.`
+
+Magnetometer/EMF is out of V1 per canonical scope; retain this screenshot direction only as historical research.
 
 ### Screenshot 6 — purchase/trial confidence
 
@@ -838,7 +842,7 @@ Make recording a first-class key, not a hidden tool. Give users direct access to
 
 ### iPhone translation
 
-If magnetic field is shown, present a **small raw magnitude display with a glanceable segmented bar**. Encourage baseline understanding. Do not turn it into a “ghost probability.”
+Audience research suggested that if magnetic field were shown, a **small raw magnitude display with a glanceable segmented bar** could increase credibility. **V1 decision: exclude magnetometer/EMF entirely** per canonical scope. Do not turn magnetic readings into a “ghost probability.”
 
 ## MEL Meter
 
@@ -866,7 +870,7 @@ The useful lesson is **one hand + direct units**, not “copy all sensor categor
 
 ### iPhone translation
 
-Use distinctive feedback for user actions and, if magnetic alerts survive testing, one restrained optional alert. Do not equate an alert with paranormal confirmation.
+Use distinctive feedback for user actions. Magnetic alerts were considered during research but are **out of V1** per canonical scope. Do not equate alerts with paranormal confirmation.
 
 ## Ovilus 5
 
@@ -957,6 +961,8 @@ Portrait, one screen, no scrolling during a session.
 
 `*` Only use AM/FM and MHz/kHz if those values are truthful to the actual audio engine. If not, replace them with truthful `SOURCE` / `SWEEP POSITION` terminology. This is non-negotiable.
 
+The magnetometer row (`MAG xx µT`) in the wireframe above is **not in V1**; omit from shipping UI per canonical scope.
+
 ### Hierarchy
 
 1. **Instrument display** — dominant.
@@ -972,7 +978,7 @@ Portrait, one screen, no scrolling during a session.
 - recessed amber-red display panel;
 - large monospaced numeric scan/frequency/position value;
 - top display row: truthful source/band, direction, rate;
-- bottom display row: compact `MAG xx µT` if enabled;
+- bottom display row: no magnetometer/MAG strip in V1 (excluded per canonical scope);
 - scan activity shown as a simple moving segmented line, not a radar or spirit-strength meter;
 - no fake analog needle;
 - no ghost text/phrases appearing on top of the instrument.
@@ -1082,8 +1088,9 @@ Default ON:
 
 Default OFF:
 
-- Magnetic Event;
 - Tactile Scan.
+
+Magnetic Event haptics were considered during research but are **out of V1** per canonical scope.
 
 Never:
 
@@ -1134,13 +1141,13 @@ Keep settings short.
 ### SESSION
 
 - `Keep Screen Awake During Session` — ON
-- `Show Magnetic Field` — ON if the feature survives prototype validation; otherwise omit entirely
+
+Magnetometer / magnetic-alert settings are omitted — not in V1 per canonical scope.
 
 ### HAPTICS
 
 - `Instrument Haptics` — ON
 - `MARK Haptic While Recording` — ON only if clean in testing
-- `Magnetic Alert` — OFF
 - `Tactile Scan` — OFF
 
 ### AUDIO
@@ -1158,7 +1165,7 @@ Keep settings short.
 ### ACCESS
 
 - `Restore Purchases`
-- current entitlement (`Trial`, `24-Hour`, `7-Day`, `Lifetime`)
+- current entitlement (`Trial`, `Tonight Pass`, `Lifetime`)
 
 No theme selector. No skins. No sound-bank marketplace. No haunted map.
 
@@ -1178,7 +1185,7 @@ Use a calm one-screen explainer.
 **Recording**  
 `The microphone is used only when you press REC so your spoken questions and the session can be captured.`
 
-**Magnetic Field**  
+**Magnetic Field** *(superseded — not in V1; retained as historical research copy only)*  
 `The MAG display reads the iPhone magnetometer in µT. Magnets, speakers, wiring, cases/accessories and nearby electronics can change the reading.`
 
 **Interpretation**  
@@ -1206,7 +1213,7 @@ One icon direction only:
 2. **HEAR SOMETHING? MARK IT.** — thumb / MARK state.
 3. **REPLAY THE MOMENT.** — waveform + marks.
 4. **NO SCRIPTED ANSWERS.** — only if technically true; explain mic and mechanism.
-5. **RAW MAGNETIC FIELD.** — if sensor feature ships.
+5. **RAW MAGNETIC FIELD.** — superseded; magnetometer/EMF is not in V1.
 6. **TRY A REAL SESSION FIRST.** — trial/access confidence.
 
 ---
@@ -1227,7 +1234,7 @@ One icon direction only:
 - let users export original recordings;
 - disclose exact audio mechanism;
 - request microphone permission only at REC;
-- use actual `µT` magnetic field units if sensor data is shown;
+- use actual `µT` magnetic field units only if sensor data were ever shown post-V1 (not in V1);
 - make haptics short, mechanical, and optional;
 - suppress unsolicited haptics during recording;
 - let iPhone physical volume buttons do what they already do well.
@@ -1351,7 +1358,7 @@ MARK produces a clearly audible/mechanical artifact in the captured track or use
 
 ### Mitigation
 
-Suppress scan/magnetic haptics during recording. If needed, suppress MARK haptics during recording too and retain only visual confirmation.
+Suppress scan haptics during recording. Magnetic-event haptics are not in V1. If needed, suppress MARK haptics during recording too and retain only visual confirmation.
 
 ## Failure mode 8: transparency reduces the paranormal “magic”
 
@@ -1419,7 +1426,6 @@ If screenshot testing shows users only understand the app when the UI gets so cl
 - FWD/REV;
 - discrete sweep rate in ms;
 - AM/FM only if real to engine;
-- compact raw `MAG µT` reading if sensor feature remains;
 - session timer;
 - REC;
 - very large MARK;
@@ -1450,14 +1456,13 @@ If screenshot testing shows users only understand the app when the UI gets so cl
 - exact audio source/mechanism;
 - no speech-recognition statement if true;
 - mic-used-only-for-recording statement if true;
-- magnetometer explanation in µT;
 - experimental/paranormal-not-scientifically-established disclosure;
 - honest offline behavior.
 
 ### Commerce presentation
 
 - genuine core-session trial before purchase;
-- $1.99 24-hour, $4.99 7-day, $9.99 lifetime launch options as already defined by product strategy;
+- $1.99 Tonight Pass (24 hours, non-renewing) and $9.99 Lifetime launch options per canonical product strategy; no 7-day tier;
 - no auto-renewing subscription initially;
 - no ads.
 
@@ -1474,6 +1479,7 @@ If screenshot testing shows users only understand the app when the UI gets so cl
 - flashlight button;
 - fake ambient temperature;
 - fake “EMF ghost strength”;
+- magnetometer / raw MAG readout / magnetic-field alerts in V1;
 - fake frequency readout;
 - echo/reverb/distortion mixer;
 - skins/themes;
@@ -1487,13 +1493,14 @@ If screenshot testing shows users only understand the app when the UI gets so cl
 
 ## WHAT WE STILL DO NOT KNOW
 
-Only three material design questions remain:
+Only two material design questions remain:
 
 1. **Exact audio-engine semantics.** This determines whether the main display can truthfully say AM/FM and MHz/kHz, and what precise “How It Works” copy can ship.
 2. **MARK haptic while microphone recording.** Apple’s platform behavior makes this a real audio-quality question; it needs on-device testing.
-3. **Whether the compact magnetometer readout increases credibility or creates feature-bloat / sensor confusion.** Evidence supports raw-sensor transparency, but the product’s primary job is spirit-box audio.
 
-None of these blocks the base UI architecture. They affect labels and one optional secondary strip.
+**Resolved (no longer open):** Whether the compact magnetometer readout increases credibility or creates feature-bloat / sensor confusion. Magnetometer/EMF is **out of V1** per the canonical source of truth.
+
+None of these blocks the base UI architecture.
 
 ## CHEAPEST PRODUCT TEST
 
@@ -1537,7 +1544,7 @@ Redesign the chosen visual/interaction direction if any of these occur:
 - the visual similarity causes testers to name a specific commercial device immediately;
 - MARK haptic creates obvious microphone contamination that cannot be solved without weakening recording;
 - users consistently prefer the clean modern comparator **because it feels more credible**, not merely prettier;
-- raw MAG data causes users to interpret normal magnetic fluctuations as an app-generated “ghost response” despite the labeling.
+- raw MAG data causes users to interpret normal magnetic fluctuations as an app-generated “ghost response” despite the labeling *(historical prototype concern; magnetometer excluded from V1)*.
 
 If the field-radio treatment fails, preserve the workflow and simplify the skin. Do **not** rescue it with more paranormal decoration.
 
@@ -1545,7 +1552,7 @@ If the field-radio treatment fails, preserve the workflow and simplify the skin.
 
 # 21. FINAL DECISION IN ONE PARAGRAPH
 
-Build a **dark, restrained, old-school field-radio instrument with modern iPhone execution**: warm amber/red LCD-like display, truthful sweep status, visible FWD/REV and millisecond rate controls, large REC and even larger MARK in the thumb zone, compact raw magnetometer data only if it survives testing, and short mechanical haptics for deliberate controls. Audio should sound like a controllable sweep, not a dialogue generator: no scripted complete sentences, no microphone-driven replies, no default echo/reverb sludge, no guaranteed “hits,” and no fake frequency display. Recordings should persist locally, replay on a waveform with marker navigation, and export through the system share sheet. The app should explain exactly what the engine and sensors do, request the microphone only for recording, and explicitly avoid scientific-proof claims. This is the narrowest design that satisfies the evidence from serious hardware users, casual paranormal-app users, dark-room operation, trust complaints and current successful mobile patterns without becoming an SB7 clone or a ghost-hunting super-app.
+Build a **dark, restrained, old-school field-radio instrument with modern iPhone execution**: warm amber/red LCD-like display, truthful sweep status, visible FWD/REV and millisecond rate controls, large REC and even larger MARK in the thumb zone, and short mechanical haptics for deliberate controls. Magnetometer/EMF is **out of V1** per the canonical source of truth. Audio should sound like a controllable sweep, not a dialogue generator: no scripted complete sentences, no microphone-driven replies, no default echo/reverb sludge, no guaranteed “hits,” and no fake frequency display. Recordings should persist locally, replay on a waveform with marker navigation, and export through the system share sheet. The app should explain exactly what the engine does, request the microphone only for recording, and explicitly avoid scientific-proof claims. This is the narrowest design that satisfies the evidence from serious hardware users, casual paranormal-app users, dark-room operation, trust complaints and current successful mobile patterns without becoming an SB7 clone or a ghost-hunting super-app.
 
 ---
 
