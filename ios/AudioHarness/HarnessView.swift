@@ -1,8 +1,10 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Private developer UI. Intentionally not the customer-facing instrument.
 struct HarnessView: View {
     @StateObject private var model = HarnessViewModel()
+    @State private var isUploadingCorpus = false
 
     var body: some View {
         NavigationStack {
@@ -25,6 +27,18 @@ struct HarnessView: View {
                     Button("Reload corpus") {
                         model.reloadCorpus()
                     }
+                }
+            }
+            .fileImporter(
+                isPresented: $isUploadingCorpus,
+                allowedContentTypes: [.folder, .wav, .json],
+                allowsMultipleSelection: true
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    model.importCorpus(from: urls)
+                case .failure(let error):
+                    model.lastMessage = "Corpus upload failed: \(error.localizedDescription)"
                 }
             }
         }
@@ -94,6 +108,12 @@ struct HarnessView: View {
 
     private var corpusSection: some View {
         Section("Corpus") {
+            Button("Upload corpus") {
+                isUploadingCorpus = model.prepareCorpusUpload()
+            }
+            Text("Pick the prepared SpiritBoxPhase1Corpus folder, or manifest.json plus the WAV files. This replaces Documents/SpiritBoxPhase1Corpus.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
             LabeledContent("Source", value: model.corpusSourceDescription)
             LabeledContent("Asset count", value: "\(model.corpusCount)")
             LabeledContent("Skipped malformed", value: "\(model.skippedMalformedCount)")
@@ -108,7 +128,7 @@ struct HarnessView: View {
             }
             Text(model.filesAppInstruction)
                 .font(.footnote)
-            Text("Copy the complete Phase 1 folder contents there (manifest.json + WAV files), then tap Reload corpus. Files shows the app display name; it may differ from the internal target name.")
+            Text("Copy the complete Phase 1 folder contents there (manifest.json + WAV files), or tap Upload corpus. Files shows the app display name; it may differ from the internal target name.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }

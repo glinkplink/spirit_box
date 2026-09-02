@@ -10,6 +10,7 @@
 		A00000000000000000000014 /* SweepEngine/SweepTypes.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000001 /* SweepTypes.swift */; };
 		A00000000000000000000015 /* SweepEngine/SourceAsset.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000002 /* SourceAsset.swift */; };
 		A00000000000000000000016 /* SweepEngine/CorpusLoader.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000003 /* CorpusLoader.swift */; };
+		A0000000000000000000005F /* SweepEngine/CorpusImporter.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005E /* CorpusImporter.swift */; };
 		A00000000000000000000017 /* SweepEngine/SweepScheduler.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000004 /* SweepScheduler.swift */; };
 		A00000000000000000000018 /* SweepEngine/SweepEventLog.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000005 /* SweepEventLog.swift */; };
 		A00000000000000000000019 /* SweepEngine/EngineOutputCapture.swift in Sources or Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000006 /* EngineOutputCapture.swift */; };
@@ -26,6 +27,7 @@
 		A00000000000000000000020 /* SweepRateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000D /* SweepRateTests.swift */; };
 		A00000000000000000000021 /* SweepSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000E /* SweepSchedulerTests.swift */; };
 		A00000000000000000000022 /* CorpusModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000F /* CorpusModelTests.swift */; };
+		A00000000000000000000061 /* CorpusImporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000060 /* CorpusImporterTests.swift */; };
 		A00000000000000000000023 /* SweepEventLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000010 /* SweepEventLogTests.swift */; };
 		A00000000000000000000024 /* FragmentBufferFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* FragmentBufferFactoryTests.swift */; };
 		A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000052 /* EngineOutputCaptureTests.swift */; };
@@ -40,6 +42,7 @@
 		A00000000000000000000001 /* SweepTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepTypes.swift; sourceTree = "<group>"; };
 		A00000000000000000000002 /* SourceAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceAsset.swift; sourceTree = "<group>"; };
 		A00000000000000000000003 /* CorpusLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorpusLoader.swift; sourceTree = "<group>"; };
+		A0000000000000000000005E /* CorpusImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorpusImporter.swift; sourceTree = "<group>"; };
 		A00000000000000000000004 /* SweepScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepScheduler.swift; sourceTree = "<group>"; };
 		A00000000000000000000005 /* SweepEventLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepEventLog.swift; sourceTree = "<group>"; };
 		A00000000000000000000006 /* EngineOutputCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineOutputCapture.swift; sourceTree = "<group>"; };
@@ -53,6 +56,7 @@
 		A0000000000000000000000D /* SweepRateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepRateTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000000E /* SweepSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepSchedulerTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000000F /* CorpusModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorpusModelTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000060 /* CorpusImporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorpusImporterTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000010 /* SweepEventLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepEventLogTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000011 /* FragmentBufferFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FragmentBufferFactoryTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000052 /* EngineOutputCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineOutputCaptureTests.swift; sourceTree = "<group>"; };
@@ -109,6 +113,7 @@
 				A00000000000000000000001 /* SweepTypes.swift */,
 				A00000000000000000000002 /* SourceAsset.swift */,
 				A00000000000000000000003 /* CorpusLoader.swift */,
+				A0000000000000000000005E /* CorpusImporter.swift */,
 				A00000000000000000000004 /* SweepScheduler.swift */,
 				A00000000000000000000005 /* SweepEventLog.swift */,
 				A00000000000000000000006 /* EngineOutputCapture.swift */,
@@ -138,6 +143,7 @@
 				A0000000000000000000000D /* SweepRateTests.swift */,
 				A0000000000000000000000E /* SweepSchedulerTests.swift */,
 				A0000000000000000000000F /* CorpusModelTests.swift */,
+				A00000000000000000000060 /* CorpusImporterTests.swift */,
 				A00000000000000000000010 /* SweepEventLogTests.swift */,
 				A00000000000000000000011 /* FragmentBufferFactoryTests.swift */,
 				A00000000000000000000052 /* EngineOutputCaptureTests.swift */,
@@ -251,6 +257,7 @@
 				A00000000000000000000014 /* SweepTypes.swift in Sources */,
 				A00000000000000000000015 /* SourceAsset.swift in Sources */,
 				A00000000000000000000016 /* CorpusLoader.swift in Sources */,
+				A0000000000000000000005F /* CorpusImporter.swift in Sources */,
 				A00000000000000000000017 /* SweepScheduler.swift in Sources */,
 				A00000000000000000000018 /* SweepEventLog.swift in Sources */,
 				A00000000000000000000019 /* EngineOutputCapture.swift in Sources */,
@@ -272,6 +279,7 @@
 				A00000000000000000000020 /* SweepRateTests.swift in Sources */,
 				A00000000000000000000021 /* SweepSchedulerTests.swift in Sources */,
 				A00000000000000000000022 /* CorpusModelTests.swift in Sources */,
+				A00000000000000000000061 /* CorpusImporterTests.swift in Sources */,
 				A00000000000000000000023 /* SweepEventLogTests.swift in Sources */,
 				A00000000000000000000024 /* FragmentBufferFactoryTests.swift in Sources */,
 				A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */,

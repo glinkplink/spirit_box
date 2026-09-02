@@ -103,6 +103,34 @@ final class HarnessViewModel: ObservableObject {
         }
     }
 
+    func prepareCorpusUpload() -> Bool {
+        if isRunning {
+            lastMessage = "Stop the sweep before uploading a corpus."
+            return false
+        }
+        return true
+    }
+
+    func importCorpus(from urls: [URL]) {
+        var scoped: [URL] = []
+        for url in urls where url.startAccessingSecurityScopedResource() {
+            scoped.append(url)
+        }
+        defer {
+            scoped.forEach { $0.stopAccessingSecurityScopedResource() }
+        }
+
+        do {
+            let destination = try CorpusLoader.documentsCorpusURL()
+            _ = try CorpusLoader.ensureDocumentsCorpusDirectory(at: destination)
+            let result = try CorpusImporter.importItems(urls: urls, into: destination)
+            reloadCorpus()
+            lastMessage = "Uploaded \(result.wavCount) WAV files. Source: \(corpusSourceDescription)."
+        } catch {
+            lastMessage = "Corpus upload failed: \(error.localizedDescription)"
+        }
+    }
+
     func start() {
         do {
             try engine.start()

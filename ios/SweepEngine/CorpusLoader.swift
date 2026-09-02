@@ -104,7 +104,7 @@ public enum CorpusLoader {
             source: .documentsPhase1,
             fallbackLabel: "Phase 1 corpus (Documents)",
             forceDevFixture: false
-        ) {
+        ), isUsableCorpus(loaded, fileManager: fileManager) {
             return loaded
         }
 
@@ -213,6 +213,20 @@ public enum CorpusLoader {
             isDevFixture: isDev,
             rootURL: root
         )
+    }
+
+    /// Documents drop-in must have manifest entries and at least one reachable WAV.
+    /// A manifest-only folder (common after a failed Files copy) must not block bundled Phase 1.
+    static func isUsableCorpus(_ loaded: LoadedCorpus, fileManager: FileManager) -> Bool {
+        guard loaded.assetCount > 0, let root = loaded.rootURL else { return false }
+        for asset in loaded.assets {
+            guard let url = fileURL(for: asset, root: root),
+                  fileManager.fileExists(atPath: url.path) else {
+                continue
+            }
+            return true
+        }
+        return false
     }
 
     private static func bundleDirectory(_ bundle: Bundle, named name: String) -> URL? {

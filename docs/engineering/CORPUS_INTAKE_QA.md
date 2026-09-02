@@ -147,24 +147,23 @@ Reports use performer IDs (P01–P04) from manifest metadata. They do not print 
 ## Handoff to harness
 
 1. Prepare or validate the corpus locally (see Quick start above).
-2. Copy the validated `SpiritBoxPhase1Corpus/` folder contents to the TestFlight device (see below) **or** `ios/Phase1/`.
+2. Load it on the TestFlight device with **Upload corpus** (see below) **or** copy into `ios/Phase1/`.
 3. Launch `SpiritBoxAudioHarness` and confirm the corpus label is not “DEV fixtures”.
 4. Run the manual 15–20 minute physical-device listening gate.
 
 ### Linux → TestFlight iPhone (Documents loading)
 
-The harness exposes its Documents folder through the iOS Files app (`UIFileSharingEnabled`). No ZIP unpacker is built in — copy `manifest.json` and the WAV files directly.
+The harness **Upload corpus** button imports `manifest.json` and WAV files from Files / iCloud into `Documents/SpiritBoxPhase1Corpus`. No ZIP unpacker is built in.
 
 1. Install the private harness through TestFlight and open it once (creates `Documents/SpiritBoxPhase1Corpus/`).
-2. On the iPhone, open **Files → On My iPhone → Audio Harness → SpiritBoxPhase1Corpus**.
-3. From Linux, transfer the generated files using one of:
-   - **USB + libimobiledevice:** `pip install ifuse` (or distro package), mount the app container, copy into `SpiritBoxPhase1Corpus/`.
-   - **Cloud staging:** upload `build/corpus/me_test/SpiritBoxPhase1Corpus/*` to iCloud Drive / Dropbox from Linux, then on iPhone move them into `Audio Harness → SpiritBoxPhase1Corpus` (not the app root).
-4. Confirm `manifest.json` and all `me_test_###.wav` files are present in `SpiritBoxPhase1Corpus/`.
-5. Return to the harness, tap **Reload corpus**, and confirm **Source** is `Documents/SpiritBoxPhase1Corpus` with the expected asset count.
-6. Run the 15–20 minute listening gate per `docs/engineering/AUDIO_HARNESS.md`.
+2. From Linux, put the generated files where the iPhone can pick them:
+   - **AirDrop / iCloud Drive / Dropbox:** upload `build/corpus/me_test/SpiritBoxPhase1Corpus/` (or its contents).
+   - **USB + libimobiledevice:** `pip install ifuse` (or distro package), mount the app container, copy into `SpiritBoxPhase1Corpus/`, then tap **Reload corpus**.
+3. In the harness **Corpus** section, tap **Upload corpus** and select the `SpiritBoxPhase1Corpus` folder (or `manifest.json` plus the WAV files).
+4. Confirm **Source** is `Documents/SpiritBoxPhase1Corpus` with the expected asset count.
+5. Run the 15–20 minute listening gate per `docs/engineering/AUDIO_HARNESS.md`.
 
-Loader precedence: Documents Phase 1 → bundled Phase1 → bundled DevFixtures → empty.
+Loader precedence: usable Documents Phase 1 → bundled Phase1 → bundled DevFixtures → empty.
 
 ## Running tests
 
