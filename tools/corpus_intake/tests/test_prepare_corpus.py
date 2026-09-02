@@ -117,36 +117,19 @@ class TestInvalidInput(unittest.TestCase):
 
 
 class TestExtensibleWavParsing(unittest.TestCase):
-    def test_ffmpeg_extensible_pcm_is_treated_as_pcm(self) -> None:
-        import subprocess
+    def test_extensible_pcm_is_treated_as_pcm(self) -> None:
         import tempfile
 
-        from tools.corpus_intake.wav_analysis import parse_wav
+        from tools.corpus_intake.wav_analysis import parse_wav, write_synthetic_extensible_pcm_wav
 
-        with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
-            path = Path(tmp.name)
-            cmd = [
-                "ffmpeg",
-                "-hide_banner",
-                "-y",
-                "-f",
-                "lavfi",
-                "-i",
-                "sine=frequency=440:duration=0.1",
-                "-ar",
-                "48000",
-                "-ac",
-                "1",
-                "-c:a",
-                "pcm_s24le",
-                str(path),
-            ]
-            proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
-            if proc.returncode != 0:
-                self.skipTest("ffmpeg not available for extensible WAV probe")
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "extensible.wav"
+            write_synthetic_extensible_pcm_wav(path)
             info = parse_wav(path)
             self.assertTrue(info.is_pcm)
             self.assertEqual(info.compression, "PCM")
+            self.assertEqual(info.sample_rate, 48_000)
+            self.assertEqual(info.sample_width_bytes, 3)
 
 
 if __name__ == "__main__":

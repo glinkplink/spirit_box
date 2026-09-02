@@ -192,3 +192,43 @@ def write_synthetic_wav(
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(file_data)
     return hashlib.sha256(file_data).hexdigest()
+
+
+def write_synthetic_extensible_pcm_wav(
+    path: Path,
+    *,
+    sample_rate: int = 48_000,
+    sample_width_bytes: int = 3,
+    channels: int = 1,
+    frame_count: int = 48,
+) -> None:
+    """Write a minimal WAVE_FORMAT_EXTENSIBLE PCM file (ffmpeg 7 style) for tests."""
+    bits_per_sample = sample_width_bytes * 8
+    block_align = channels * sample_width_bytes
+    byte_rate = sample_rate * block_align
+
+    fmt_chunk = struct.pack(
+        "<HHIIHH",
+        WAVE_FORMAT_EXTENSIBLE,
+        channels,
+        sample_rate,
+        byte_rate,
+        block_align,
+        bits_per_sample,
+    )
+    fmt_chunk += struct.pack(
+        "<HHI16s",
+        22,
+        bits_per_sample,
+        0x00000004,
+        b"\x01\x00\x00\x00\x00\x00\x10\x00\x80\x00\x00\xaa\x00\x38\x9b\x71",
+    )
+
+    pcm_data = b"\x00" * (frame_count * block_align)
+    riff_size = 4 + (8 + len(fmt_chunk)) + (8 + len(pcm_data))
+    file_data = b"RIFF" + struct.pack("<I", riff_size) + b"WAVE"
+    file_data += b"fmt " + struct.pack("<I", len(fmt_chunk)) + fmt_chunk
+    file_data += b"data" + struct.pack("<I", len(pcm_data)) + pcm_data
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(file_data)
