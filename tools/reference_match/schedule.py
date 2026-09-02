@@ -62,9 +62,8 @@ def build_schedule(
         start_run = (not in_guard) and (rng.random() < float(cfg["speech_step_probability"]))
         if start_run:
             run_serial += 1
-            run_len = int(rng.choice([1, 2, 3], p=[0.70, 0.22, 0.08]))
-            run_len = min(run_len, n_steps - step)
-            n_words = int(rng.choice([1, 2, 3], p=[0.52, 0.33, 0.15]))
+            run_len = 1
+            n_words = 1
             voice = voices[voice_i % len(voices)]
             voice_i += 1
             word_times = np.linspace(t0 + 0.01, t1 + (run_len - 1) * dwell - 0.03, n_words)
@@ -74,6 +73,12 @@ def build_schedule(
                 word = str(WORD_POOL[int(rng.integers(0, len(WORD_POOL)))])
                 hp = float(rng.uniform(160.0, 380.0))
                 lp = float(rng.uniform(2800.0, 6200.0))
+                gate_ms = float(
+                    rng.uniform(
+                        float(cfg.get("station_gate_ms_min", 100.0)),
+                        float(cfg.get("station_gate_ms_max", 180.0)),
+                    )
+                )
                 if every_third:
                     hp = float(rng.uniform(280.0, 480.0))
                     lp = float(rng.uniform(1600.0, 2800.0))
@@ -88,7 +93,9 @@ def build_schedule(
                     {
                         "time": float(wt),
                         "start_s": float(wt),
-                        "end_s": float(min(duration_s, wt + (0.11 if every_third else 0.20))),
+                        "end_s": float(min(duration_s, wt + gate_ms / 1000.0)),
+                        "gate_ms": gate_ms,
+                        "edge_ms": float(cfg.get("station_edge_ms", 40.0)),
                         "event_type": "speech",
                         "scan_dwell_index": step + min(local_i, run_len - 1),
                         "voice": voice,

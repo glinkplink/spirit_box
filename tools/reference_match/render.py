@@ -7,8 +7,69 @@ from typing import Any
 import numpy as np
 
 from tools.reference_match.constants import SAMPLE_RATE
-from tools.reference_match.degrade import apply_radio_degrade, fade_edges
+from tools.reference_match.degrade import apply_radio_degrade, bandlimit, fade_edges
 from tools.reference_match.radio import apply_step_band_color, static_bed, tuning_chirp
+
+
+def station_gate(n: int, sample_rate: int, edge_ms: float = 40.0) -> np.ndarray:
+    """Linear 0–100% edges; 40 ms edges give ~32 ms 10–90% attack (30–50 ms class)."""
+    n = int(n)
+    g = np.ones(n, dtype=np.float32)
+    if n <= 1:
+        return g
+    edge = int(round(sample_rate * float(edge_ms) / 1000.0))
+    edge = max(1, min(edge, n // 2))
+    ramp = np.linspace(0.0, 1.0, edge, dtype=np.float32)
+    g[:edge] = ramp
+    g[-edge:] = ramp[::-1]
+    return g
+
+
+def mix_station_replace(
+    dst: np.ndarray,
+    station: np.ndarray,
+    at: int,
+    gate: np.ndarray,
+    noise_duck_db: float = float("-inf"),
+) -> None:
+    """out = (1-g)*noise + g*station, with optional residual hiss under the gate."""
+    if at >= len(dst) or at < 0:
+        return
+    n = min(len(dst) - at, len(station), len(gate))
+    if n <= 0:
+        return
+    sl = dst[at : at + n]
+    g = gate[:n].astype(np.float32, copy=False)
+    if np.isfinite(noise_duck_db):
+        duck = float(10 ** (float(noise_duck_db) / 20.0))
+    else:
+        duck = 0.0
+    noise_g = (1.0 - g) + g * duck
+    sl[:] = noise_g * sl + g * station[:n]
+
+
+def _make_station(
+    voice: np.ndarray,
+    bed_slice: np.ndarray,
+    sample_rate: int,
+    *,
+    peak_dbfs: float,
+    hf_boost_db: float,
+    speech_gain: float,
+) -> np.ndarray:
+    n = min(len(voice), len(bed_slice))
+    voice = voice[:n].astype(np.float32, copy=True) * float(speech_gain)
+    bed_slice = bed_slice[:n].astype(np.float32, copy=False)
+    hf = bandlimit(bed_slice, sample_rate, 5500.0, min(16000.0, sample_rate * 0.49))
+    hf_rms = float(np.sqrt(np.mean(hf * hf)) + 1e-12)
+    target = hf_rms * (10 ** (float(hf_boost_db) / 20.0))
+    hf = hf * (target / hf_rms)
+    station = voice + hf
+    peak = float(np.max(np.abs(station)) + 1e-12)
+    ceiling = 10 ** (float(peak_dbfs) / 20.0)
+    if peak > ceiling:
+        station *= ceiling / peak
+    return station.astype(np.float32)
 
 
 def _mix(dst: np.ndarray, src: np.ndarray, at: int, gain: float) -> None:
@@ -59,6 +120,7 @@ def render_session(
         elif event["event_type"] == "speech":
             key = (event["voice"], event["source_word"])
             src = speech_bank[key]
+            window_s = float(event["end_s"]) - float(event["start_s"])
             degraded, meta = apply_radio_degrade(
                 src,
                 sample_rate,
@@ -67,10 +129,33 @@ def render_session(
                 hp_hz=float(event["high_pass"]),
                 lp_hz=float(event["low_pass"]),
                 snr_db=float(event["snr_db"]),
+                window_s=window_s,
             )
             at = int(float(event["start_s"]) * sample_rate)
-            _mix(mix, degraded, at, float(event["gain"]))
-            speech_samples += len(degraded)
+            n_v = min(len(degraded), len(mix) - at, int(round(window_s * sample_rate)))
+            if n_v <= 0:
+                logged.append(logged_event)
+                continue
+            voice = degraded[:n_v]
+            bed_slice = mix[at : at + n_v].copy()
+            edge_ms = float(event.get("edge_ms", cfg.get("station_edge_ms", 40.0)))
+            gate = station_gate(n_v, sample_rate, edge_ms=edge_ms)
+            station = _make_station(
+                voice,
+                bed_slice,
+                sample_rate,
+                peak_dbfs=float(cfg.get("station_peak_dbfs", -15.0)),
+                hf_boost_db=float(cfg.get("station_hf_boost_db", 12.0)),
+                speech_gain=float(event["gain"]),
+            )
+            mix_station_replace(
+                mix,
+                station,
+                at,
+                gate,
+                noise_duck_db=float(cfg.get("station_noise_duck_db", -96.0)),
+            )
+            speech_samples += n_v
             logged_event.update(
                 {
                     "source_crop": {

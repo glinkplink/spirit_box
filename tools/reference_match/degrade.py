@@ -95,30 +95,24 @@ def crop_word_window(
     sr: int,
     rng: np.random.Generator,
     heavy: bool = False,
+    window_s: float | None = None,
 ) -> tuple[np.ndarray, dict[str, Any]]:
     n = int(len(pcm))
-    min_s = 0.045 if heavy else 0.07
-    max_s = 0.12 if heavy else 0.26
-    length = int(rng.integers(int(min_s * sr), int(min(max_s * sr, n)) + 1))
-    length = max(32, min(length, n))
-    style = str(
-        rng.choice(["onset", "ending", "middle", "cv", "fullish"], p=[0.24, 0.22, 0.22, 0.22, 0.10])
-    )
-    if style == "onset":
-        start = 0
-    elif style == "ending":
-        start = n - length
-    elif style == "middle":
-        start = max(0, (n - length) // 2)
+    min_n = min(n, max(32, int(round(0.100 * sr))))
+    max_n = min(n, max(min_n, int(round(0.180 * sr))))
+    if window_s is None:
+        length = int(rng.integers(min_n, max_n + 1))
     else:
-        start = int(rng.integers(0, max(1, n - length + 1)))
-    start = int(np.clip(start, 0, n - length))
+        length = int(round(float(window_s) * sr))
+        length = max(min_n, min(length, max_n))
+    start = max(0, (n - length) // 2)
     end = start + length
     return pcm[start:end].copy(), {
-        "crop_style": style,
+        "crop_style": "middle",
         "start_sample": start,
         "end_sample": end,
         "pcm_reversed": False,
+        "heavy": heavy,
     }
 
 
@@ -131,25 +125,19 @@ def apply_radio_degrade(
     hp_hz: float,
     lp_hz: float,
     snr_db: float,
+    window_s: float | None = None,
 ) -> tuple[np.ndarray, dict[str, Any]]:
-    cropped, crop_meta = crop_word_window(pcm, sr, rng, heavy=heavy)
+    cropped, crop_meta = crop_word_window(pcm, sr, rng, heavy=heavy, window_s=window_s)
     voice = bandlimit(cropped, sr, hp_hz, lp_hz)
     if heavy:
         voice = spectral_dropout(voice, sr, rng)
         voice = bandlimit(voice, sr, min(hp_hz + 80.0, 500.0), max(1400.0, lp_hz * 0.55))
     voice = compress(voice, threshold=0.14 if not heavy else 0.11, ratio=2.8 if not heavy else 3.6)
     voice = soft_clip(voice, drive=1.25 if not heavy else 1.55)
-    noise = rng.standard_normal(len(voice)).astype(np.float32)
-    noise = bandlimit(noise, sr, 180.0, 7500.0 if not heavy else 5200.0)
-    speech_rms = float(np.sqrt(np.mean(voice * voice)) + 1e-12)
-    noise_rms = float(np.sqrt(np.mean(noise * noise)) + 1e-12)
-    target = speech_rms / (10 ** (snr_db / 20.0))
-    noise *= target / noise_rms
-    mixed = voice + noise
-    mixed = fade_edges(mixed, sr, 2.0 if not heavy else 1.2)
-    peak = float(np.max(np.abs(mixed)) + 1e-12)
+    # EXP-001: do not bake a second hiss layer under the crop; the mixer gate replaces the bed.
+    peak = float(np.max(np.abs(voice)) + 1e-12)
     if peak > 0.9:
-        mixed = mixed * (0.9 / peak)
+        voice = voice * (0.9 / peak)
     meta = {
         **crop_meta,
         "heavy": heavy,
@@ -157,5 +145,6 @@ def apply_radio_degrade(
         "lp_hz": lp_hz,
         "snr_db": snr_db,
         "pcm_reversed": False,
+        "added_noise_layer": False,
     }
-    return mixed.astype(np.float32), meta
+    return voice.astype(np.float32), meta

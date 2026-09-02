@@ -29,4 +29,11 @@ DEFAULT_SYNTHESIS = {
     "click_fade_ms": 3.0,
     "ordinary_snr_db": (-8.0, 3.0),
     "heavy_snr_db": (-16.0, -8.0),
+    # EXP-001: shared station-strength gate. Does not retune noise color or scan clock.
+    "station_gate_ms_min": 100.0,
+    "station_gate_ms_max": 180.0,
+    "station_edge_ms": 40.0,
+    "station_noise_duck_db": -96.0,
+    "station_peak_dbfs": -15.0,
+    "station_hf_boost_db": 12.0,
 }

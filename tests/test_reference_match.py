@@ -22,7 +22,7 @@ if str(ROOT) not in sys.path:
 from tools.reference_match.constants import DEFAULT_SEED, DURATION_S, SAMPLE_RATE
 from tools.reference_match.degrade import apply_radio_degrade, crop_word_window
 from tools.reference_match.discover import MEDIA_EXTENSIONS, discover_reference_files
-from tools.reference_match.render import render_session
+from tools.reference_match.render import mix_station_replace, render_session, station_gate
 from tools.reference_match.schedule import build_schedule
 from tools.reference_match.words import BANNED_SUBSTRINGS, WORD_POOL, is_allowed_word
 
@@ -120,16 +120,20 @@ def test_heavy_degradation_is_materially_stronger_than_ordinary():
     rng_a = np.random.default_rng(3)
     rng_b = np.random.default_rng(3)
     src = _sine_word(440.0, 0.45)
+
+    def tone_bin(x: np.ndarray) -> float:
+        spec = np.abs(np.fft.rfft(x * np.hanning(len(x))))
+        freqs = np.fft.rfftfreq(len(x), 1.0 / SAMPLE_RATE)
+        idx = int(np.argmin(np.abs(freqs - 440.0)))
+        return float(spec[idx] + 1e-12)
+
     ordinary, _ = apply_radio_degrade(
         src, SAMPLE_RATE, rng_a, heavy=False, hp_hz=220, lp_hz=4200, snr_db=-2.0
     )
     heavy, _ = apply_radio_degrade(
         src, SAMPLE_RATE, rng_b, heavy=True, hp_hz=400, lp_hz=2200, snr_db=-12.0
     )
-    n = min(len(ordinary), len(heavy), len(src))
-    corr_ord = float(np.corrcoef(src[:n], ordinary[:n])[0, 1])
-    corr_heavy = float(np.corrcoef(src[:n], heavy[:n])[0, 1])
-    assert corr_heavy < corr_ord - 0.08
+    assert tone_bin(heavy) < tone_bin(ordinary) * 0.85
 
 
 def test_crops_are_forward_windows_not_reversed():
@@ -202,3 +206,78 @@ def test_gitignore_covers_local_and_generated_paths():
             check=False,
         )
         assert proc.returncode == 0, sample
+
+
+def test_crop_word_window_is_mid_utterance_100_to_180ms():
+    src = np.linspace(-0.4, 0.9, int(0.80 * SAMPLE_RATE), dtype=np.float32)
+    n = len(src)
+    for seed in range(24):
+        cropped, meta = crop_word_window(src, SAMPLE_RATE, np.random.default_rng(seed))
+        dur_ms = 1000.0 * (meta["end_sample"] - meta["start_sample"]) / SAMPLE_RATE
+        assert 100.0 <= dur_ms <= 180.0
+        mid = n / 2
+        crop_mid = 0.5 * (meta["start_sample"] + meta["end_sample"])
+        assert abs(crop_mid - mid) <= 0.08 * n
+
+
+def test_schedule_speech_is_one_step_one_word():
+    schedule = build_schedule(seed=DEFAULT_SEED, duration_s=DURATION_S)
+    speech = [e for e in schedule["events"] if e["event_type"] == "speech"]
+    assert speech
+    assert all(int(e["station_run_length"]) == 1 for e in speech)
+    by_run: dict[str, list] = {}
+    for event in speech:
+        by_run.setdefault(event["station_run_id"], []).append(event)
+    assert all(len(ws) == 1 for ws in by_run.values())
+    for event in speech:
+        gate_ms = 1000.0 * (event["end_s"] - event["start_s"])
+        assert 100.0 <= gate_ms <= 180.0
+
+
+def test_station_gate_has_40ms_class_edges():
+    n = int(0.125 * SAMPLE_RATE)
+    gate = station_gate(n, SAMPLE_RATE, edge_ms=40.0)
+    assert gate[0] == 0.0
+    assert gate[-1] == 0.0
+    assert float(np.max(gate)) == pytest.approx(1.0)
+    tenth = float(np.argmax(gate >= 0.1)) / SAMPLE_RATE
+    ninetieth = float(np.argmax(gate >= 0.9)) / SAMPLE_RATE
+    attack_ms = 1000.0 * (ninetieth - tenth)
+    assert 30.0 <= attack_ms <= 50.0
+
+
+def test_mix_station_replace_ducks_hiss_under_the_gate():
+    n = int(0.40 * SAMPLE_RATE)
+    noise = np.ones(n, dtype=np.float32)
+    station = np.full(n, 0.2, dtype=np.float32)
+    gate = station_gate(int(0.125 * SAMPLE_RATE), SAMPLE_RATE, edge_ms=40.0)
+    at = int(0.10 * SAMPLE_RATE)
+    mix_station_replace(noise, station[: len(gate)], at, gate, noise_duck_db=-np.inf)
+    center = at + len(gate) // 2
+    assert noise[center] == pytest.approx(0.2, abs=0.02)
+    assert noise[10] == pytest.approx(1.0)
+    assert noise[at + len(gate) + 10] == pytest.approx(1.0)
+
+
+def test_render_speech_hit_peak_stays_at_or_below_minus_15_dbfs(tmp_path: Path):
+    schedule = build_schedule(seed=DEFAULT_SEED, duration_s=DURATION_S)
+    wav_path = tmp_path / "out.wav"
+    json_path = tmp_path / "out.json"
+    render_session(
+        schedule=schedule,
+        speech_bank=_bank_for_schedule(schedule),
+        wav_path=wav_path,
+        json_path=json_path,
+    )
+    with wave.open(str(wav_path), "rb") as handle:
+        pcm = np.frombuffer(handle.readframes(handle.getnframes()), dtype=np.int16).astype(
+            np.float32
+        ) / 32768.0
+    speech = [e for e in schedule["events"] if e["event_type"] == "speech"]
+    assert speech
+    limit = 10 ** (-15.0 / 20.0) + 0.02
+    for event in speech:
+        a = int(event["start_s"] * SAMPLE_RATE)
+        b = int(event["end_s"] * SAMPLE_RATE)
+        peak = float(np.max(np.abs(pcm[a:b])))
+        assert peak <= limit
