@@ -1,3 +1,6 @@
+# Linked git worktrees
+.worktrees/
+
 # Xcode user state
 xcuserdata/
 *.xcuserstate
