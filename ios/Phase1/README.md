@@ -1,13 +1,13 @@
-# Bundled Phase 1 corpus
+# Bundled Phase 1 corpus (me_test)
 
-This folder is empty on purpose.
+`manifest.json` and `me_test_*.wav` are bundled into the harness app so TestFlight builds load the corpus without copying files on device.
 
-To bundle a Phase 1 human corpus into the harness app:
+Regenerate from `recordings/me_test.m4a`:
 
-1. Add `manifest.json` here using the production metadata fields.
-2. Add the accepted WAV files referenced by `relative_path` or `final_filename`.
-3. Rebuild the `SpiritBoxAudioHarness` target.
+```bash
+PYTHONPATH=. python3 tools/prepare_corpus.py recordings/me_test.m4a \
+  --family me_test --output build/corpus/me_test
+cp -a build/corpus/me_test/SpiritBoxPhase1Corpus/. ios/Phase1/
+```
 
-The loader prefers `Documents/SpiritBoxPhase1Corpus` over this folder, so you can also drop a corpus onto a device without rebuilding.
-
-See `docs/engineering/AUDIO_HARNESS.md`.
+Loader order: `Documents/SpiritBoxPhase1Corpus` → this folder → `DevFixtures`.

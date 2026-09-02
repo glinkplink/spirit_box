@@ -114,6 +114,21 @@ jobs:
           fi
           echo "CHECKED_OUT_SHA=${actual}" >> "${GITHUB_ENV}"
 
+      - name: Verify bundled Phase 1 corpus
+        run: |
+          set -euo pipefail
+          manifest="ios/Phase1/manifest.json"
+          if [[ ! -f "${manifest}" ]]; then
+            echo "::error::ios/Phase1/manifest.json is missing. Run ./scripts/bundle-phase1-corpus.sh before TestFlight."
+            exit 1
+          fi
+          wav_count="$(find ios/Phase1 -maxdepth 1 -name '*.wav' | wc -l | tr -d ' ')"
+          if [[ "${wav_count}" -lt 1 ]]; then
+            echo "::error::ios/Phase1 has no bundled WAV files."
+            exit 1
+          fi
+          echo "Bundled Phase 1 corpus: ${wav_count} WAV(s), manifest present."
+
       - name: Verify Xcode project exists
         id: project
         run: |
