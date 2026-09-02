@@ -26,6 +26,7 @@
 		A00000000000000000000022 /* CorpusModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000F /* CorpusModelTests.swift */; };
 		A00000000000000000000023 /* SweepEventLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000010 /* SweepEventLogTests.swift */; };
 		A00000000000000000000024 /* FragmentBufferFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* FragmentBufferFactoryTests.swift */; };
+		A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000052 /* EngineOutputCaptureTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		A0000000000000000000000F /* CorpusModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorpusModelTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000010 /* SweepEventLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SweepEventLogTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000011 /* FragmentBufferFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FragmentBufferFactoryTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000052 /* EngineOutputCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineOutputCaptureTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000012 /* DevFixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DevFixtures; sourceTree = "<group>"; };
 		A00000000000000000000013 /* Phase1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Phase1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -125,6 +127,7 @@
 				A0000000000000000000000F /* CorpusModelTests.swift */,
 				A00000000000000000000010 /* SweepEventLogTests.swift */,
 				A00000000000000000000011 /* FragmentBufferFactoryTests.swift */,
+				A00000000000000000000052 /* EngineOutputCaptureTests.swift */,
 			);
 			path = SweepEngineTests;
 			sourceTree = "<group>";
@@ -253,6 +256,7 @@
 				A00000000000000000000022 /* CorpusModelTests.swift in Sources */,
 				A00000000000000000000023 /* SweepEventLogTests.swift in Sources */,
 				A00000000000000000000024 /* FragmentBufferFactoryTests.swift in Sources */,
+				A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,7 +424,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.glinkplink.SpiritBoxAudioHarness;
+				PRODUCT_BUNDLE_IDENTIFIER = com.spiritbox.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -451,7 +455,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.glinkplink.SpiritBoxAudioHarness;
+				PRODUCT_BUNDLE_IDENTIFIER = com.spiritbox.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -476,7 +480,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.glinkplink.SpiritBoxAudioHarness.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.spiritbox.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -502,7 +506,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.glinkplink.SpiritBoxAudioHarness.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.spiritbox.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

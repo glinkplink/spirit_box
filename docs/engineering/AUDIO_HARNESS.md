@@ -72,6 +72,8 @@ The engine is independent of the harness views so it can later be reused by the 
 
 Minimum deployment target: **iOS 17**.
 
+Application Bundle ID: **`com.spiritbox.app`** (App Store Connect). Test bundle: **`com.spiritbox.app.tests`**. The Xcode target/scheme may still be named `SpiritBoxAudioHarness`.
+
 ## How corpus assets are discovered
 
 `CorpusLoader` searches in this order:
@@ -166,6 +168,10 @@ Repeated start/stop should not leave orphaned nodes.
 
 This captures the **final mixed engine output** (procedural noise + scheduled fragments).
 
+The diagnostic tap is installed on **`AVAudioEngine.mainMixerNode` bus 0** after both the procedural noise source and the fragment player are connected to that mixer. It therefore records the engine’s audible mix — noise bed + scheduled fragments + their mix timing — not a single pre-mixer node, not microphone input, and not customer session recording.
+
+Buffer ownership: inside the tap callback the engine copies PCM samples into an independent `AVAudioPCMBuffer`, then enqueues **only that copy** onto a bounded capture-writer queue (max 8 pending buffers; extra taps are dropped). File I/O runs off the real-time render callback. Capture failures are published as a failed diagnostic state and do not stop sweep playback.
+
 It is **not** the future customer session-recording feature and does not use the microphone.
 
 In the harness:
@@ -220,9 +226,11 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-Tests cover scheduler behavior, rates, FWD/REV order, corpus edge cases, and capture path naming.
+Tests cover scheduler behavior, rates, FWD/REV order, corpus edge cases, capture path naming, and capture-writer file output.
 
-They do **not** decide whether the product sounds believable.
+They do **not** decide whether the product sounds believable. The canonical 15–20 minute listening gate remains:
+
+`NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
 
 ## How to run the harness
 

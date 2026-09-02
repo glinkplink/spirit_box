@@ -11,6 +11,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
     public var onRuntimeMessage: ((String) -> Void)?
 
     private let queue = DispatchQueue(label: "com.glinkplink.spiritbox.sweep-engine")
+    private let captureWriteQueue = DispatchQueue(label: "com.glinkplink.spiritbox.sweep-engine.capture-write")
+    private let captureBackpressure = DispatchSemaphore(value: 8)
     private let engine = AVAudioEngine()
     private var fragmentPlayer = AVAudioPlayerNode()
     private let noiseState = ProceduralNoiseState()
@@ -31,6 +33,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private var direction: SweepDirection = .forward
     private var captureTickCounter = 0
     private var captureTapInstalled = false
+    private var captureActive = false
 
     public init(eventLog: SweepEventLog = SweepEventLog()) {
         self.eventLog = eventLog
@@ -273,13 +276,28 @@ public final class SweepAudioEngine: @unchecked Sendable {
         let url = EngineOutputCaptureLocator.makeFileURL(
             in: EngineOutputCaptureLocator.documentsDirectory()
         )
-        try captureWriter.start(url: url, format: mixFormat, durationSeconds: durationSeconds)
+        try captureWriteQueue.sync {
+            try captureWriter.start(url: url, format: mixFormat, durationSeconds: durationSeconds)
+        }
         captureTickCounter = 0
+        captureActive = true
         try openCaptureEventFileLocked(for: url)
 
-        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: mixFormat) { [weak self] buffer, _ in
-            self?.queue.async {
-                self?.handleCaptureBufferLocked(buffer)
+        let writeQueue = captureWriteQueue
+        let backpressure = captureBackpressure
+        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: mixFormat) { buffer, _ in
+            // Copy samples before returning from the tap. The engine may reuse the
+            // original AVAudioPCMBuffer after this callback returns.
+            if backpressure.wait(timeout: .now()) != .success {
+                return
+            }
+            guard let copy = PCMBufferIndependentCopy.make(from: buffer) else {
+                backpressure.signal()
+                return
+            }
+            writeQueue.async { [weak self] in
+                defer { backpressure.signal() }
+                self?.handleCaptureBufferOnWriteQueue(copy)
             }
         }
         captureTapInstalled = true
@@ -287,26 +305,34 @@ public final class SweepAudioEngine: @unchecked Sendable {
         publishCapture(.capturing(elapsedSeconds: 0, durationSeconds: durationSeconds, url: url))
     }
 
-    private func handleCaptureBufferLocked(_ buffer: AVAudioPCMBuffer) {
-        guard captureWriter.isWriting else { return }
+    private func handleCaptureBufferOnWriteQueue(_ buffer: AVAudioPCMBuffer) {
         do {
             let finished = try captureWriter.write(buffer)
             if finished {
-                finishCaptureLocked(failed: nil)
+                queue.async { [weak self] in
+                    self?.finishCaptureLocked(failed: nil)
+                }
             }
         } catch {
-            finishCaptureLocked(failed: error.localizedDescription)
+            let message = error.localizedDescription
+            queue.async { [weak self] in
+                self?.finishCaptureLocked(failed: message)
+            }
         }
     }
 
     private func updateCaptureElapsedLocked() {
-        guard captureWriter.isWriting, let url = captureWriter.url else { return }
+        guard captureActive else { return }
+        let snapshot: (writing: Bool, url: URL?, elapsed: Int, duration: Int) = captureWriteQueue.sync {
+            (captureWriter.isWriting, captureWriter.url, captureWriter.elapsedSeconds, captureWriter.durationSeconds)
+        }
+        guard snapshot.writing, let url = snapshot.url else { return }
         captureTickCounter += 1
         if captureTickCounter % 4 == 0 {
             publishCapture(
                 .capturing(
-                    elapsedSeconds: captureWriter.elapsedSeconds,
-                    durationSeconds: captureWriter.durationSeconds,
+                    elapsedSeconds: snapshot.elapsed,
+                    durationSeconds: snapshot.duration,
                     url: url
                 )
             )
@@ -314,10 +340,13 @@ public final class SweepAudioEngine: @unchecked Sendable {
     }
 
     private func finishCaptureLocked(failed: String?) {
-        let capturedSeconds = captureWriter.elapsedSeconds
-        let url = captureWriter.stop()
+        guard captureActive || captureTapInstalled else { return }
+        captureActive = false
+        let stopped = captureWriteQueue.sync {
+            captureWriter.stop()
+        }
         closeCaptureEventFileLocked()
-        if let url {
+        if let url = stopped.url {
             writeFullEventLogSnapshotLocked(nextTo: url)
         }
         if captureTapInstalled {
@@ -326,8 +355,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
         }
         if let failed {
             publishCapture(.failed(failed))
-        } else if let url {
-            publishCapture(.finished(url: url, seconds: capturedSeconds))
+        } else if let url = stopped.url {
+            publishCapture(.finished(url: url, seconds: stopped.seconds))
         } else {
             publishCapture(.idle)
         }
@@ -371,7 +400,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         }
     }
 
-    enum CaptureError: Error, LocalizedError {
+    enum CaptureError: Error, LocalizedError, Equatable {
         case sweepNotRunning
         case engineFormatUnavailable
 

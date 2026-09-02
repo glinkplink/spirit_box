@@ -82,6 +82,8 @@ final class EngineOutputCaptureWriter {
         targetFrames = AVAudioFrameCount(max(1, durationSeconds) * Int(format.sampleRate.rounded()))
     }
 
+    /// Returns true when the configured duration has been reached. No-ops after stop.
+    @discardableResult
     func write(_ buffer: AVAudioPCMBuffer) throws -> Bool {
         guard let file else { return true }
         try file.write(from: buffer)
@@ -89,13 +91,48 @@ final class EngineOutputCaptureWriter {
         return writtenFrames >= targetFrames
     }
 
+    var recordedFrameCount: AVAudioFrameCount { writtenFrames }
+
     @discardableResult
-    func stop() -> URL? {
+    func stop() -> (url: URL?, seconds: Int) {
         let finished = url
+        let seconds = elapsedSeconds
         file = nil
         url = nil
         writtenFrames = 0
         targetFrames = 0
-        return finished
+        durationSeconds = 0
+        return (finished, seconds)
+    }
+}
+
+/// Deep-copies PCM samples so they remain valid after an AVAudioEngine tap callback returns.
+enum PCMBufferIndependentCopy {
+    static func make(from buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
+        let frames = buffer.frameLength
+        guard frames > 0 else { return nil }
+        guard let copy = AVAudioPCMBuffer(pcmFormat: buffer.format, frameCapacity: frames) else {
+            return nil
+        }
+        copy.frameLength = frames
+
+        let sourceList = UnsafeMutableAudioBufferListPointer(
+            UnsafeMutablePointer(mutating: buffer.audioBufferList)
+        )
+        let destinationList = UnsafeMutableAudioBufferListPointer(copy.mutableAudioBufferList)
+        guard sourceList.count == destinationList.count else { return nil }
+
+        for index in 0..<sourceList.count {
+            let source = sourceList[index]
+            var destination = destinationList[index]
+            guard let sourceData = source.mData, let destinationData = destination.mData else {
+                return nil
+            }
+            let byteCount = Int(source.mDataByteSize)
+            destinationData.copyMemory(from: sourceData, byteCount: byteCount)
+            destination.mDataByteSize = source.mDataByteSize
+            destinationList[index] = destination
+        }
+        return copy
     }
 }
