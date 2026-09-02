@@ -18,7 +18,8 @@ resolve_changed_files() {
       echo "BASE_SHA is required for pull_request events."
       exit 1
     fi
-    git diff --name-only "${BASE_SHA}" "${HEAD_SHA}"
+    # Three-dot diff: changes introduced on the PR branch only (merge-base..head).
+    git diff --name-only "${BASE_SHA}...${HEAD_SHA}"
     return
   fi
 
