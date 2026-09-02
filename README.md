@@ -6,15 +6,23 @@ A focused iPhone spirit-box instrument centered on:
 
 Spirit Box is an iOS-first product. Implementation is planned in Swift/SwiftUI. V1 is offline-first and has no backend or user accounts.
 
-## Product specification
+## Project documentation
 
-Canonical product specification:
+**Canonical** (authoritative; overrides all supporting documents):
 
 - [`docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md`](docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md)
 
-Supporting research (evidence only; the canonical document wins on conflict):
+**Research** (evidence and architecture-decision research):
 
 - [`docs/research/`](docs/research/)
+
+**Production** (operational production inputs):
+
+- [`docs/production/`](docs/production/)
+
+**Launch** (ASO, conversion, and first-user acquisition playbooks):
+
+- [`docs/launch/`](docs/launch/)
 
 ## Repository workflow
 
