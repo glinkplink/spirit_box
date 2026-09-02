@@ -24,7 +24,7 @@ jobs:
       PROJECT_PATH: ios/SpiritBoxAudioHarness.xcodeproj
       SCHEME_NAME: SpiritBoxAudioHarness
       APP_TARGET: SpiritBoxAudioHarness
-      REQUIRED_BUNDLE_ID: com.spiritbox.app
+      REQUIRED_BUNDLE_ID: com.glinkplink.spiritbox
 
     steps:
       - name: Print toolchain
@@ -508,7 +508,7 @@ jobs:
             echo "::error::Failure class: shared scheme SpiritBoxAudioHarness missing."
           fi
           if [[ "${{ steps.identity.outcome }}" == "failure" ]]; then
-            echo "::error::Failure class: could not read identity settings, or PRODUCT_BUNDLE_IDENTIFIER is not exactly com.spiritbox.app."
+            echo "::error::Failure class: could not read identity settings, or PRODUCT_BUNDLE_IDENTIFIER is not exactly com.glinkplink.spiritbox."
           fi
           if [[ "${{ steps.tests.outcome }}" == "failure" ]]; then
             echo "::error::Failure class: ./scripts/ci-ios-test.sh failed. The requested SHA was not uploaded."

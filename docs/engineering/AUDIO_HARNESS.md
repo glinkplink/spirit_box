@@ -72,7 +72,7 @@ The engine is independent of the harness views so it can later be reused by the 
 
 Minimum deployment target: **iOS 17**.
 
-Application Bundle ID: **`com.spiritbox.app`** (App Store Connect). Test bundle: **`com.spiritbox.app.tests`**. The Xcode target/scheme may still be named `SpiritBoxAudioHarness`.
+Application Bundle ID: **`com.glinkplink.spiritbox`** (App Store Connect). Test bundle: **`com.glinkplink.spiritbox.tests`**. The Xcode target/scheme may still be named `SpiritBoxAudioHarness`.
 
 ## How corpus assets are discovered
 

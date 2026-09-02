@@ -17,7 +17,7 @@ Repository secrets (GitHub → Settings → Secrets and variables → Actions):
 
 App Store Connect application Bundle ID (authoritative):
 
-`com.spiritbox.app`
+`com.glinkplink.spiritbox`
 
 Do **not** create another Bundle ID or a second App Store Connect app for the audio harness.
 
