@@ -59,7 +59,10 @@ def build_schedule(
         t0 = step * dwell
         t1 = min(duration_s, (step + 1) * dwell)
         in_guard = t0 < 1.15 or t0 > duration_s - 0.7
-        start_run = (not in_guard) and (rng.random() < float(cfg["speech_step_probability"]))
+        prev_speech = bool(steps and steps[-1].get("has_speech"))
+        start_run = (not in_guard) and (not prev_speech) and (
+            rng.random() < float(cfg["speech_step_probability"])
+        )
         if start_run:
             run_serial += 1
             run_len = 1

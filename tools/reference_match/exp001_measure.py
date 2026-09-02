@@ -37,8 +37,8 @@ def _band_envelope(pcm: np.ndarray, sr: int, lo: float, hi: float, hop: int = 25
 
 
 def _vad_bursts(lf_env: np.ndarray, times: np.ndarray, hop_s: float) -> list[tuple[float, float]]:
-    floor = float(np.median(lf_env) + 1e-12)
-    thresh = floor * 3.2
+    floor = float(np.percentile(lf_env, 20) + 1e-12)
+    thresh = floor * (10 ** (2.0 / 20.0))
     voiced = lf_env > thresh
     bursts: list[tuple[float, float]] = []
     i = 0
@@ -74,6 +74,16 @@ def measure(path: Path) -> dict:
     corr = float(np.corrcoef(lf, hf)[0, 1])
     hop_s = hop / sr
     bursts = _vad_bursts(lf, times, hop_s)
+    kept: list[tuple[float, float]] = []
+    for t0, t1 in bursts:
+        a = int(t0 * sr)
+        b = int(t1 * sr)
+        if b <= a:
+            continue
+        if float(np.max(np.abs(pcm[a:b]))) < 0.12:
+            continue
+        kept.append((t0, t1))
+    bursts = kept
     hf_deltas = []
     formant_lens = []
     occupied = 0.0
@@ -87,7 +97,7 @@ def measure(path: Path) -> dict:
             continue
         during = _band_db(pcm[a:b], sr, 6000.0, 12000.0)
         pre = _band_db(pcm[pre_a:pre_b], sr, 6000.0, 12000.0)
-        hf_deltas.append(during - pre)
+        hf_deltas.append(float(during - pre))
         formant_lens.append(1000.0 * (t1 - t0))
     occupancy = occupied / duration if duration else 0.0
     return {

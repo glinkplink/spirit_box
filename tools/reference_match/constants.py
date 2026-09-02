@@ -35,5 +35,5 @@ DEFAULT_SYNTHESIS = {
     "station_edge_ms": 40.0,
     "station_noise_duck_db": -96.0,
     "station_peak_dbfs": -15.0,
-    "station_hf_boost_db": 12.0,
+    "station_hf_boost_db": 18.0,
 }

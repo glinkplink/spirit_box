@@ -58,17 +58,26 @@ def _make_station(
     speech_gain: float,
 ) -> np.ndarray:
     n = min(len(voice), len(bed_slice))
-    voice = voice[:n].astype(np.float32, copy=True) * float(speech_gain)
+    voice = voice[:n].astype(np.float32, copy=True)
+    v_rms = float(np.sqrt(np.mean(voice * voice)) + 1e-12)
+    voice *= 0.072 / v_rms
+    v_peak = float(np.max(np.abs(voice)) + 1e-12)
+    if v_peak > 0.11:
+        voice *= 0.11 / v_peak
     bed_slice = bed_slice[:n].astype(np.float32, copy=False)
     hf = bandlimit(bed_slice, sample_rate, 5500.0, min(16000.0, sample_rate * 0.49))
     hf_rms = float(np.sqrt(np.mean(hf * hf)) + 1e-12)
+    hf = np.clip(hf, -3.0 * hf_rms, 3.0 * hf_rms)
     target = hf_rms * (10 ** (float(hf_boost_db) / 20.0))
-    hf = hf * (target / hf_rms)
-    station = voice + hf
-    peak = float(np.max(np.abs(station)) + 1e-12)
+    hf = hf * (target / (float(np.sqrt(np.mean(hf * hf))) + 1e-12))
+    win = max(8, int(0.008 * sample_rate))
+    mag = np.abs(voice)
+    env = np.convolve(mag, np.ones(win, dtype=np.float32) / win, mode="same")
+    env = env / (float(np.max(env)) + 1e-12)
+    env = np.maximum(env, 0.55)
+    station = voice + hf * env
     ceiling = 10 ** (float(peak_dbfs) / 20.0)
-    if peak > ceiling:
-        station *= ceiling / peak
+    station = np.clip(station, -ceiling, ceiling)
     return station.astype(np.float32)
 
 
