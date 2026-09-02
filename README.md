@@ -24,10 +24,18 @@ Spirit Box is an iOS-first product. Implementation is planned in Swift/SwiftUI. 
 
 - [`docs/launch/`](docs/launch/)
 
+**Engineering** (implementation notes for in-progress work):
+
+- [`docs/engineering/AUDIO_HARNESS.md`](docs/engineering/AUDIO_HARNESS.md)
+
 ## Repository workflow
 
 `main` is the stable integration branch. After this bootstrap, do not develop directly on `main`. Each substantive task should use its own branch or worktree, stay tightly scoped, and return to `main` through a pull request.
 
 ## Current status
 
-Repository bootstrap. Product research and architecture decisions are complete. The next engineering gate is the private audio-harness prototype defined in the canonical source of truth.
+The private audio validation harness lives in `ios/SpiritBoxAudioHarness.xcodeproj`. It is a developer tool only. See [`docs/engineering/AUDIO_HARNESS.md`](docs/engineering/AUDIO_HARNESS.md).
+
+**Audio gate status:** `NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
+
+Dev fixtures cannot satisfy that gate. Do not start the full product until a realistic Phase 1 human corpus has been listened to for 15–20 minutes.
