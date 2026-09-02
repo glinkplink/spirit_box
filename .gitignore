@@ -1,0 +1,74 @@
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad
+*.xccheckout
+*.xcscmblueprint
+
+# Derived data and build output
+DerivedData/
+build/
+Build/
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.hmap
+*.moved-aside
+
+# Xcode personal settings (keep shared defaults)
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Package Manager
+.build/
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.swiftpm/configuration/registries.json
+.netrc
+
+# CocoaPods (commit Podfile.lock; ignore local workspace user state)
+Pods/Pods.xcodeproj/xcuserdata/
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# macOS junk
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.mobileprovision
+secrets/
+credentials.json
+AuthKey_*.p8
+
+# IDE / editor
+.idea/
+*.swp
+*~
+.vscode/
+*.xcdebugger

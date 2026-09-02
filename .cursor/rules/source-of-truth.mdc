@@ -1,0 +1,16 @@
+---
+description: Canonical Spirit Box product source of truth and V1 scope lock
+alwaysApply: true
+---
+
+# Spirit Box source of truth
+
+Before planning or implementing any substantive work, read `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md`. Treat it as authoritative.
+
+`docs/research/` is supporting evidence only. If research conflicts with the canonical document, the canonical document wins.
+
+Do not expand V1 scope without explicit instruction. Do not silently change audio architecture, pricing, trust language, core workflow, or product positioning.
+
+Keep work scoped to the current branch and assigned task.
+
+The central product loop is **START → LISTEN → MARK → REPLAY**.
