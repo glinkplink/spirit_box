@@ -232,6 +232,7 @@ jobs:
         run: |
           set -euo pipefail
           ./scripts/ci-ios-test.sh
+          ./scripts/ci-verify-harness-release-plist.sh Release
           echo "TEST_RESULT=passed" >> "${GITHUB_ENV}"
 
       - name: Inspect xcodebuild export options
@@ -421,6 +422,54 @@ jobs:
             echo "Archive app has no _CodeSignature directory."
           fi
           echo "Archive succeeded."
+
+      - name: Verify archived app Info.plist exposes Documents to Files
+        run: |
+          set -euo pipefail
+          apps_dir="${ARCHIVE_PATH}/Products/Applications"
+          expected_name="${ARCHIVE_APP_NAME:-SpiritBoxAudioHarness.app}"
+          app_path="${apps_dir}/${expected_name}"
+          if [[ ! -d "${app_path}" ]]; then
+            shopt -s nullglob
+            found_apps=("${apps_dir}"/*.app)
+            shopt -u nullglob
+            if [[ "${#found_apps[@]}" -eq 1 ]]; then
+              app_path="${found_apps[0]}"
+            fi
+          fi
+          python3 - <<'PY' "${app_path}/Info.plist"
+          import plistlib
+          import sys
+
+          path = sys.argv[1]
+          with open(path, "rb") as handle:
+              plist = plistlib.load(handle)
+
+          required = (
+              "UIFileSharingEnabled",
+              "LSSupportsOpeningDocumentsInPlace",
+          )
+
+          def plist_bool(value):
+              if value is True or value == 1:
+                  return True
+              if value is False or value == 0:
+                  return False
+              return None
+
+          missing = []
+          for key in required:
+              actual = plist_bool(plist.get(key))
+              if actual is not True:
+                  missing.append(f"{key}={plist.get(key)!r} (expected true)")
+          if missing:
+              print("::error::Archived SpiritBoxAudioHarness Info.plist is missing required Files-app keys:")
+              for item in missing:
+                  print(f"::error::  {item}")
+              print("::error::Info.plist keys present:", ", ".join(sorted(plist.keys())))
+              raise SystemExit(1)
+          print("Archived app Info.plist file-sharing keys verified.")
+          PY
 
       - name: Export and upload to App Store Connect
         id: export

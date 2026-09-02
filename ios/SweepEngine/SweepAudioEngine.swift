@@ -108,9 +108,9 @@ public final class SweepAudioEngine: @unchecked Sendable {
             if audioGateRun != nil {
                 throw CaptureError.runInProgress
             }
-            let url = EngineOutputCaptureLocator.makeFileURL(
-                in: EngineOutputCaptureLocator.documentsDirectory()
-            )
+            let documents = try EngineOutputCaptureLocator.documentsDirectory()
+            try EngineOutputCaptureLocator.ensureCaptureDirectory(in: documents)
+            let url = EngineOutputCaptureLocator.makeFileURL(in: documents)
             try startCaptureLocked(
                 durationSeconds: durationSeconds,
                 wavURL: url,
@@ -299,7 +299,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         let location: AudioGateRunLocation
         do {
             location = try AudioGateRunLocator.createUniqueRunDirectory(
-                in: AudioGateRunLocator.documentsDirectory()
+                in: try AudioGateRunLocator.documentsDirectory()
             )
         } catch {
             let message = error.localizedDescription
@@ -486,7 +486,11 @@ public final class SweepAudioEngine: @unchecked Sendable {
             publishCapture(.failed(message))
         case .durationReached, .userStopped:
             if let url = stopped.url {
-                publishCapture(.finished(url: url, seconds: stopped.seconds))
+                if run == nil, let verificationError = CapturePersistenceVerifier.verify(wavURL: url) {
+                    publishCapture(.failed(verificationError))
+                } else {
+                    publishCapture(.finished(url: url, seconds: stopped.seconds))
+                }
             } else {
                 publishCapture(.idle)
             }

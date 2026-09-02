@@ -47,6 +47,10 @@ jobs:
         if: needs.classify-changes.outputs.ios_relevant == 'true'
         run: xcodebuild -version
 
+      - name: Verify Release Info.plist exposes Documents to Files
+        if: needs.classify-changes.outputs.ios_relevant == 'true'
+        run: ./scripts/ci-verify-harness-release-plist.sh Release
+
       - name: Build iOS target and run unit tests
         if: needs.classify-changes.outputs.ios_relevant == 'true'
         run: ./scripts/ci-ios-test.sh

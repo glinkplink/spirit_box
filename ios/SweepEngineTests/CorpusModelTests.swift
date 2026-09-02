@@ -103,7 +103,7 @@ final class CorpusModelTests: XCTestCase {
             kind: "phase1"
         )
 
-        let loaded = CorpusLoader.load(
+        let loaded = try CorpusLoader.load(
             fileManager: .default,
             bundle: .main,
             documentsDirectory: documents
@@ -131,8 +131,8 @@ final class CorpusModelTests: XCTestCase {
         XCTAssertEqual(LoadedCorpus.empty.source, .empty)
     }
 
-    func testAppBundleDevFixturesLoadWhenHosted() {
-        let loaded = CorpusLoader.load()
+    func testAppBundleDevFixturesLoadWhenHosted() throws {
+        let loaded = try CorpusLoader.load()
         guard loaded.source == .bundleDevFixtures else {
             // Simulator/host should include DevFixtures. If a Phase 1 drop-in is present, that is also valid.
             XCTAssertGreaterThan(loaded.assetCount, 0)
@@ -149,7 +149,7 @@ final class CorpusModelTests: XCTestCase {
         let corpus = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: true)
         XCTAssertFalse(FileManager.default.fileExists(atPath: corpus.path))
 
-        let status = CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
+        let status = try CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
 
         XCTAssertTrue(status.directoryExists)
         XCTAssertTrue(status.createdDirectory)
@@ -175,7 +175,7 @@ final class CorpusModelTests: XCTestCase {
         let manifestBefore = try Data(contentsOf: manifestURL)
         let wavBefore = try Data(contentsOf: wavURL)
 
-        let status = CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
+        let status = try CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
 
         XCTAssertTrue(status.directoryExists)
         XCTAssertFalse(status.createdDirectory)
@@ -189,11 +189,11 @@ final class CorpusModelTests: XCTestCase {
         let temp = try makeTempRoot()
         defer { try? FileManager.default.removeItem(at: temp) }
         let corpus = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: true)
-        let status = CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
+        let status = try CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
         XCTAssertTrue(status.directoryExists)
         XCTAssertFalse(status.manifestExists)
 
-        let loaded = CorpusLoader.load(
+        let loaded = try CorpusLoader.load(
             fileManager: .default,
             bundle: .main,
             documentsDirectory: corpus
@@ -213,14 +213,14 @@ final class CorpusModelTests: XCTestCase {
         let temp = try makeTempRoot()
         defer { try? FileManager.default.removeItem(at: temp) }
         let corpus = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: true)
-        _ = CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
+        _ = try CorpusLoader.ensureDocumentsCorpusDirectory(at: corpus)
         try writeManifest(
             at: corpus.appendingPathComponent(CorpusLoader.manifestFileName),
             id: "DOCS_WINS",
             kind: "phase1"
         )
 
-        let loaded = CorpusLoader.load(
+        let loaded = try CorpusLoader.load(
             fileManager: .default,
             bundle: .main,
             documentsDirectory: corpus
@@ -238,7 +238,7 @@ final class CorpusModelTests: XCTestCase {
         let blocker = temp.appendingPathComponent(CorpusLoader.documentsDirectoryName, isDirectory: false)
         try Data("not-a-folder".utf8).write(to: blocker)
 
-        let status = CorpusLoader.ensureDocumentsCorpusDirectory(at: blocker)
+        let status = try CorpusLoader.ensureDocumentsCorpusDirectory(at: blocker)
 
         XCTAssertFalse(status.directoryExists)
         XCTAssertFalse(status.createdDirectory)
@@ -248,7 +248,7 @@ final class CorpusModelTests: XCTestCase {
         let leftover = try String(contentsOf: blocker, encoding: .utf8)
         XCTAssertEqual(leftover, "not-a-folder")
 
-        let loaded = CorpusLoader.load(
+        let loaded = try CorpusLoader.load(
             fileManager: .default,
             bundle: .main,
             documentsDirectory: blocker
