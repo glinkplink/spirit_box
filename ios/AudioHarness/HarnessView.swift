@@ -15,6 +15,7 @@ struct HarnessView: View {
                 nowSection
                 audioGateRunSection
                 captureSection
+                storageDiagnosticsSection
                 logSection
             }
             .navigationTitle("Audio Harness")
@@ -219,9 +220,30 @@ struct HarnessView: View {
             Text(model.captureStatusText)
                 .font(.system(.caption, design: .monospaced))
                 .textSelection(.enabled)
-            Text("Files:\n\(model.captureDirectoryPath)")
-                .font(.system(.caption, design: .monospaced))
-                .textSelection(.enabled)
+            Text("Files → \(model.filesLocationInstruction)")
+                .font(.footnote)
+        }
+    }
+
+    private var storageDiagnosticsSection: some View {
+        Section("Storage diagnostics") {
+            LabeledContent("Documents available", value: model.documentsAvailable ? "YES" : "NO")
+            LabeledContent("Files sharing expected", value: model.filesSharingExpected ? "YES" : "NO")
+            LabeledContent("EngineOutputCaptures exists", value: model.engineOutputCapturesExists ? "YES" : "NO")
+            LabeledContent("HARNESS_FILES.txt exists", value: model.harnessFilesTxtExists ? "YES" : "NO")
+            LabeledContent("Last capture", value: model.lastCaptureFilename)
+            LabeledContent("Last capture exists", value: model.lastCaptureExists ? "YES" : "NO")
+            LabeledContent("Last capture size", value: model.lastCaptureSize)
+            Text("Files location:")
+                .font(.footnote)
+            Text("Files → \(model.filesLocationInstruction)")
+                .font(.footnote)
+            if !model.documentsDebugPath.isEmpty {
+                Text(model.documentsDebugPath)
+                    .font(.system(.caption2, design: .monospaced))
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+            }
         }
     }
 

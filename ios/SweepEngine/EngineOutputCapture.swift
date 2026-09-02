@@ -32,9 +32,32 @@ public enum EngineOutputCaptureLocator {
         url.deletingPathExtension().appendingPathExtension("events.jsonl")
     }
 
-    public static func documentsDirectory(fileManager: FileManager = .default) -> URL {
-        fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? fileManager.temporaryDirectory
+    public static func documentsDirectory(fileManager: FileManager = .default) throws -> URL {
+        try HarnessDocuments.resolve(fileManager: fileManager)
+    }
+
+    @discardableResult
+    public static func ensureCaptureDirectory(
+        in documents: URL,
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        let directory = self.directory(in: documents)
+        var isDirectory: ObjCBool = false
+        let exists = fileManager.fileExists(atPath: directory.path, isDirectory: &isDirectory)
+        if exists && isDirectory.boolValue {
+            return directory
+        }
+        if exists && !isDirectory.boolValue {
+            throw HarnessDocuments.Error.captureDirectoryCreationFailed(
+                "a file already exists at Documents/\(directoryName)"
+            )
+        }
+        do {
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            return directory
+        } catch {
+            throw HarnessDocuments.Error.captureDirectoryCreationFailed(error.localizedDescription)
+        }
     }
 
     private static let timestampFormatter: DateFormatter = {

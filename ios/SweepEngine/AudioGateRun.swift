@@ -56,9 +56,8 @@ public enum AudioGateRunLocator {
         "Files → On My iPhone → \(appDisplayName) → \(directoryName)"
     }
 
-    public static func documentsDirectory(fileManager: FileManager = .default) -> URL {
-        fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? fileManager.temporaryDirectory
+    public static func documentsDirectory(fileManager: FileManager = .default) throws -> URL {
+        try HarnessDocuments.resolve(fileManager: fileManager)
     }
 
     /// Creates a unique run directory. Never overwrites an existing run.

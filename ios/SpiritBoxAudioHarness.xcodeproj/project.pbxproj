@@ -30,6 +30,8 @@
 		A00000000000000000000024 /* FragmentBufferFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* FragmentBufferFactoryTests.swift */; };
 		A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000052 /* EngineOutputCaptureTests.swift */; };
 		A00000000000000000000057 /* AudioGateRunTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000056 /* AudioGateRunTests.swift */; };
+		A0000000000000000000005B /* HarnessDocuments.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005A /* HarnessDocuments.swift */; };
+		A0000000000000000000005D /* HarnessDocumentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005C /* HarnessDocumentsTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +57,8 @@
 		A00000000000000000000011 /* FragmentBufferFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FragmentBufferFactoryTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000052 /* EngineOutputCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineOutputCaptureTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000056 /* AudioGateRunTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioGateRunTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000005A /* HarnessDocuments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarnessDocuments.swift; sourceTree = "<group>"; };
+		A0000000000000000000005C /* HarnessDocumentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarnessDocumentsTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000012 /* DevFixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DevFixtures; sourceTree = "<group>"; };
 		A00000000000000000000013 /* Phase1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Phase1; sourceTree = "<group>"; };
 		A00000000000000000000058 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -112,6 +116,7 @@
 				A00000000000000000000007 /* ProceduralNoiseSource.swift */,
 				A00000000000000000000008 /* FragmentBufferFactory.swift */,
 				A00000000000000000000009 /* SweepAudioEngine.swift */,
+				A0000000000000000000005A /* HarnessDocuments.swift */,
 			);
 			path = SweepEngine;
 			sourceTree = "<group>";
@@ -137,6 +142,7 @@
 				A00000000000000000000011 /* FragmentBufferFactoryTests.swift */,
 				A00000000000000000000052 /* EngineOutputCaptureTests.swift */,
 				A00000000000000000000056 /* AudioGateRunTests.swift */,
+				A0000000000000000000005C /* HarnessDocumentsTests.swift */,
 			);
 			path = SweepEngineTests;
 			sourceTree = "<group>";
@@ -252,6 +258,7 @@
 				A0000000000000000000001A /* ProceduralNoiseSource.swift in Sources */,
 				A0000000000000000000001B /* FragmentBufferFactory.swift in Sources */,
 				A0000000000000000000001C /* SweepAudioEngine.swift in Sources */,
+				A0000000000000000000005B /* HarnessDocuments.swift in Sources */,
 				A0000000000000000000001D /* SpiritBoxAudioHarnessApp.swift in Sources */,
 				A0000000000000000000001E /* HarnessView.swift in Sources */,
 				A0000000000000000000001F /* HarnessViewModel.swift in Sources */,
@@ -269,6 +276,7 @@
 				A00000000000000000000024 /* FragmentBufferFactoryTests.swift in Sources */,
 				A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */,
 				A00000000000000000000057 /* AudioGateRunTests.swift in Sources */,
+				A0000000000000000000005D /* HarnessDocumentsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

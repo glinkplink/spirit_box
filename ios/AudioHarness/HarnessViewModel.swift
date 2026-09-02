@@ -26,11 +26,25 @@ final class HarnessViewModel: ObservableObject {
     @Published var audioGateRunsDirectoryPath = ""
     @Published var audioGateFilesInstruction = ""
 
+    @Published var documentsAvailable = false
+    @Published var filesSharingExpected = false
+    @Published var engineOutputCapturesExists = false
+    @Published var harnessFilesTxtExists = false
+    @Published var lastCaptureFilename = "none"
+    @Published var lastCaptureExists = false
+    @Published var lastCaptureSize = "—"
+    @Published var filesLocationInstruction = ""
+    @Published var documentsDebugPath = ""
+
     let audioGateStatus = AudioGateStatus.notYetRunWaitingForPhase1Corpus
 
     private let engine = SweepAudioEngine()
+    private let appDisplayName: String
 
     init() {
+        appDisplayName = Self.resolvedAppDisplayName()
+        filesSharingExpected = HarnessDocuments.filesSharingConfigured()
+
         engine.onEvent = { [weak self] event in
             Task { @MainActor in
                 self?.handle(event)
@@ -52,42 +66,40 @@ final class HarnessViewModel: ObservableObject {
             }
         }
 
-        documentsCorpusPath = CorpusLoader.documentsCorpusURL().path
-        captureDirectoryPath = EngineOutputCaptureLocator.directory(
-            in: EngineOutputCaptureLocator.documentsDirectory()
-        ).path
-        audioGateRunsDirectoryPath = AudioGateRunLocator.directory(
-            in: AudioGateRunLocator.documentsDirectory()
-        ).path
-        filesAppInstruction = CorpusLoader.filesAppCorpusInstruction(
-            appDisplayName: Self.resolvedAppDisplayName()
-        )
-        audioGateFilesInstruction = AudioGateRunLocator.filesAppInstruction(
-            appDisplayName: Self.resolvedAppDisplayName()
-        )
+        filesAppInstruction = CorpusLoader.filesAppCorpusInstruction(appDisplayName: appDisplayName)
+        audioGateFilesInstruction = AudioGateRunLocator.filesAppInstruction(appDisplayName: appDisplayName)
+        filesLocationInstruction = HarnessDocuments.filesAppCaptureInstruction(appDisplayName: appDisplayName)
+
+        bootstrapStorage()
         reloadCorpus()
     }
 
     func reloadCorpus() {
-        let folder = CorpusLoader.ensureDocumentsCorpusDirectory()
-        documentsCorpusPath = folder.url.path
-        documentsDirectoryExists = folder.directoryExists
-        documentsManifestExists = folder.manifestExists
-        expectedDocumentsFolderName = CorpusLoader.documentsDirectoryName
+        do {
+            let folder = try CorpusLoader.ensureDocumentsCorpusDirectory()
+            documentsCorpusPath = folder.url.path
+            documentsDirectoryExists = folder.directoryExists
+            documentsManifestExists = folder.manifestExists
+            expectedDocumentsFolderName = CorpusLoader.documentsDirectoryName
 
-        let loaded = CorpusLoader.load()
-        engine.load(loaded)
-        corpusCount = loaded.assetCount
-        skippedMalformedCount = loaded.skippedMalformedCount
-        corpusLabel = loaded.label
-        isDevFixtureCorpus = loaded.isDevFixture
-        corpusSourceDescription = Self.describe(loaded.source)
-        if let diagnostic = folder.diagnostic {
-            lastMessage = diagnostic
-        } else if loaded.assetCount == 0 {
-            lastMessage = "Zero assets. START will run the noise bed only."
-        } else {
-            lastMessage = nil
+            let loaded = try CorpusLoader.load()
+            engine.load(loaded)
+            corpusCount = loaded.assetCount
+            skippedMalformedCount = loaded.skippedMalformedCount
+            corpusLabel = loaded.label
+            isDevFixtureCorpus = loaded.isDevFixture
+            corpusSourceDescription = Self.describe(loaded.source)
+            if let diagnostic = folder.diagnostic {
+                lastMessage = diagnostic
+            } else if loaded.assetCount == 0 {
+                lastMessage = "Zero assets. START will run the noise bed only."
+            } else {
+                lastMessage = nil
+            }
+            refreshStorageDiagnostics()
+        } catch {
+            lastMessage = "Corpus reload failed: \(error.localizedDescription)"
+            refreshStorageDiagnostics()
         }
     }
 
@@ -143,6 +155,42 @@ final class HarnessViewModel: ObservableObject {
         engine.stopEngineOutputCapture()
     }
 
+    private func bootstrapStorage() {
+        do {
+            _ = try HarnessDocuments.bootstrap()
+            refreshStorageDiagnostics()
+        } catch {
+            documentsAvailable = false
+            lastMessage = error.localizedDescription
+        }
+    }
+
+    private func refreshStorageDiagnostics() {
+        let fileManager = FileManager.default
+        filesSharingExpected = HarnessDocuments.filesSharingConfigured()
+
+        do {
+            let documents = try HarnessDocuments.resolve(fileManager: fileManager)
+            documentsAvailable = true
+            documentsDebugPath = documents.path
+            captureDirectoryPath = EngineOutputCaptureLocator.directory(in: documents).path
+            audioGateRunsDirectoryPath = AudioGateRunLocator.directory(in: documents).path
+
+            let captureDirectory = EngineOutputCaptureLocator.directory(in: documents)
+            var isDirectory: ObjCBool = false
+            engineOutputCapturesExists = fileManager.fileExists(atPath: captureDirectory.path, isDirectory: &isDirectory)
+                && isDirectory.boolValue
+
+            let sentinelURL = try HarnessDocuments.harnessFilesTxtURL(fileManager: fileManager)
+            harnessFilesTxtExists = fileManager.fileExists(atPath: sentinelURL.path)
+        } catch {
+            documentsAvailable = false
+            documentsDebugPath = ""
+            engineOutputCapturesExists = false
+            harnessFilesTxtExists = false
+        }
+    }
+
     private func startCapture(seconds: Int) {
         do {
             try engine.startEngineOutputCapture(durationSeconds: seconds)
@@ -179,10 +227,29 @@ final class HarnessViewModel: ObservableObject {
         case .capturing(let elapsed, let duration, let url):
             captureStatusText = "Capturing engine mix \(elapsed)s / \(duration)s → \(url.lastPathComponent)"
         case .finished(let url, let seconds):
-            captureStatusText = "Saved engine mix (\(seconds)s): \(url.path)"
+            lastCaptureFilename = url.lastPathComponent
+            if let verificationError = CapturePersistenceVerifier.verify(wavURL: url) {
+                lastCaptureExists = false
+                lastCaptureSize = "—"
+                captureStatusText = "Capture failed: \(verificationError)"
+            } else {
+                lastCaptureExists = true
+                lastCaptureSize = Self.formatByteCount(at: url)
+                captureStatusText = "Saved engine mix (\(seconds)s): \(url.lastPathComponent)"
+            }
+            refreshStorageDiagnostics()
         case .failed(let message):
             captureStatusText = "Capture failed: \(message)"
+            refreshStorageDiagnostics()
         }
+    }
+
+    private static func formatByteCount(at url: URL) -> String {
+        guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
+              let size = attributes[.size] as? NSNumber else {
+            return "—"
+        }
+        return ByteCountFormatter.string(fromByteCount: size.int64Value, countStyle: .file)
     }
 
     private static func describe(_ source: CorpusSource) -> String {

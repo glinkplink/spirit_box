@@ -20,10 +20,9 @@ public enum CorpusLoader {
     public static let bundlePhase1Directory = "Phase1"
     public static let bundleDevFixturesDirectory = "DevFixtures"
 
-    public static func documentsCorpusURL(fileManager: FileManager = .default) -> URL {
-        let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? fileManager.temporaryDirectory
-        return documents.appendingPathComponent(documentsDirectoryName, isDirectory: true)
+    public static func documentsCorpusURL(fileManager: FileManager = .default) throws -> URL {
+        try HarnessDocuments.resolve(fileManager: fileManager)
+            .appendingPathComponent(documentsDirectoryName, isDirectory: true)
     }
 
     /// Files-app copy target. Uses the app display name, not a container UUID path.
@@ -35,8 +34,13 @@ public enum CorpusLoader {
     public static func ensureDocumentsCorpusDirectory(
         fileManager: FileManager = .default,
         at documentsCorpusURL: URL? = nil
-    ) -> DocumentsCorpusFolderStatus {
-        let url = documentsCorpusURL ?? self.documentsCorpusURL(fileManager: fileManager)
+    ) throws -> DocumentsCorpusFolderStatus {
+        let url: URL
+        if let documentsCorpusURL {
+            url = documentsCorpusURL
+        } else {
+            url = try self.documentsCorpusURL(fileManager: fileManager)
+        }
         let manifestURL = url.appendingPathComponent(manifestFileName)
 
         var isDirectory: ObjCBool = false
@@ -86,8 +90,13 @@ public enum CorpusLoader {
         fileManager: FileManager = .default,
         bundle: Bundle = .main,
         documentsDirectory: URL? = nil
-    ) -> LoadedCorpus {
-        let documentsRoot = documentsDirectory ?? documentsCorpusURL(fileManager: fileManager)
+    ) throws -> LoadedCorpus {
+        let documentsRoot: URL
+        if let documentsDirectory {
+            documentsRoot = documentsDirectory
+        } else {
+            documentsRoot = try documentsCorpusURL(fileManager: fileManager)
+        }
 
         if let loaded = loadManifest(
             root: documentsRoot,
