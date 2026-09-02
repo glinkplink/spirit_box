@@ -7,7 +7,15 @@ alwaysApply: true
 
 Before planning or implementing any substantive work, read `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md`. Treat it as authoritative.
 
-`docs/research/` is supporting evidence only. If research conflicts with the canonical document, the canonical document wins.
+Supporting documents never override canonical scope:
+
+- `docs/research/` — product research and architecture-decision evidence
+- `docs/production/` — production execution inputs (e.g. audio corpus plan)
+- `docs/launch/` — ASO, conversion, and first-user acquisition playbooks
+
+Task-specific agents should also read the relevant execution doc: audio work → canonical + `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` + `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`; launch work → canonical + the relevant `docs/launch/` playbook.
+
+If any supporting document conflicts with the canonical document, the canonical document wins.
 
 Do not expand V1 scope without explicit instruction. Do not silently change audio architecture, pricing, trust language, core workflow, or product positioning.
 

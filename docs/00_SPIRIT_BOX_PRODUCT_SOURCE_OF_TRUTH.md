@@ -1,1053 +1,1726 @@
-# APP PROFITABILITY — CURRENT SOURCE OF TRUTH
+# 00 — SPIRIT BOX PRODUCT SOURCE OF TRUTH
 
-**Date:** September 2, 2026
+**Status:** BUILD AUTHORIZED — subject only to the audio-harness gate in Section 18  
+**Date:** September 2, 2026  
+**Platform:** iPhone first  
+**Canonical role:** This document is the final product, positioning, design, monetization, and V1 implementation source of truth.
 
-## 1. Executive Verdict
+> **Precedence rule:** If this file conflicts with any earlier plan or research document, **this file wins**.
 
-### Verdict: NO BUILD YET
+Supporting evidence documents:
+- `docs/research/GHOST-HUNTER-UI-AUDIENCE-DEEP-DIVE.md`
+- `docs/research/GHOST-APP-FAILURE-FORENSICS-AND-COMPETITIVE-WHITE-SPACE.md`
+- `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md`
 
-This pass found multiple genuine revenue/complexity anomalies, but **no visible, independently verifiable app currently clears all five build gates**.
-
-The strongest commercial pattern is not a specific app concept. It is:
-
-> **High-intent, single-job iPhone utilities with a hard subscription/paywall, native SwiftUI implementation, minimal backend, and acquisition dominated by App Store search.**
-
-The strongest evidence is a **confidential May-2026 one-person Utilities/Entertainment app** with RevenueCat-verified last-30-day revenue of about **$9.35K**, ~390 active subscriptions, SwiftUI + RevenueCat only, and a seller claim of **100% organic ASO** and #1 rankings for multiple high-value keywords. This is almost exactly the business shape we want. However, because the app identity and keywords are hidden, the critical acquisition and product-gap claims cannot be independently verified. It therefore remains **WATCH, not BUILD**.
-
-**Strongest visible candidate:** the private Japanese-learning / lock-screen learning app. It has RevenueCat-verified **$9.88K last-30-day revenue**, ~25K users, 775 active subscriptions, one-person development, native iOS, offline support, and ASO/social acquisition. It fails the product-gap gate: multiple current apps now offer the same lock-screen Japanese-learning proposition, including paid and free alternatives. Rebuilding that exact wedge is therefore **KILLED**.
-
-**Largest anomaly examined:** Draft AI. RevenueCat shows roughly **$32.2K last-30-day revenue** with only 31 U.S. App Store ratings found in the current listing. But founder posts show the growth engine was not App Store discovery: a pre-existing ~110K-follower Instagram account and viral Reels drove major subscription jumps. That is an impressive business, but its acquisition advantage is not the one we are trying to reproduce.
-
-**Runner-up mechanism:** TV remote utilities. A confidential ASO-led TV remote app produces about **$7.6K last-30-day revenue from ~4.5K monthly downloads**, demonstrating valuable high-intent utility traffic. But current App Store competition is severe, subscription complaints are already obvious, and lifetime/no-subscription alternatives already exist. The generic TV-remote opportunity is therefore not a clean gap.
-
-### Bottom line
-
-We found strong evidence that the desired business model exists:
-
-- solo developer;
-- native iOS;
-- tiny backend;
-- subscription monetization;
-- high-intent search;
-- ~$8K–$10K+ monthly revenue;
-- minimal operating burden.
-
-We **did not yet identify the exact reproducible user intent** behind the best example.
-
-The next move is not implementation. It is to identify and verify the hidden ASO winner or a directly comparable visible app.
+Do not reopen broad market research, competitor research, UI research, pricing research, or audio-architecture research before building unless materially new evidence appears.
 
 ---
 
-## 2. Current Business Objective
+# 1. EXECUTIVE PRODUCT DECISION
 
-Primary objective: **profitability**.
+We are building a **focused, tactile iPhone spirit-box instrument**.
 
-Target business:
+It is not a paranormal super-app.
 
-- iOS first;
-- solo + AI-assisted development;
-- competitive V1 in approximately 3 weeks or less;
-- low content burden;
-- low maintenance burden;
-- no network effects;
-- no marketplace;
-- no large team;
-- no creator personality dependency;
-- no significant paid-user-acquisition dependency;
-- preferably native/offline or minimal backend;
-- clear willingness to pay;
-- organic App Store discovery from specific existing intent.
+It does one job exceptionally well:
 
-The former game-only constraint is no longer binding. Utilities, education, creator tools, hobby/professional tools, simple lifestyle products, and games are all eligible if the economics are superior.
+> **START → LISTEN → MARK → REPLAY**
 
-A low-priced premium app remains acceptable, but utilities may use higher one-time pricing or subscriptions when recurring value clearly supports them.
+The product should feel like a compact piece of paranormal field equipment translated into a polished iPhone experience.
 
-The decision standard is:
+The winning V1 is:
 
-> **Is this one of the best simple iOS opportunities available right now for organic profitability?**
+- a dark, restrained field-instrument interface;
+- an offline, disclosed audio/phoneme-bank sweep engine;
+- sweep-rate and forward/reverse controls;
+- local session recording;
+- a large one-thumb **MARK** control;
+- waveform replay centered around marked moments;
+- strong but disciplined mechanical haptics;
+- a real free trial before payment;
+- **$1.99 for 24-hour access** or **$9.99 lifetime** at launch;
+- no ads;
+- no auto-renewing subscription;
+- no account;
+- no backend;
+- no AI;
+- no generated ghost words or sentences;
+- no fake AM/FM/frequency claims;
+- no exact SB7/P-SB7 visual imitation.
+
+The commercial strategy is to compete for the high-intent user who searches for a **spirit box**, not to compete with GhostTube's ecosystem.
+
+---
+
+# 2. COMMERCIAL THESIS
+
+## 2.1 Why this product earned the right to be built
+
+Prior project research established:
+
+- meaningful App Store search demand around `spirit box` and adjacent terms;
+- a May-2026 entrant climbed from unranked to #1 organically for `spirit box`;
+- meaningful modeled install traffic exists below rank #1 as well;
+- the recent leader is an extremely small product with mediocre ratings and aggressive monetization;
+- the likely RevenueCat-verified business associated with that entrant is generating roughly $9K/month;
+- feature-heavy paranormal products do not automatically outperform focused instruments;
+- users repeatedly complain about paywalls, subscriptions, ads, canned/repeated output, unclear mechanics, lost recordings, and fake-looking behavior.
+
+The category is crowded, but the research shows that crowding is not the same as strong competition. Many products fail because they are confusing, untrustworthy, badly monetized, unreliable, or poorly positioned.
+
+## 2.2 What materially changed during deeper research
+
+The following are **not unique differentiators**:
+
+- recording by itself;
+- replay by itself;
+- no ads;
+- no subscription;
+- offline operation;
+- magnetometer/EMF;
+- “professional UI.”
+
+Competitors already offer some or all of those.
+
+Our sharper product wedge is:
+
+> **A single-purpose field instrument where the user can immediately start a sweep, mark the exact moments that matter, and replay those moments later — with exceptional tactile feel and no generated answers.**
+
+## 2.3 Why it could work
+
+- exact, proven search intent;
+- recent entrant proves the niche is penetrable;
+- current leader is commercially successful despite poor review quality;
+- product can be built and maintained by a solo developer;
+- no backend/content/live-ops burden;
+- the main user job is immediately understandable;
+- MARK-centered review gives a visible workflow advantage;
+- trust and monetization pain are repeated competitor weaknesses;
+- focused product avoids GhostTube's strongest moat.
+
+## 2.4 Why it could fail
+
+- a phoneme/audio bank may sound recognizably canned;
+- the differentiation is executional and easy for competitors to copy;
+- an established competitor may add MARK/replay before we gain ranking traction;
+- users may prefer literal live-radio fragments enough to reject an offline-bank product;
+- the field-instrument visual language may either look fake or drift too close to protected hardware trade dress;
+- $9.99 lifetime may monetize substantially worse than aggressive subscriptions;
+- App Store search ranking is not guaranteed merely because the product is better.
+
+The bear case is real. We are building because the upside and build cost justify testing it, not because success is guaranteed.
+
+---
+
+# 3. TARGET AUDIENCE
+
+## Primary — Paranormal hobbyist / believer
+
+Someone who actively enjoys paranormal investigation or ITC/spirit-box experimentation but does not necessarily own a large hardware kit.
+
+What they want:
+
+- a convincing session;
+- simple controls;
+- believable audio behavior;
+- an instrument rather than a game;
+- recording and review;
+- no ads;
+- no manipulative subscription;
+- a mechanism they can understand;
+- something they can keep on their phone and use anywhere.
+
+This is the design center.
+
+## Secondary — Serious investigator / hardware user
+
+Someone familiar with real spirit boxes, EVP recorders, EMF meters, sweep rates, and investigation workflows.
+
+Their likely job:
+
+> “Give me a credible pocket backup / secondary instrument when I do not have or do not want to carry dedicated hardware.”
+
+They care disproportionately about:
+
+- control semantics;
+- repeatability;
+- dark-room operation;
+- audio quality;
+- truthful technical language;
+- recording persistence;
+- export;
+- no fake sensor/scientific claims.
+
+We do not need to convince every hardware purist that a phone equals a physical RF device. We need the product to be useful enough that some serious users will keep it as an additional tool.
+
+## Tertiary — Curious / one-night user
+
+Typical contexts:
+
+- Halloween;
+- sleepovers;
+- hotels;
+- ghost tours;
+- road trips;
+- abandoned/historic places;
+- a night with friends;
+- casual curiosity.
+
+They want:
+
+- immediate fun;
+- no learning curve;
+- no $10–$30 commitment just to try it;
+- no subscription trap.
+
+This segment is why the **$1.99 Tonight Pass** exists.
+
+## Not the design center — Paranormal creator ecosystem user
+
+Do not optimize V1 around:
+
+- SLS video;
+- creator overlays;
+- haunted-location databases;
+- community evidence feeds;
+- social content production;
+- AI-generated imagery.
+
+GhostTube is structurally stronger there.
+
+---
+
+# 4. PRODUCT POSITIONING
+
+## One-sentence positioning
+
+> **A pocket spirit-box instrument for paranormal hobbyists: start a sweep, mark what catches your ear, and replay the exact moment — offline, with no generated answers, ads, or subscription.**
+
+## Category promise
+
+The user should understand in less than one second:
+
+> “This is a spirit box I can use right now.”
+
+## What we are competing against
+
+Most directly:
+
+- Spirit Box SBX Ghost Talker / WPPNT;
+- GhostTube VOX as an adjacent audio substitute;
+- Necrophonic;
+- Bello's live-radio spirit-box products;
+- SpectraBox and other transparent recorded-session tools.
+
+## What we are deliberately NOT competing against
+
+GhostTube's strongest territory:
+
+- SLS;
+- creator/video workflow;
+- community;
+- haunted locations;
+- AI interpretation;
+- broad paranormal toolkits;
+- multi-app ecosystem;
+- creator-led audience/distribution.
+
+---
+
+# 5. ONE MAIN FEATURE
+
+## The Spirit-Box Session
+
+The product is one instrument.
+
+Core loop:
+
+1. Open the app.
+2. Start the sweep.
+3. Listen / ask questions if desired.
+4. Adjust sweep rate or direction.
+5. Start recording if desired.
+6. Tap **MARK** whenever something catches the user's ear.
+7. Stop the session.
+8. Replay the recording.
+9. Jump directly between marked moments.
+10. Export the original recording if desired.
+
+Everything in V1 must strengthen this loop.
+
+If a feature does not materially improve:
+
+- App Store conversion;
+- paid conversion;
+- session quality;
+- review quality;
+- retention;
+- trust;
+
+it does not belong in V1.
+
+---
+
+# 6. FINAL AUDIO ARCHITECTURE
+
+## Decision
+
+Use an:
+
+> **Offline, original/licensed audio/phoneme bank with a deterministic non-semantic sweep renderer.**
+
+Do not build live internet radio in V1.
+
+Do not build fully synthetic/procedural speech-like generation in V1.
+
+## 6.1 Source material
+
+The bank should contain:
+
+- short original/licensed vocal fragments;
+- consonants and vowels;
+- partial phonetic fragments;
+- breaths and non-verbal vocal texture;
+- reverse fragments;
+- filtered noise;
+- static/radio-like texture.
+
+Do not store scripted paranormal responses.
+
+Do not construct a vocabulary intended to generate common answers.
+
+Do not use competitor audio.
+
+Do not sample:
+
+- terrestrial/internet radio;
+- YouTube;
+- podcasts;
+- movies/TV;
+- unclear commercial voice libraries;
+- copyrighted material without explicit app-distribution rights.
+
+Maintain an internal source-rights ledger for every audio asset.
+
+## 6.2 Scheduler behavior
+
+The sweep scheduler must be **non-semantic**.
+
+It must never use:
+
+- speech recognition;
+- question timing;
+- microphone content;
+- transcripts;
+- keywords;
+- sensor values;
+- user location;
+- time since the user spoke;
+- an internal “response” state;
+- AI;
+- generated text.
+
+The engine should:
+
+- continuously traverse source material;
+- make sweep rate audibly meaningful;
+- make forward/reverse audibly meaningful;
+- vary start offsets and bounded processing;
+- enforce anti-repetition windows;
+- avoid adjacent clips from the same voice/register family;
+- allow long stretches with nothing interpretable;
+- avoid obvious full words/sentences when possible.
+
+## 6.3 Initial sweep rates
+
+Prototype:
+
+- 75 ms
+- 125 ms
+- 200 ms
+- 300 ms
+
+Final shipping values should be selected from listening tests, not because a physical competitor uses specific numbers.
+
+`200 ms` is the recommended initial default.
+
+## 6.4 V1 has one audio mode
+
+Ship one carefully tuned:
+
+**SWEEP**
+
+Do not add:
+
+- AM mode;
+- FM mode;
+- “radio mode”;
+- reverb mode;
+- echo mode;
+- DR60 mode;
+- white-noise mode;
+- eight sound banks;
+- themes.
+
+A later **Audio Profile** experiment is allowed only after launch data justifies it.
+
+---
+
+# 7. TRUTHFUL TERMINOLOGY
+
+Because V1 is not tuning RF or live radio, the UI and App Store metadata must never pretend that it is.
+
+## Allowed terms
+
+- Spirit Box
+- Sweep
+- Start Scan / Stop
+- Sweep Rate
+- Forward / Reverse
+- Source Position
+- Session
+- Record
+- MARK
+- Session Replay
+- Audio Profile — only if a future second profile actually exists
+- Offline
+- Vocal fragments
+- Noise textures
+
+## Do not use in V1
+
+- AM
+- FM
+- MHz
+- kHz
+- station
+- channel
+- frequency
+- tuner
+- RF
+- airwaves
+- broadcast
+- live radio
+- “real radio”
+- “radio scan”
+- fake frequency numbers
+
+Also do not claim:
+
+- “not prerecorded” — the source fragments are preloaded;
+- “ghost detected”;
+- “entity detected”;
+- “spirit response”;
+- “answer”;
+- “message”;
+- “evidence”;
+- “proof”;
+- scientifically verified paranormal detection.
+
+---
+
+# 8. UI / VISUAL DIRECTION
+
+## Design direction: FIELD INSTRUMENT
+
+The interface should feel like:
+
+> **Old-school paranormal field-equipment semantics + modern iPhone execution.**
+
+Not a literal radio replica.
+
+Not a generic SwiftUI utility.
+
+Not a horror game.
+
+## 8.1 Material language
+
+Use:
+
+- matte near-black / graphite surface;
+- recessed dark display area;
+- warm amber-red / red-orange illumination;
+- off-white/light-gray labels;
+- subtle bevel/recess on important controls;
+- restrained glow only around active display/status elements;
+- modern spacing and typography;
+- tabular/monospaced numbers in the instrument display.
+
+Avoid:
+
+- purple occult gradients;
+- neon cyan/magenta;
+- fake scratched metal;
+- fake screws;
+- fake speaker grilles;
+- wood/leather;
+- skulls;
+- pentagrams;
+- Ouija imagery;
+- ghost silhouettes;
+- smoke;
+- VHS horror;
+- jump scares;
+- cartoon haunted-house treatment.
+
+## 8.2 Skeuomorphism
+
+Use **moderate skeuomorphism**.
+
+Controls should look physical enough that the user understands they are fixed instrument controls.
+
+But the screen must not look like:
+
+- a photograph of hardware;
+- an SB7 clone;
+- an SBox clone;
+- a specific commercial device.
+
+The user should identify the category, not a manufacturer.
+
+---
+
+# 9. EXACT MAIN-SCREEN V1
+
+Portrait. No scrolling during an active session.
+
+Suggested hierarchy:
+
+```text
+┌────────────────────────────────────┐
+│ SESSION 00:07:42        REC 00:03:11│
+│                                    │
+│  ┌──────────────────────────────┐  │
+│  │       FORWARD     200 ms     │  │
+│  │                              │  │
+│  │       ▸ ▸ ▸ ▸ ▸ ▸            │  │
+│  │       SOURCE POSITION        │  │
+│  │                              │  │
+│  └──────────────────────────────┘  │
+│                                    │
+│      [ REVERSE ]   [ RATE − + ]   │
+│                                    │
+│ [  REC  ] [       MARK       ]     │
+│                                    │
+│              [ POWER ]             │
+│                                    │
+│              SESSIONS              │
+└────────────────────────────────────┘
+```
+
+This is structural guidance, not pixel-perfect final art.
+
+## 9.1 Display
+
+Show:
+
+- powered/off state;
+- sweep animation;
+- direction;
+- sweep rate;
+- session elapsed time;
+- recording state/time when recording;
+- marker count when useful.
+
+Do not show a fake radio frequency.
+
+`SOURCE POSITION` can be visually abstract rather than a literal number if a number feels too technical or misleading.
+
+## 9.2 POWER
+
+- visually separated from REC and MARK;
+- distinct physical-looking control;
+- power-on begins the sweep immediately;
+- power-off should require a short hold to prevent accidental termination;
+- if recording is active, power-off first finalizes and saves the recording.
+
+## 9.3 FORWARD / REVERSE
+
+A two-state control.
+
+Do not hide direction in settings.
+
+The change must produce an immediate audible and visual difference.
+
+## 9.4 SWEEP RATE
+
+Use discrete detents, not a precision slider.
+
+- `RATE −`
+- current value
+- `RATE +`
+
+Haptic tick on each detent.
+
+## 9.5 REC
+
+Visible at all times.
+
+When active:
+
+- clear red status lamp;
+- clear `REC` state;
+- elapsed record time;
+- layout does not shift.
+
+Microphone permission is requested only after the user explicitly taps REC.
+
+## 9.6 MARK
+
+The most important session control.
+
+Requirements:
+
+- widest/easiest thumb target;
+- works without looking;
+- no modal;
+- no audible beep;
+- instantly saves a timestamp;
+- marker count updates;
+- distinctive haptic when allowed.
+
+MARK does not mean:
+
+- ghost;
+- answer;
+- evidence;
+- anomaly.
+
+It means only:
+
+> “The user wanted to revisit this moment.”
+
+## 9.7 SESSIONS
+
+A quiet navigation control to local session history.
+
+No dashboard/home grid.
+
+Launch should land directly on the instrument.
+
+---
+
+# 10. DARK-ROOM / ONE-THUMB RULES
+
+- Fixed control locations.
+- No swipe-only core actions.
+- MARK reachable with one thumb.
+- REC and POWER physically separated.
+- No tiny buttons.
+- No mode carousel.
+- No scrolling during session.
+- No bright white full-screen flashes.
+- Keep the screen readable without destroying dark adaptation.
+- Do not move controls when REC starts.
+- Core controls use text labels, not mystery icons.
+- Headphones must work through normal iOS audio routing.
+
+The user should be able to:
+
+- start;
+- change rate;
+- reverse;
+- record;
+- mark;
+- stop;
+
+without reading a manual.
+
+---
+
+# 11. HAPTIC LANGUAGE
+
+Haptics are a first-class product layer.
+
+Their purpose is:
+
+> **Make the iPhone controls feel mechanical.**
+
+Their purpose is NOT to manufacture paranormal events.
+
+Provide a global **Instrument Haptics** setting.
+
+## 11.1 Default ON
+
+### Power On
+
+Pattern:
+
+- crisp medium transient;
+- short pause;
+- lighter confirming transient.
+
+Feel:
+
+> switch click → instrument wakes.
+
+### Power Off
+
+One rounded medium pulse with slightly longer decay.
+
+### Sweep Rate Change
+
+One light crisp detent per step.
+
+### Direction Change
+
+One light selection tick.
+
+### Record Start
+
+Firm haptic immediately **before** the microphone recording boundary starts.
+
+### Record Stop
+
+Firm haptic **after** the recording has finalized.
+
+### MARK
+
+Distinct double transient.
+
+This should be the most recognizable session haptic.
+
+However, it must survive the recording-contamination test in Section 18.
+
+## 11.2 Default OFF
+
+### Tactile Scan
+
+Optional experimental micro-ticks linked to scan activity.
+
+If ever shipped:
+
+- very low intensity;
+- hard-capped;
+- never at the actual sweep frequency;
+- disabled while recording by default.
+
+### Magnetic Event
+
+Not in V1 because the magnetometer feature is not in V1.
+
+## 11.3 Never implement
+
+- random “ghost detected” vibrations;
+- haptic on every audio fragment;
+- continuous rumble;
+- escalating horror vibrations;
+- haptic “entity types”;
+- haptics during replay;
+- repeated alerts pretending that a sensor reading is paranormal.
+
+---
+
+# 12. RECORDING / MARK / REPLAY
+
+Recording is table stakes.
+
+**MARK-centered replay is the hero workflow.**
+
+## 12.1 Recording
+
+Recording is optional.
+
+When the user taps REC:
+
+- request microphone permission if necessary;
+- begin capturing the actual session;
+- record the user’s spoken questions/environment plus the final sweep experience as implemented;
+- save locally;
+- show clear recording state.
+
+No microphone permission at app launch.
+
+No microphone analysis when not recording.
+
+No speech recognition.
+
+## 12.2 MARK
+
+During recording:
+
+- tap MARK;
+- save exact timestamp;
+- no dialog;
+- no beep;
+- visual confirmation;
+- haptic if clean enough.
+
+If MARK haptic creates audible/mechanical artifacts in recordings, disable it while recording and keep only visual confirmation.
+
+## 12.3 Session finalization
+
+If the user:
+
+- stops REC;
+- powers off;
+- leaves the session normally;
+
+the recording must finalize safely.
+
+Never silently discard an active recording.
+
+## 12.4 Session history
+
+Each session row contains:
+
+- date/time;
+- duration;
+- number of marks.
+
+No AI-generated title.
+
+No generated paranormal interpretation.
+
+## 12.5 Replay
+
+Replay must include:
+
+- waveform;
+- play/pause;
+- scrubber;
+- visible MARK ticks;
+- previous MARK;
+- next MARK;
+- current time / total duration;
+- system Share/Export;
+- delete with confirmation.
+
+The key experience is:
+
+> “I heard something → I marked it → now I am instantly back at that exact moment.”
+
+## 12.6 Recording ownership
+
+Recordings stay usable even after:
+
+- the free trial ends;
+- the Tonight Pass expires.
+
+Do not hold the user's existing recordings hostage behind the paywall.
+
+Paid access controls the ability to start new full sessions, not ownership of already-created local recordings.
+
+---
+
+# 13. TRUST / HOW IT WORKS
+
+Trust is part of the product.
+
+Do not oversell paranormal efficacy.
+
+## First-run explanation
+
+Use a single compact first-run card, not an onboarding carousel.
+
+Recommended copy:
+
+> **How Sweep works**  
+> Sweep plays and moves through an on-device collection of short vocal fragments and noise textures. It does not use radio reception, live streams, speech recognition, or generated answers. You decide what you hear; MARK saves a timestamp to review later.
+
+Then land on the powered-off instrument.
+
+## Recording permission copy
+
+> **Microphone**  
+> Recording is optional. When you press REC, the microphone captures your session so you can replay it later. Sweep does not analyze what you say or use your questions to choose sounds.
+
+## Product disclaimer
+
+> **Experimental tool**  
+> Paranormal communication has not been scientifically established. This app is designed for spirit-box / ITC experimentation and entertainment. Interpret what you hear for yourself.
+
+## Privacy / offline copy
+
+If implementation remains fully local as intended:
+
+> **Private by design**  
+> The sweep runs on-device. Your session recordings stay on this iPhone unless you choose to share them.
+
+Do not claim this until implementation and analytics SDK behavior have been verified.
+
+## What not to say
+
+Never use:
+
+- 100% real ghost detection;
+- scientifically proven;
+- professional ghost detector;
+- spirits control this app;
+- real paranormal responses;
+- entity detected;
+- evidence captured.
+
+---
+
+# 14. V1 FEATURE SCOPE
+
+## MUST SHIP
+
+### Core instrument
+- offline audio/phoneme-bank sweep engine;
+- power/start/stop;
+- forward/reverse;
+- discrete sweep-rate control;
+- sweep activity display;
+- session timer.
+
+### Session capture
+- local recording;
+- MARK timestamps;
+- safe recording finalization;
+- session history;
+- waveform replay;
+- next/previous MARK;
+- local export/share.
+
+### Feel
+- field-instrument UI;
+- dark-room readability;
+- one-thumb operation;
+- Core Haptics implementation;
+- headphones / standard iOS audio routing.
+
+### Trust
+- first-run How Sweep Works card;
+- microphone explanation;
+- privacy explanation;
+- paranormal disclaimer.
+
+### Commerce
+- real free trial;
+- paywall only after actual use;
+- Tonight Pass;
+- Lifetime;
+- purchase restore;
+- entitlement persistence;
+- purchase analytics.
+
+### Quality
+- anti-repetition logic;
+- interruption handling;
+- audio-route changes;
+- recording persistence;
+- graceful permission denial;
+- no-loss session handling.
+
+## EXPLICITLY OUT OF V1
+
+- AM/FM modes;
+- fake frequencies;
+- live internet radio;
+- multiple sound banks exposed as user modes;
+- procedural AI/generated speech;
+- generated words;
+- ghost dictionary;
+- chatbot;
+- AI interpretation;
+- transcript;
+- auto-EVP detection;
+- SLS;
+- LiDAR;
+- AR ghosts;
+- camera filters;
+- ghost radar;
+- haunted-location map;
+- community;
+- social feed;
+- accounts;
+- cloud sync;
+- backend;
+- flashlight;
+- temperature;
+- magnetometer/“EMF” meter;
+- echo/reverb/distortion mixer;
+- waveform editing suite;
+- playback-speed tools;
+- marker notes;
+- themes/skins;
+- subscriptions;
+- ads.
+
+If someone wants to add one of these during development, this document says **NO** unless new evidence is presented and the product owner explicitly changes the canonical source of truth.
+
+---
+
+# 15. PRICING / PAYWALL
+
+Pricing is an initial experiment.
+
+## 15.1 Free download
+
+The App Store download is free.
+
+The user must be able to experience the real product before paying.
+
+## 15.2 Free trial session
+
+Initial V1:
+
+> **One complete 3-minute session.**
+
+The trial includes:
+
+- real sweep audio;
+- sweep-rate control;
+- forward/reverse;
+- recording;
+- MARK;
+- replay.
+
+Do not give the user a fake demo or crippled audio.
+
+After the free session, they can still replay/export that session.
+
+Starting another full session requires paid access.
+
+## 15.3 Tonight Pass — $1.99
+
+Initial hypothesis:
+
+> **24 hours of full access. No renewal.**
+
+Designed for:
+
+- Halloween;
+- sleepovers;
+- a hotel/ghost tour;
+- a one-night investigation;
+- casual curiosity.
+
+Clearly label:
+
+**24 HOURS — DOES NOT RENEW**
+
+## 15.4 Lifetime — $9.99
+
+Initial launch price:
+
+> **Permanent access. No subscription.**
+
+Clearly label:
+
+**LIFETIME — ONE-TIME PURCHASE**
+
+## 15.5 Do not launch the 7-day tier
+
+The previous $4.99 / 7-day proposal is removed.
+
+Reasons:
+
+- half the lifetime price;
+- resembles the category's hated $4.99/week subscriptions;
+- complicates the clean choice;
+- no evidence it materially improves monetization.
+
+Launch paywall:
+
+> **Use it tonight — $1.99**  
+> **Own it forever — $9.99**
+
+## 15.6 Pricing iteration
+
+After enough real purchase data:
+
+Possible tests:
+
+- $14.99 lifetime;
+- different free-session length;
+- Tonight Pass removal;
+- Tonight Pass price change.
+
+Do not add an auto-renewing subscription merely because competitors extract more money with one.
+
+A subscription requires evidence that its LTV improvement outweighs:
+
+- rating damage;
+- refund risk;
+- trust damage;
+- lower conversion.
+
+## 15.7 Paywall principles
+
+- no fake countdown;
+- no fake “50% off”;
+- no “special offer” trap;
+- no surprise renewal;
+- no paywall before the user hears the product;
+- no blocking existing recordings;
+- restore purchases visible;
+- exact product duration visible.
+
+---
+
+# 16. APP STORE / ASO DIRECTION
+
+## 16.1 Search target
+
+Primary:
+
+- `spirit box`
+
+Secondary territory:
+
+- ghost box
+- ghost talker
+- ghost hunting
+- ghost app
+- paranormal
+- related terms validated through prior AppTweak research
+
+The launch title should include **Spirit Box** unless final metadata validation presents a compelling reason not to.
+
+## 16.2 Working name
+
+Previous working name `Spirit Box: Ghost Radio` is **retired** because V1 is not a radio receiver.
+
+Current internal working title:
+
+> **Spirit Box: Ghost Sweep**
+
+This is a placeholder until final App Store title/keyword availability is locked.
+
+Do not use `SB7`, `P-SB7`, or another manufacturer's device name.
+
+## 16.3 Icon
+
+Recommended direction:
+
+- near-black / graphite icon;
+- abstract instrument face;
+- central amber/red display;
+- simple sweep bars / directional indicator;
+- one small status light;
+- no text;
+- no skull;
+- no ghost;
+- no pentagram;
+- no exact commercial hardware silhouette.
+
+The icon must read as **instrument**, not horror game.
+
+## 16.4 Screenshot order
+
+### Screenshot 1
+
+**SPIRIT BOX. SWEEP. LISTEN.**
+
+Show the main instrument almost full-screen.
+
+The user should understand the app category without reading a paragraph.
+
+### Screenshot 2
+
+**HEAR SOMETHING? MARK IT.**
+
+Show the MARK interaction prominently.
+
+This is the product wedge.
+
+### Screenshot 3
+
+**REPLAY THE MOMENT.**
+
+Show waveform and marker navigation.
+
+### Screenshot 4
+
+**WORKS OFFLINE. NO GENERATED ANSWERS.**
+
+Only use this exact claim if final implementation remains fully local and non-semantic.
+
+Supporting claims:
+
+- no speech recognition;
+- no live streams;
+- microphone only when recording.
+
+### Screenshot 5
+
+**TRY A REAL SESSION FIRST.**
+
+Show:
+
+- free real session;
+- Tonight $1.99;
+- Lifetime $9.99;
+- no subscription;
+- no ads.
+
+Do not market magnetometer, flashlight, AI, SLS, or a long feature checklist.
+
+---
+
+# 17. COMPETITIVE GUARDRAILS
+
+## 17.1 GhostTube
+
+Do not try to build a better GhostTube.
+
+GhostTube's moat includes:
+
+- creator distribution;
+- Amy's Crypt;
+- brand recognition;
+- multiple specialized apps;
+- community;
+- haunted locations;
+- localization;
+- accounts;
+- bundle monetization;
+- educational/SEO content;
+- years of ratings and maintenance.
+
+We do not need any of those to win the `spirit box` job.
+
+## 17.2 WPPNT / current SBX leader
+
+This is the closest commercial target.
+
+Its weaknesses are our opportunity:
+
+- hard paywall;
+- poor rating quality;
+- trust complaints;
+- no strong record/mark/replay workflow;
+- simplistic experience.
+
+Do not copy its:
+
+- visual layout;
+- device silhouette;
+- terminology implying SB7 association;
+- price/discount tactics.
+
+## 17.3 SpectraBox / Bello / emerging entrants
+
+These products mean:
+
+> No-subscription + offline + recording is not enough.
+
+Our visible differentiation must remain:
+
+**instrument feel + MARK-centered review + exceptional audio execution.**
+
+Monitor competitors after launch, not through another pre-build research marathon.
+
+---
+
+# 18. THE ONLY REMAINING PRE-BUILD GATE: AUDIO HARNESS
+
+Broad research is finished.
+
+The first engineering task is **not** the full app.
+
+It is a private audio harness.
+
+## 18.1 Build this first
+
+- one continuous noise/static bed;
+- 3–4 original voice/register families;
+- initial 80–150 short fragments;
+- 75 / 125 / 200 / 300 ms sweep rates;
+- Forward / Reverse;
+- simple play/stop;
+- basic local two-minute capture;
+- internal debug event log:
+  - asset ID;
+  - voice family;
+  - rate;
+  - direction;
+  - previous-use distance.
+
+No polished UI.
+
+No paywall.
+
+No sessions database.
+
+No haptic polish.
+
+## 18.2 Test
+
+Run at least 15–20 minutes continuously.
+
+Test:
+
+- device speaker;
+- headphones;
+- low volume;
+- normal volume;
+- multiple sweep rates;
+- forward/reverse.
+
+Listen for:
+
+- recognizable repeats;
+- obvious loops;
+- accidental sentence construction;
+- repeated voices;
+- unnatural response-like timing;
+- clipping;
+- excessive overlapping fragments;
+- whether it sounds like a clip randomizer instead of a continuous instrument.
+
+Ask testers:
+
+- “Does this sound like a continuous instrument or a small set of clips?”
+- “Did you recognize anything repeating?”
+- “Did it sound like it was deliberately reacting to what you said?”
+
+Do not prime them with the desired answer.
+
+## 18.3 Audio kill criterion
+
+**Do not build the full product on Option B if the intended V1 corpus cannot survive a 15–20 minute session without obvious recognizable repetition, sentence-like assembly, or a strong “clip randomizer” impression.**
+
+If it fails:
+
+1. improve/rebuild the corpus and scheduler once;
+2. retest;
+3. if the problem remains structural, reconsider a rights-cleared live-radio architecture or kill/reposition the product.
+
+Do not “fix” failed audio by adding:
+
+- AI;
+- generated words;
+- question timing;
+- fake frequencies;
+- copyrighted radio;
+- sensor-triggered answers.
+
+---
+
+# 19. BUILD ORDER AFTER AUDIO PASSES
+
+## Phase 1 — Instrument
+
+Build:
+
+- final sweep engine;
+- field-instrument shell;
+- power/start/stop;
+- forward/reverse;
+- rate controls;
+- scan visualization;
+- core control haptics.
+
+Acceptance:
+
+> It feels substantially better to operate than the current #1 product.
+
+## Phase 2 — Session loop
+
+Build:
+
+- REC;
+- microphone permission;
+- MARK;
+- session persistence;
+- safe finalization;
+- history;
+- waveform replay;
+- previous/next MARK;
+- export.
+
+Acceptance:
+
+> A user can hear something, mark it without looking, and reach it again in replay in seconds.
+
+## Phase 3 — Commerce
+
+Build:
+
+- one free 3-minute session;
+- $1.99 Tonight Pass;
+- $9.99 Lifetime;
+- restore purchases;
+- entitlement state;
+- paywall;
+- purchase analytics.
+
+Acceptance:
+
+> No user encounters a paywall before experiencing the real sweep.
+
+## Phase 4 — Trust / QA
+
+Build and verify:
+
+- How Sweep Works;
+- privacy copy;
+- microphone copy;
+- disclaimer;
+- interruption handling;
+- route changes;
+- AirPods/headphones;
+- phone calls;
+- background/foreground;
+- low-storage behavior;
+- record saving;
+- haptic contamination;
+- no-loss sessions.
+
+## Phase 5 — Store launch
+
+Create:
+
+- final name/subtitle;
+- icon;
+- screenshots;
+- description;
+- keywords;
+- review notes;
+- privacy disclosures;
+- pricing products;
+- launch analytics.
+
+---
+
+# 20. TECHNICAL DIRECTION
+
+Preferred:
+
+- SwiftUI
+- AVAudioEngine / AVFoundation
+- Core Haptics
+- StoreKit 2
+- RevenueCat if it materially improves entitlement/paywall analytics
+- local file storage
+- no backend
+- no account
+
+## Minimum permissions
+
+Microphone:
+
+- only request when user starts REC.
+
+No location permission.
+
+No contacts.
+
+No camera.
+
+No unnecessary tracking.
+
+## Offline expectation
+
+The core sweep and saved sessions should work offline.
+
+Purchase verification behavior must be implemented in a way that does not unnecessarily prevent an already-entitled user from using the app offline.
+
+## Audio ownership
+
+Maintain a repo/private documentation file recording:
+
+- source;
+- performer;
+- license;
+- commercial app distribution rights;
+- modification rights;
+- territory;
+- date acquired;
+- proof/license file location.
+
+Do not ship until this ledger is complete.
+
+---
+
+# 21. ANALYTICS / POST-LAUNCH LEARNING
+
+We are done guessing once real users exist.
+
+Track the smallest set of useful commercial events:
+
+## Acquisition
+- App Store impressions;
+- product-page views;
+- installs;
+- search rank for `spirit box` and important secondary terms.
+
+## Activation
+- first app open;
+- free session start;
+- free session completion;
+- REC used;
+- MARK used;
+- replay opened.
+
+## Monetization
+- paywall view;
+- Tonight Pass purchase;
+- Lifetime purchase;
+- restore;
+- refund data where available;
+- revenue per install;
+- payer conversion.
+
+## Product quality
+- crash-free sessions;
+- recording-save failures;
+- average session length;
+- percentage of recorded sessions with at least one MARK;
+- percentage of recordings replayed;
+- number of repeat sessions after purchase.
+
+## Reputation
+- average rating;
+- rating volume;
+- review themes;
+- repeated complaints.
+
+Do not collect more user data than required to answer product/business questions.
+
+---
+
+# 22. POST-LAUNCH ITERATION PRIORITIES
+
+Only iterate from evidence.
+
+Priority order:
+
+1. audio quality / repetition;
+2. crashes / lost recordings;
+3. App Store conversion;
+4. free-session → paid conversion;
+5. MARK/replay usage;
+6. paywall pricing;
+7. UI friction;
+8. haptic tuning.
+
+Potential later experiments:
+
+- lifetime price $14.99;
+- different Tonight Pass pricing;
+- longer/shorter free trial;
+- alternate audio texture;
+- marker notes;
+- replay improvements;
+- carefully scoped raw magnetometer readout.
+
+Do not add a major paranormal feature simply because competitors have one.
+
+---
+
+# 23. V1 DO-NOT-BUILD LIST
+
+This list is intentionally redundant.
+
+Do not build:
+
+- AI ghost chat;
+- AI interpretation;
+- generated answers;
+- generated paranormal sentences;
+- word dictionary;
+- random scary phrases;
+- SLS;
+- LiDAR;
+- AR ghosts;
+- ghost radar;
+- camera filters;
+- haunted map;
+- community;
+- social feed;
+- accounts;
+- backend;
+- cloud storage;
+- creator feed;
+- streaming radio;
+- AM/FM simulation;
+- fake frequency display;
+- fake ambient temperature;
+- EMF/ghost detection claims;
+- magnetometer in V1;
+- flashlight in V1;
+- audio mixer;
+- reverb/echo controls;
+- themes;
+- progression;
+- achievements;
+- daily rewards;
+- ads;
+- auto-renewing subscription;
+- 7-day purchase tier.
+
+The fastest route to ruining this opportunity is turning it into a paranormal feature checklist.
+
+---
+
+# 24. IP / TRADE-DRESS GUARDRAILS
+
+Create an original field instrument.
+
+Never:
+
+- use `SB7` or `P-SB7` in the product name;
+- imply official relationship with a hardware manufacturer;
+- copy a physical product's exact case silhouette;
+- reproduce its button grid;
+- reproduce its display proportions;
+- copy speaker grille placement;
+- copy competitor icons/screenshots;
+- use competitor audio;
+- use trademark-adjacent names such as GhostTube/Necrophonic/Necrometer in our branding.
+
+Generic functional ideas are allowed:
+
+- sweep;
+- sweep rate;
+- forward/reverse;
+- power;
+- recording;
+- markers;
+- illuminated display;
+- fixed controls.
+
+The product should make users say:
+
+> “That looks like paranormal field equipment.”
 
 Not:
 
-> “Could this be a useful/fun app?”
+> “That is an SB7.”
 
 ---
 
-## 3. What Previous Research Already Killed
+# 25. ACCEPTANCE CRITERIA FOR V1
 
-### Quiet Factory — KILLED
+V1 is not ready to ship until all of these are true.
 
-Quiet Factory was a tap-away/sorting puzzle with a conveyor/buffer mechanic. The native prototype worked technically, but real-device play did not produce a sufficiently compelling core loop. The project correctly had a prototype kill gate; the prototype triggered it.
+## Audio
+- no obvious short-loop behavior in extended testing;
+- no repeat pattern that makes the corpus feel tiny;
+- rate changes are audible;
+- direction changes are audible;
+- no full scripted paranormal phrases;
+- no semantic response logic;
+- source rights documented.
 
-Important lesson: the original research chose a mechanic too early from a broad “popular casual game + hated ads” thesis without first proving acquisition economics or comparing enough alternatives.
+## Instrument
+- first-time user can start a session immediately;
+- user can change rate/reverse without tutorial;
+- controls remain fixed;
+- dark-room readability is strong;
+- interface does not look like a specific commercial hardware clone.
 
-Do not revive Quiet Factory because development work already exists.
+## Haptics
+- Power / Rate / Direction / MARK feel distinct;
+- haptics are not annoying in extended use;
+- no continuous/random paranormal haptics;
+- MARK does not materially contaminate recordings or is disabled during recording.
 
-### Generic “free game with hated ads → $1.99 no-ads clone/variant” — NOT ENOUGH
+## Recording
+- no recording is lost during normal stop/power-off;
+- app handles interruptions safely;
+- waveform replay is stable;
+- marker timestamps are accurate;
+- export works;
+- recordings remain available after entitlement expiry.
 
-The research established consumer frustration, but did not prove that a new paid game could acquire enough customers organically. Ad complaints alone are not a distribution channel.
+## Trust
+- microphone requested only when needed;
+- no false AM/FM/radio claims;
+- How Sweep Works is technically accurate;
+- privacy claims match the actual SDK/network behavior;
+- App Store metadata matches functionality.
 
-### Generic paid-game chart reverse engineering — KILLED AS A DECISION METHOD
+## Monetization
+- real free session works before paywall;
+- Tonight Pass does not renew;
+- Lifetime is clearly one-time;
+- restore works;
+- no fake discount/urgency.
 
-Paid chart rank is contaminated by Apple featuring, launch audiences, Steam communities, social traffic, press, cross-promotion, and temporary chart dynamics. A small paid app ranking well does not prove a new unknown developer can reproduce the acquisition.
-
-### Obscure card-game search gaps — MOSTLY KILLED
-
-31 / Thirty-One was the best gap but was demoted: the main exact-intent keyword had modest AppTweak demand while most aliases collapsed to floor-level volume. President, Scum, Sevens, and Fan Tan had very weak U.S. iOS search demand.
-
-Weak competition often means weak demand.
-
-### Incremental / idle clicker — KILLED
-
-Manual AppTweak research initially showed attractive keyword Volume/Difficulty scores and tiny apps ranking at #1–#5. Historical ranking/download data then showed the fatal flaw: high rank produced trivial estimated installs for several tiny apps.
-
-Examples from the prior data include current U.S. iPhone download estimates around **66–69** for two researched apps even while the category appeared highly rankable.
-
-Critical lesson:
-
-> **Easy ranking does not equal economically meaningful traffic.**
-
-Do not revive incremental because the keyword metrics look attractive.
-
----
-
-## 4. Research Method Used in This Pass
-
-### Screening logic
-
-The pass started with **revenue**, not app ideas.
-
-Candidates were screened for unusual combinations of:
-
-- recent launch;
-- verified or credible monthly revenue;
-- low rating count;
-- tiny team;
-- apparent product simplicity;
-- minimal backend;
-- limited content burden;
-- identifiable acquisition channel.
-
-RevenueCat-verified listings on TrustMRR were prioritized because they provide substantially stronger evidence than screenshot claims or third-party revenue estimates.
-
-Current App Store pages, founder statements, acquisition case studies, competitor listings, and user reviews were then used to test:
-
-1. **MONEY**
-2. **REPLICABILITY**
-3. **ACCESSIBLE DEMAND**
-4. **REAL PRODUCT GAP**
-5. **SMALL ENOUGH**
-
-Where a candidate failed a major gate, it was killed rather than rescued by its total score.
-
-### Evidence hierarchy
-
-**Strongest**
-1. Apple/App Store primary listing
-2. RevenueCat-verified revenue
-3. Direct founder statements with identifiable source
-4. Current competitor/review evidence
-
-**Weaker**
-5. third-party acquisition/revenue estimates
-6. inference from visible product characteristics
-
-Any unresolved acquisition source is classified as UNKNOWN, not assumed organic.
+## Store conversion
+- first screenshot reads unmistakably as a spirit-box instrument;
+- second screenshot clearly communicates MARK;
+- third screenshot clearly communicates replay;
+- icon reads as instrument, not horror game.
 
 ---
 
-## 5. Commercial Anomaly Funnel
+# 26. KILL / REDESIGN CRITERIA
 
-### Initial anomaly set
+Do not preserve the product because we have already researched or built it.
 
-The pass examined or screened the following high- or near-high-revenue mobile products:
+## Kill or materially pivot if:
 
-1. Draft AI
-2. Verbi
-3. TrackAI
-4. Tariq
-5. nutrIA
-6. Boxer AI
-7. Private Japanese-learning app
-8. Hidden Business / confidential ASO app
-9. Confidential ASO TV-remote app
-10. Pattrn
-11. ThreadCam
-12. pregnancy-tracker case study
-13. anonymous AI makeup app
-14. Visualize AI
-15. FirstRevenue
-16. Blockit
-17. HeightMax
-18. OSM Tactics
-19. HabitBox
-20. simple Tally Counter utility
+### Audio failure
+The bank cannot be made to feel like a continuous instrument without obvious repeated/canned behavior.
 
-### After MONEY screen
+### Conversion failure
+After sufficient organic impressions, the App Store page cannot convert enough users to justify continued work.
 
-Strong or near-threshold revenue anomalies:
+### Ranking failure
+The app remains unable to gain meaningful search visibility despite strong listing conversion and ratings.
 
-- Draft AI
-- Verbi
-- TrackAI
-- Tariq
-- nutrIA
-- Boxer AI
-- Japanese-learning app
-- Hidden Business
-- TV-remote confidential app
-- Pattrn
-- ThreadCam
-- pregnancy tracker
-- anonymous AI makeup app
+### Product differentiation failure
+Users consistently describe it as interchangeable with the existing leader and do not value MARK/replay.
 
-Sub-threshold products were retained only as negative evidence about what “simple” apps often earn.
+### Rating failure
+Reviews repeatedly attack the fundamental mechanism as deceptive despite accurate transparency and good audio execution.
 
-### After acquisition-replicability screen
+### Competitive invalidation
+Before launch, a strong top-ranking entrant ships essentially the same focused tactile sweep + real trial + MARK/replay + one-time pricing proposition and materially closes the gap.
 
-Survivors / partial survivors:
+### Economics failure
+Real revenue per install and attainable organic volume imply an unattractive business even after reasonable pricing/listing iteration.
 
-- **Hidden Business** — seller claims 100% ASO; identity hidden.
-- **Japanese-learning app** — ASO + lightweight social; visible mechanism.
-- **TV-remote confidential app** — specifically described as ASO-driven.
-- **Pattrn** — faceless social proved distribution can be low-cost, but it still requires a viral content engine.
-- **Draft AI** — revenue spectacular, but acquisition substantially explained by founder social assets/content skill.
-
-Killed or heavily penalized:
-
-- TrackAI — Meta Ads.
-- Boxer AI — TikTok Ads + social.
-- ThreadCam — Meta + Apple Search Ads.
-- pregnancy tracker — extensive Meta creative activity.
-- high-complexity AI apps where distribution was unclear.
-
-### After buildability screen
-
-Still plausible in <=3 weeks:
-
-- **Hidden Business** — inferred burden 1–2 from SwiftUI + RevenueCat only; exact functionality UNKNOWN.
-- **Japanese-learning app** — burden 3 if content already exists; content creation makes a true clean-room competitor heavier.
-- **TV remote** — burden 2–3 for a limited compatibility set; support burden is material.
-- **Pattrn** — burden ~3, but AI/backend/polish raises scope.
-
-Killed for hidden business complexity despite simple UI:
-
-- TrackAI — photo-based nutrition recognition.
-- Verbi — real-time AI language conversation.
-- Boxer AI — camera pose/punch tracking + cloud stack.
-- AI makeup — image generation/analysis + product recommendation/content.
-- ThreadCam — garment/mockup processing and asset burden.
-
-### After demand/product-gap screen
-
-- **Hidden Business:** cannot complete this gate because identity/keywords are hidden.
-- **Japanese lock-screen learning:** FAIL — current direct substitutes exist.
-- **TV remote:** FAIL/very weak — enormous incumbent density and lifetime alternatives.
-- **Pattrn:** weak — generic habit/discipline market is saturated and acquisition is social-led rather than a search gap.
-- **Draft AI:** weak for our constraints — competitive AI creator market and creator-content acquisition dependency.
-
-### Finalists
-
-There is **no authorized build finalist**.
-
-Two research finalists remain:
-
-1. **Hidden Business / confidential May-2026 ASO app** — strongest commercial lead, blocked by identity.
-2. **The high-intent single-job utility pattern** demonstrated by the confidential TV remote — proven economics, but the specific TV-remote implementation is not attractive.
+No sunk-cost argument overrides these conditions.
 
 ---
 
-## 6. Candidate Comparison Table
+# 27. WHAT WE KNOW / INFER / DO NOT KNOW
 
-Scores are 1–5, where 5 is best. A fatal gate overrides the sum.
+## VERIFIED / STRONG EVIDENCE
 
-| Candidate | 30d revenue evidence | Acquisition | Build burden | Product gap | Maintenance | IP safety | Commercial verdict |
-|---|---:|---|---:|---:|---:|---:|---|
-| Hidden Business | ~$9.35K verified | **A claim / C verified** | **1–2 inferred** | UNKNOWN | 5 inferred | UNKNOWN | **WATCH — strongest lead** |
-| Private Japanese learning | ~$9.88K verified | B | 3 | 1–2 | 3 | 5 | **KILL exact wedge** |
-| Confidential TV remote | ~$7.62K verified | A/B | 2–3 | 2 | 2 | 3 | **KILL generic wedge** |
-| Draft AI | ~$32.21K verified | D for us | 3–4 | 3 | 2–3 | 4 | **REJECT** |
-| Verbi | ~$34.70K verified | UNKNOWN | 4 | 2 | 2 | 4 | **REJECT** |
-| TrackAI | ~$23.87K verified | D/C | 4 | 2 | 2 | 4 | **REJECT** |
-| Tariq | ~$19.65K verified | C/UNKNOWN | 3–4 | 3 | 2–3 | 2–3 | **REJECT** |
-| nutrIA | ~$13.41K verified | C | 4 | 2 | 2 | 4 | **REJECT** |
-| Boxer AI | ~$9.54K verified | D | 5 | 3 | 1–2 | 4 | **REJECT** |
-| Pattrn | ~$10.5K observed earlier in pass | C | 3 | 2 | 2–3 | 5 | **REJECT** |
-| ThreadCam | ~$10K MRR third-party case study | D | 4 | 3 | 2 | 4 | **REJECT** |
-| Pregnancy tracker | ~$73K MRR third-party case study | F/D | 4 | 2 | 1–2 | 3 | **REJECT** |
+- `spirit box` has meaningful App Store search demand.
+- a recent entrant has successfully penetrated the top result.
+- meaningful modeled traffic exists below #1.
+- a small product can generate commercially relevant revenue in this niche.
+- users repeatedly dislike hard paywalls, subscriptions, ads, repeated/canned audio and unclear mechanics.
+- recording/review is a real user need.
+- physical/instrument semantics matter to target users.
+- GhostTube's main moat is ecosystem/distribution/trust, not an unbeatable sweep engine.
+- phoneme/audio-bank spirit-box products are accepted in-market.
+- live internet radio introduces meaningful rights/network/maintenance complexity.
 
-### Fatal weaknesses
+## INFERENCES WE ARE BUILDING AROUND
 
-- **Hidden Business:** product identity/keyword economics cannot be independently checked.
-- **Japanese learning:** direct competitors already solve the same Lock Screen wedge.
-- **TV remote:** huge incumbent density + no-subscription/lifetime alternatives.
-- **Draft AI:** creator/audience/content distribution advantage.
-- **Verbi/TrackAI/Boxer/nutrIA:** simple-looking interface hides an AI/data/backend business.
-- **ThreadCam/pregnancy tracker:** acquisition heavily paid/creative-driven.
+- MARK-centered review can be a visible reason to choose us.
+- better trust + better ratings can improve organic ranking durability.
+- field-instrument feel will convert better than generic utility or horror-game UI.
+- $1.99 Tonight can monetize casual/event-driven users without forcing them into Lifetime.
+- $9.99 is a strong enough launch price to learn from without overcommitting to aggressive subscriptions.
+- the offline bank architecture gives the best commercial balance of authenticity, speed and maintainability.
 
----
+## STILL UNKNOWN
 
-## 7. Finalist Deep Dives
+- actual paid conversion;
+- optimal lifetime price;
+- actual share of one-night users;
+- exact App Store conversion lift from MARK/replay;
+- how high the app can rank;
+- whether our final audio corpus passes the authenticity/repetition test;
+- whether serious hardware users will accept the bank mechanism;
+- whether competitors copy the wedge quickly.
 
-# Finalist A — Hidden Business / Confidential May-2026 ASO App
-
-### Product
-
-**VERIFIED FACT:** The listing classifies the product as a mobile app in Utilities/Entertainment, built in SwiftUI with RevenueCat as its listed backend.
-
-**UNKNOWN:** Exact app name, job-to-be-done, App Store listing, keywords, ratings, reviews, country mix, and actual feature set.
-
-### Evidence of Revenue
-
-**VERIFIED FACT:** RevenueCat-verified TrustMRR data on September 2, 2026 showed approximately:
-
-- $9,347 last 30 days revenue;
-- $6,397 MRR;
-- 390 active subscriptions;
-- founded May 2026;
-- one-person team.
-
-### Revenue Confidence
-
-**HIGH** for the listed RevenueCat revenue.
-
-**MEDIUM/LOW** for the founder's “$10K+/month consistently” description because that is a seller statement and the current 30-day figure is slightly below $10K.
-
-### Acquisition Forensics
-
-**DEVELOPER CLAIM:** 100% organic through ASO, #1 for multiple high-value keywords, no paid marketing.
-
-**UNKNOWN:** We cannot independently verify the rankings because the app is concealed.
-
-**Classification:** **C today**, with potential to become **A** if the app/keywords are identified and rank-to-download economics check out.
-
-### Demand / Search Intent
-
-**UNKNOWN.**
-
-This is the central blocker.
-
-Unlike the killed incremental thesis, we cannot assume #1 ranking means useful traffic. We need the keyword and app-level estimated downloads.
-
-### Competitors
-
-**UNKNOWN** until the product is identified.
-
-### Review Mining
-
-**UNKNOWN** until the product is identified.
-
-### Commercial Gap
-
-**UNKNOWN.**
-
-The seller's success demonstrates *some* monetizable intent but does not tell us why a new app would be chosen.
-
-### Monetization
-
-**VERIFIED FACT:** Hard paywall with subscriptions.
-
-The ~390 active subscription count against ~$6.4K MRR implies meaningful ARPU, although exact plan mix and churn are unavailable.
-
-### Build Scope
-
-**INFERENCE:** SwiftUI + RevenueCat with no other listed backend is consistent with a technically small product.
-
-Estimated burden: **1–2**, subject to the hidden feature set.
-
-### Maintenance Burden
-
-**DEVELOPER CLAIM:** zero operating cost and almost no owner work.
-
-**INFERENCE:** likely low if the stack disclosure is complete.
-
-### IP Risk
-
-**UNKNOWN** until product category is known.
-
-### Why It Could Work
-
-- newest high-quality anomaly in the pass;
-- solo;
-- near-$10K verified monthly revenue;
-- tiny technical stack;
-- claimed organic ASO;
-- strong monetization;
-- only months old.
-
-This is the closest match to the target business profile.
-
-### Strongest Bear Case
-
-The listing may be withholding exactly the advantage that matters.
-
-Possible hidden explanations include:
-
-- a weird branded keyword;
-- localized market;
-- short-lived ranking anomaly;
-- paid traffic not disclosed;
-- category keyword with limited defensibility;
-- feature or data complexity not represented by the stack;
-- aggressive hard-paywall conversion dependent on churn/refund dynamics.
-
-Most importantly, the project has already seen one false positive where easy ASO ranking produced almost no installs.
-
-### Unknowns
-
-1. Exact app identity.
-2. Generic vs branded keywords.
-3. U.S. keyword demand.
-4. Estimated downloads.
-5. ranking history.
-6. search-attributed installs.
-7. rating count.
-8. review complaints.
-9. leading competitors.
-10. whether a materially better product proposition exists.
-
-### Cheapest Next Test
-
-**Identify the app or a near-exact public analogue in AppTweak before doing anything else.**
-
-Filter recent iPhone Utilities/Entertainment launches around May 2026, low-rating apps, subscription/hard-paywall monetization, and current top-3 generic keyword rankings. Then pull estimated downloads and keyword-install attribution.
-
-### Kill Criterion
-
-Kill this lead if any of the following is true:
-
-- rankings are primarily branded;
-- top generic terms produce trivial installs;
-- acquisition cannot be reconciled without paid/external traffic;
-- an incumbent already provides the obvious improved proposition;
-- the hidden feature set requires >3 weeks;
-- the claimed low-maintenance stack is incomplete.
-
-### Verdict
-
-**WATCH — highest-priority research target. NOT BUILD-AUTHORIZED.**
+These are now best answered by shipping and measuring, not by another broad research run.
 
 ---
 
-# Finalist B — Private Japanese Lock-Screen Learning App
+# 28. FINAL PRODUCT PRINCIPLE
 
-### Product
+When making any implementation decision, ask:
 
-A Japanese-learning iPhone app that turns frequent phone checks into kanji exposure using Lock Screen/Home Screen widgets, reviews, and practice.
+> **Does this make START → LISTEN → MARK → REPLAY more convincing, tactile, trustworthy, or profitable?**
 
-### Evidence of Revenue
+If the answer is no, leave it out.
 
-**VERIFIED FACT:** RevenueCat-verified TrustMRR data:
+The opportunity is not to build the most feature-rich ghost app.
 
-- $9,877 last 30 days;
-- $4,468 MRR;
-- 775 active subscriptions;
-- ~25,000 users;
-- one-person team;
-- Swift/SwiftUI + RevenueCat + Supabase;
-- offline support;
-- all 2,136 Joyo kanji.
+The opportunity is to build:
 
-### Revenue Confidence
-
-**HIGH** for RevenueCat figures.
-
-### Acquisition Forensics
-
-**DEVELOPER/LISTING CLAIM:** organically grown; marketing channels listed as ASO, Instagram, TikTok, Threads.
-
-This is more reproducible than paid-UA-heavy anomalies, though the split between App Store search and social is unavailable.
-
-**Classification:** **B/C**.
-
-### Demand / Search Intent
-
-Japanese/JLPT learning is clearly an established consumer need.
-
-However, exact search economics were not independently quantified in this pass because the candidate fails the product-gap test before that research becomes the cheapest next question.
-
-### Competitors
-
-Current direct or near-direct competitors found include:
-
-- Hourly Kana;
-- Tomokanji;
-- Kanjijo;
-- Daily Kanji;
-- Moji;
-- IchiJi;
-- Langwid;
-- free Japanese tools with widgets such as imiwa?.
-
-Several explicitly use Lock Screen/Home Screen widgets and spaced exposure.
-
-### Review Mining
-
-Commercial pain exists around subscription pricing. A current competitor review complains about an expensive hard paywall, while another recent indie entrant received direct user pushback against charging for a widget.
-
-This is useful evidence that customers notice pricing—but it is not proof they will choose a new paid substitute.
-
-### Commercial Gap
-
-For a direct clone/variant of “Japanese learning on the Lock Screen”:
-
-> **No clean gap remains.**
-
-The differentiating delivery mechanic is already present in several products.
-
-### Monetization
-
-Subscription is proven viable by the RevenueCat data.
-
-A cheap lifetime alternative could be appealing in theory, but current free/paid alternatives mean pricing alone is not enough differentiation.
-
-### Build Scope
-
-UI and scheduling are manageable, but the “simple app” contains a large structured content asset:
-
-- 2,136 Joyo kanji;
-- readings/meanings;
-- JLPT mapping;
-- review scheduling;
-- examples/audio depending on scope;
-- localization/quality control.
-
-Burden: **3**, with substantial content QA.
-
-### Maintenance Burden
-
-Moderate. The learning content is mostly static, but quality/support and OS widget behavior require maintenance.
-
-### IP Risk
-
-LOW if using independently sourced/public linguistic facts and original UI/content. Licensing must be checked for dictionaries, example sentences, audio, or imported datasets.
-
-### Why It Could Work
-
-- verified revenue;
-- solo operator;
-- low backend;
-- recurring habit;
-- organic acquisition is plausible;
-- no network effect;
-- high-frequency iOS-native surface.
-
-### Strongest Bear Case
-
-We would be arriving after the differentiated idea became a product pattern.
-
-The competitor search already finds multiple apps with the same core proposition. A clean-room competitor would need either a different intent or materially stronger value, and that has not been established.
-
-### Unknowns
-
-- exact app identity;
-- precise traffic split;
-- trial conversion;
-- churn;
-- U.S. search volume;
-- retention contribution from widgets vs conventional study tools.
-
-### Cheapest Next Test
-
-No further test for the **exact Japanese-lock-screen clone thesis** is justified. It already fails the product-gap gate.
-
-### Kill Criterion
-
-Already met: multiple direct substitutes now exist.
-
-### Verdict
-
-**KILLED as a direct product opportunity.**
-
-Keep only the broader observation that an iOS-native surface can create a monetizable habit.
-
----
-
-# Pattern Deep Dive — ASO TV Remote
-
-This is not a finalist product, but it is strategically important because it demonstrates the economics of high-intent utility search.
-
-### Evidence
-
-**VERIFIED FACT:** a confidential TrustMRR listing describes an “ASO-driven TV remote app with 4.5k monthly downloads” and RevenueCat verified:
-
-- $7,622 last 30 days;
-- $7,942 MRR;
-- 391 active subscriptions;
-- Swift + RevenueCat;
-- founded October 2024.
-
-That means roughly 150 downloads/day can support a high-four-figure monthly subscription business in a strong purchase-intent utility category.
-
-### Why the exact opportunity fails
-
-The current U.S. App Store is crowded:
-
-- one remote app has ~15K ratings;
-- another ~33K;
-- another ~146K;
-- one current review page shows ~600K ratings;
-- new entrants with tens or hundreds of ratings continue launching.
-
-Pricing competition already includes:
-
-- ~$1.99/month;
-- ~$4.99/week;
-- annual plans;
-- ~$19.99–$29.99 lifetime unlocks.
-
-Current reviews explicitly complain that basic controls are paywalled and that subscriptions are undesirable. But those complaints do **not** create a unique gap because lifetime and low-cost alternatives already exist.
-
-### Strategic lesson
-
-The interesting asset is **not “build a TV remote.”**
-
-It is the demonstrated equation:
-
-> specific urgent query + working utility + aggressive monetization + App Store search = meaningful revenue at only a few thousand monthly downloads.
-
-We need another query where the supply side is materially weaker.
-
----
-
-## 8. Rejected Candidates
-
-### Draft AI — REJECT
-
-**Money:** excellent. RevenueCat verified ~$32.2K last 30 days, ~$24.7K MRR, 1,922 subscriptions, founded September 2025.
-
-**Anomaly:** current U.S. App Store listing found only ~31 ratings, which makes the revenue unusually high relative to public rating count.
-
-**Fatal issue:** founder posts explain a large acquisition advantage. He reported a ~110K-follower non-English Instagram page, five years of high-quality video-content experience, and a viral Reel that led to hundreds of paid subscriptions and pushed monthly revenue sharply higher.
-
-This is not “unknown developer ranks for generic App Store query.” It is a creator-content distribution machine.
-
-The app also uses AI generation/backend infrastructure rather than being zero-ops.
-
-**Acquisition grade for us: D.**
-
-### Verbi — REJECT
-
-RevenueCat verified ~$34.7K last 30 days, founded April 2026, 2,085 active subscriptions, only ~123 App Store ratings in the TrustMRR snapshot.
-
-Commercial anomaly is strong.
-
-Fatal issue: conversational AI language tutoring is a deceptively complex business. Real-time model quality, latency, speech, backend costs, safety/content behavior, learning design, and major incumbent competition push a credible V1 beyond the target scope.
-
-**Build burden: 4.**
-
-### TrackAI — REJECT
-
-RevenueCat verified ~$23.9K last 30 days and ~$20.8K MRR; launched June 2025; 327K+ installs claimed.
-
-Fatal issues:
-
-- Meta Ads are listed as a marketing channel;
-- food-photo calorie estimation is an AI/data quality problem;
-- health/fitness accuracy matters;
-- the market is extremely crowded;
-- a polished photo-to-macro product is not a 1–3 week low-risk build.
-
-**Build burden: 4. Acquisition: C/D.**
-
-### Tariq — REJECT
-
-RevenueCat verified ~$19.65K last 30 days and ~1,487 subscriptions.
-
-Founder says it grew using one acquisition channel in one country, but the channel is not disclosed.
-
-The product is a Quran reading/guidance experience. A competitive alternative carries significant content accuracy, localization, religious-content, and potentially licensing/trust requirements. The acquisition mechanism is also unknown.
-
-**Fails replicability/unknown-distribution gate.**
-
-### nutrIA — REJECT
-
-RevenueCat verified ~$13.4K last 30 days, 4,375 active subscriptions, founded April 2025.
-
-The listing describes food recognition, personalized recommendations, challenges, strong brand position in Chile, and expansion through nutritionists/institutions.
-
-Fatal issues:
-
-- image recognition/data quality;
-- health/nutrition domain;
-- proprietary data/brand advantages;
-- regional strength;
-- recurring backend.
-
-**Build burden: 4.**
-
-### Boxer AI — REJECT
-
-RevenueCat verified ~$9.54K last 30 days, founded March 2026, one person.
-
-This superficially looks like an ideal anomaly until the stack is inspected:
-
-- camera punch tracking;
-- technique analysis;
-- live feedback;
-- AR drills;
-- Python/FastAPI;
-- Google Cloud;
-- OpenAI;
-- Firebase;
-- TikTok Ads.
-
-This is the clearest example of mistaking a simple-looking interface for a simple business.
-
-**Build burden: 5. Acquisition grade: D.**
-
-### Pattrn — REJECT
-
-Approximately $10K+ last-30-day revenue was observed earlier in the pass. It is a habit/discipline tracker with AI features.
-
-Acquisition evidence shows large faceless short-form social reach, including multi-million-view posts. That distribution is inexpensive compared with paid UA, but it is still a marketing/content engine rather than durable App Store demand.
-
-Generic habit tracking is also heavily saturated.
-
-### ThreadCam — REJECT
-
-Third-party case study claims roughly ~$10K MRR within months.
-
-However, acquisition included Meta advertising and Apple Search Ads, while the garment/mockup workflow adds image/asset complexity.
-
-This fails the low-marketing-dependence criterion.
-
-### Pregnancy tracker case study — REJECT
-
-Third-party case study reports very high MRR but also substantial Meta creative activity.
-
-Pregnancy tracking also adds a high-trust health/content burden that is undesirable for a fast low-maintenance build.
-
-### Anonymous AI makeup app — REJECT
-
-Revenue anomaly was large, but selfie analysis/generation, product/shade recommendations, media generation, and product data create a nontrivial AI/content business.
-
-The apparent UI simplicity is misleading.
-
-### Visualize AI — REJECT
-
-Attractive solo/passive-income shape, but current revenue observed below the target threshold and the product is another commoditized AI image-generation wrapper with backend inference dependency.
-
-### FirstRevenue — REJECT
-
-Recent fast growth and automated TikTok distribution are interesting, but revenue remains below the target bar and acquisition is social-content driven.
-
-### Blockit — REJECT
-
-Creative screen-time-for-exercise idea with organic social acquisition, but revenue was only roughly ~$1K/30 days in the observed listing. It fails MONEY regardless of originality.
-
-### HeightMax — REJECT
-
-Below threshold and enters health/growth claims plus AI/content complexity.
-
-### OSM Tactics — REJECT
-
-Below threshold and dependent on another game's ecosystem/brand.
-
-### HabitBox / Tally Counter — REJECT
-
-Useful negative controls: very simple utilities can monetize, but the observed revenues were far below the target. Simplicity alone is not an anomaly.
-
----
-
-## 9. Recommended Next Action
-
-### ONE ACTION
-
-**Use AppTweak to triangulate the May-2026 “Hidden Business” or find a public near-exact analogue.**
-
-Do this specific screen:
-
-1. U.S. iPhone.
-2. Categories: **Utilities + Entertainment**.
-3. First release: approximately **April–June 2026**.
-4. Prefer apps with **<500 U.S. ratings**.
-5. Subscription monetization / hard paywall.
-6. Find apps ranking **#1–#3 for non-brand, high-intent queries**.
-7. For each match, pull:
-   - estimated current downloads;
-   - 90-day downloads;
-   - exact keyword rankings;
-   - estimated keyword-attributed installs;
-   - rating count;
-   - launch date.
-
-Stop as soon as either:
-
-**A.** one app shows enough non-brand organic installs to reconcile with roughly $9K/month revenue, at which point we investigate its reviews/competitors;
-
-or
-
-**B.** no visible app fits, in which case the confidential listing is not actionable evidence and this lead is killed.
-
-This is the cheapest unanswered question with the power to change the build decision.
-
----
-
-## 10. Exact Build Authorization Gate
-
-Do **not** implement an app until one candidate has all of the following:
-
-### Gate 1 — MONEY
-
-- RevenueCat-verified revenue, credible first-party revenue, or convergent high-quality estimates showing approximately **$10K+/month** for at least one comparable product;
-- or multiple comparables whose economics make that level plausible.
-
-### Gate 2 — REPLICABILITY
-
-Evidence that the comparable's success is **not primarily** caused by:
-
-- meaningful paid UA;
-- pre-existing creator audience;
-- Apple feature dependency;
-- publisher portfolio/cross-promotion;
-- proprietary dataset;
-- network effects;
-- famous brand/IP.
-
-### Gate 3 — ACCESSIBLE DEMAND
-
-For the exact generic user intent:
-
-- current App Store results identified;
-- rank history checked;
-- estimated installs checked;
-- at least one small app obtains economically meaningful traffic;
-- no repeat of the incremental mistake where high rank yields negligible installs.
-
-### Gate 4 — REAL PRODUCT GAP
-
-One sentence must explain why a user chooses ours.
-
-That sentence cannot merely be:
-
-- “cheaper,” if cheap/lifetime alternatives already exist;
-- “no ads,” if equivalent ad-free alternatives already exist;
-- “better UI,” without repeated evidence that UI is a buying barrier.
-
-### Gate 5 — SMALL ENOUGH
-
-A competitive V1 must credibly fit:
-
-- <=3 weeks solo + AI;
-- no large content library;
-- no specialized model training;
-- no expensive always-on inference;
-- no moderation;
-- no complex backend;
-- no high-risk regulatory dependency.
-
-### Authorization rule
-
-**All five gates must have positive evidence.**
-
-UNKNOWN on a major gate = **NO BUILD**.
-
----
-
-## 11. Economics
-
-### Apple commission assumption
-
-This model assumes enrollment in Apple's **App Store Small Business Program**, which currently provides a **15% commission rate** on paid apps and in-app purchases for qualifying developers below the program's revenue threshold.
-
-Thus modeled developer proceeds are approximately **85% of consumer price before taxes/refunds**.
-
-### One-time purchase economics
-
-Required average purchases per day to generate annual developer proceeds:
-
-| Consumer price | Net per purchase at 15% Apple commission | $10K/year | $25K/year | $50K/year | $100K/year |
-|---:|---:|---:|---:|---:|---:|
-| $4.99 | $4.24 | 6.5/day | 16.1/day | 32.3/day | 64.6/day |
-| $9.99 | $8.49 | 3.2/day | 8.1/day | 16.1/day | 32.3/day |
-| $19.99 | $16.99 | 1.6/day | 4.0/day | 8.1/day | 16.1/day |
-| $29.99 | $25.49 | 1.1/day | 2.7/day | 5.4/day | 10.7/day |
-
-This illustrates why a specific high-value utility can be more attractive than a $1.99 game: the required daily paid volume drops sharply.
-
-### Subscription economics
-
-Approximate average concurrently paying subscribers needed if every subscriber pays every month and ignoring trials/churn/taxes/refunds:
-
-| Monthly price | Net/month | $10K/year | $25K/year | $50K/year | $100K/year |
-|---:|---:|---:|---:|---:|---:|
-| $4.99 | $4.24 | 196 | 491 | 982 | 1,965 |
-| $9.99 | $8.49 | 98 | 245 | 491 | 981 |
-| $14.99 | $12.74 | 65 | 164 | 327 | 654 |
-
-These are **mechanical revenue requirements, not conversion forecasts**.
-
-### Downloads/day and trial starts/day
-
-A defensible number cannot be calculated without a candidate-specific observed conversion rate.
-
-Formula:
-
-**required downloads/day = required paid starts/day ÷ observed download→paid conversion**
-
-**required trial starts/day = required paid starts/day ÷ observed trial→paid conversion**
-
-No arbitrary conversion percentage should be inserted. The next candidate must provide observed or credible benchmark conversion data before this part of the economics gate is treated as validated.
-
----
-
-## 12. Source Register
-
-### Prior-project primary files
-
-1. **Quiet Factory postmortem** — project source file.  
-   Used for the Quiet Factory kill decision and original-product-research failure analysis.
-
-2. **September 1, 2026 AppTweak keyword validation summary** — project source file.  
-   Used for obscure card-game and incremental keyword conclusions.
-
-3. **AppTweak incremental 90-day ranking/install history JSON** — project source file.  
-   Used to establish that top search ranks did not generate meaningful traffic.
-
-4. **AppTweak current incremental download estimates JSON** — project source file.  
-   Used for the approximately 66–69 current U.S. iPhone download estimates on two researched apps.
-
-### RevenueCat-verified / marketplace evidence
-
-5. **Hidden Business — TrustMRR**  
-   https://trustmrr.com/startup/x7  
-   RevenueCat verified; ~$9.35K last 30d; one-person SwiftUI app; seller claims 100% ASO.
-
-6. **Private Japanese-learning app — TrustMRR**  
-   https://trustmrr.com/startup/japanese-education-app  
-   RevenueCat verified; ~$9.88K last 30d; ~25K users; 775 active subscriptions; ASO/social; Lock Screen learning.
-
-7. **Confidential ASO TV remote — TrustMRR**  
-   https://trustmrr.com/startup/3k-mrr-organic-app  
-   RevenueCat verified; ~$7.62K last 30d; ~4.5K monthly downloads; Swift + RevenueCat.
-
-8. **Draft AI — TrustMRR**  
-   https://trustmrr.com/startup/draft-ai-1  
-   RevenueCat verified; ~$32.21K last 30d; founded September 2025; ~1,922 active subscriptions.
-
-9. **Verbi — TrustMRR**  
-   https://trustmrr.com/startup/verbi  
-   RevenueCat verified; ~$34.70K last 30d; founded April 2026; 2–5 person team.
-
-10. **TrackAI — TrustMRR**  
-    https://trustmrr.com/startup/trackai  
-    RevenueCat verified; ~$23.87K last 30d; Meta Ads listed; photo-based calorie tracking.
-
-11. **Tariq — TrustMRR**  
-    https://trustmrr.com/startup/tariq-1  
-    RevenueCat verified; ~$19.65K last 30d; founder says one acquisition channel in one country.
-
-12. **nutrIA — TrustMRR**  
-    https://trustmrr.com/startup/nutria  
-    RevenueCat verified; ~$13.41K last 30d; food recognition and strong Chile brand.
-
-13. **Boxer AI — TrustMRR**  
-    https://trustmrr.com/startup/boxer-ai  
-    RevenueCat verified; ~$9.54K last 30d; one-person team; TikTok Ads; substantial AI/cloud stack.
-
-### Acquisition evidence
-
-14. **Valery Alexeev public-post mirror / Draft AI acquisition history**  
-    https://w.twstalker.com/valery_uxui  
-    Founder posts report a pre-existing ~110K Instagram audience and viral Reels driving hundreds of subscriptions. This is secondary access to founder statements; treat it below direct X posts in source quality.
-
-15. **ThreadCam case study — Ashish Builds**  
-    https://ashishbuilds.io/case-studies/threadcam  
-    Third-party case study. Used only to screen the claimed ~$10K MRR case and identify Meta/Apple Search Ads dependence.
-
-16. **Pregnancy-tracker case study — Ashish Builds**  
-    https://ashishbuilds.io/case-studies/pregnancy-tracker  
-    Third-party estimate/case study; used as screening evidence, not verified revenue.
-
-### Current App Store competitor / review evidence — TV remote
-
-17. Apple App Store — **TV Remote : Control Smart TV**  
-    https://apps.apple.com/us/app/tv-remote-control-smart-tv/id1598795880  
-    ~15K ratings; low-priced monthly/annual subscription.
-
-18. Apple App Store — **TV Remote & Universal Control**  
-    https://apps.apple.com/us/app/tv-remote-universal-control/id6458692724  
-    ~146K ratings.
-
-19. Apple App Store — **TV Remote · Universal Control**  
-    https://apps.apple.com/us/app/tv-remote-universal-control/id1545927900  
-    ~33K ratings; weekly/monthly/yearly/lifetime plans; review evidence about ads/lifetime purchase issues.
-
-20. Apple App Store — **TV Remote Control Universal AI**  
-    https://apps.apple.com/us/app/tv-remote-control-universal-ai/id6743434445  
-    ~55 ratings; one-time lifetime purchase plus weekly option.
-
-21. Apple App Store — **TV Remote - Smart TV Control**  
-    https://apps.apple.com/us/app/tv-remote-smart-tv-control/id6788644725  
-    new low-rating entrant; weekly/monthly/annual subscription.
-
-22. Apple App Store — **TV Remote - Universal** review page  
-    https://apps.apple.com/us/app/tv-remote-universal/id1670649189  
-    Current review evidence includes explicit objection to remote-control subscriptions.
-
-### Japanese-learning competitor evidence
-
-Current web/App Store search identified multiple direct lock-screen/widget Japanese-learning products, including Hourly Kana, Tomokanji, Kanjijo, Daily Kanji, Moji, IchiJi, and Langwid. These were used to falsify the premise that Lock Screen Japanese learning remains a unique gap.
-
-### Apple commission
-
-23. **Apple Developer — App Store Small Business Program**  
-    https://developer.apple.com/app-store/small-business-program/  
-    Primary source for the current 15% reduced commission and eligibility framework.
-
-### Evidence caveats
-
-- TrustMRR RevenueCat verification is strong evidence of reported store revenue, not proof of acquisition source.
-- Seller/founder descriptions of “100% organic,” costs, and channel mix remain claims unless independently corroborated.
-- Third-party case-study MRR values are estimates unless separately RevenueCat/first-party verified.
-- App Store rating counts can change daily and differ by storefront/crawl time.
-- No AppTweak keyword-volume figure is treated as literal search count.
-- No keyword rankings were translated into economics without install evidence.
-
----
-
-## 13. Canonical Project State
-
-### ALIVE
-
-**Commercial research thesis:**  
-Find recent high-revenue / low-complexity iOS anomalies first, then reverse-engineer the exact acquisition mechanism.
-
-**Highest-priority lead:**  
-The **May-2026 Hidden Business** pattern: solo SwiftUI + RevenueCat, ~$9K–$10K/month verified, claimed 100% ASO, minimal operations.
-
-**Promising business shape:**  
-High-intent, single-job utility with enough willingness to pay that a few thousand monthly installs can support meaningful revenue.
-
-### WATCH
-
-- Hidden Business / confidential May-2026 ASO app — identify exact intent before doing anything.
-- Other very recent (<12 months) one-person SwiftUI + RevenueCat utilities with verified $10K+/month and generic ASO acquisition.
-- iOS-native “ambient” surfaces such as widgets/Lock Screen as a product mechanic, but only where a new uncrowded paid intent is independently found.
-
-### KILLED
-
-- Quiet Factory.
-- Building another tap-away/sorting game because users dislike ads.
-- Generic paid-chart reverse engineering as sufficient commercial proof.
-- President / Scum / Sevens / Fan Tan as search-led opportunities.
-- 31 as a current lead; at most historical watch.
-- Incremental/idle-clicker ASO thesis.
-- Direct Japanese Lock Screen learning clone/variant.
-- Generic TV-remote “no subscription” alternative.
-- Draft AI imitation under a low-marketing-dependence strategy.
-- AI calorie trackers, AI language conversation, boxing camera coaching, AI makeup, and similar “simple UI / complex business” products for this rapid-build mandate.
-
-### UNKNOWN
-
-- Exact identity and keywords of Hidden Business.
-- Whether its claimed ASO traffic is reproducible in the U.S.
-- Its current AppTweak estimated downloads and keyword-attributed installs.
-- Its competitor density.
-- Whether it has an independent product gap we can exploit legally and cheaply.
-
-### NEXT STEP
-
-> **Triangulate the May-2026 Hidden Business in AppTweak (or find a public near-exact analogue) and verify non-brand keyword-attributed installs before any product design begins.**
-
-If that cannot be done, kill the lead and return to the anomaly funnel—not to brainstorming.
+> **the best small spirit-box instrument on iPhone.**

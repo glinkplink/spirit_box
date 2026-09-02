@@ -8,11 +8,23 @@ Before making any product or implementation decision, read:
 
 This is authoritative.
 
-Supporting research exists in:
+Supporting documents never override canonical scope, pricing, V1 boundaries, or audio architecture.
 
-`docs/research/`
+### Document classes
 
-If research conflicts with the canonical source of truth, the canonical document wins.
+| Class | Path | Role |
+|-------|------|------|
+| **Authoritative** | `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` | Final product, scope, and implementation source of truth |
+| **Supporting product research** | `docs/research/` | Evidence and architecture-decision research |
+| **Production execution** | `docs/production/` | Operational production inputs (e.g. audio corpus plan) |
+| **Launch / acquisition execution** | `docs/launch/` | ASO, conversion, and first-user acquisition playbooks |
+
+Task-specific agents should read the canonical document plus the relevant execution doc for their work:
+
+- **Audio-engine / corpus work:** canonical + `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` + `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`
+- **Launch / ASO / acquisition work:** canonical + the relevant playbook under `docs/launch/`
+
+If any supporting document conflicts with the canonical source of truth, the canonical document wins.
 
 ## Product discipline
 
