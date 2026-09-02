@@ -79,6 +79,39 @@ final class CorpusImporterTests: XCTestCase {
         XCTAssertFalse(loaded.contains("\"OLD\""))
     }
 
+    func testImportCanSafelySelectTheExistingDestinationFolder() throws {
+        let destination = scratch.appendingPathComponent("SpiritBoxPhase1Corpus", isDirectory: true)
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+        try writeManifest(at: destination.appendingPathComponent("manifest.json"), id: "CURRENT")
+        try Data([0xAA]).write(to: destination.appendingPathComponent("CURRENT.wav"))
+
+        let result = try CorpusImporter.importItems(urls: [destination], into: destination)
+
+        XCTAssertEqual(result.wavCount, 1)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: destination.appendingPathComponent("manifest.json").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: destination.appendingPathComponent("CURRENT.wav").path))
+    }
+
+    func testInvalidReplacementPreservesThePreviousCorpus() throws {
+        let destination = scratch.appendingPathComponent("dest", isDirectory: true)
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+        try writeManifest(at: destination.appendingPathComponent("manifest.json"), id: "OLD")
+        try Data([0xAA]).write(to: destination.appendingPathComponent("OLD.wav"))
+
+        let source = scratch.appendingPathComponent("invalid", isDirectory: true)
+        try FileManager.default.createDirectory(at: source, withIntermediateDirectories: true)
+        try writeManifest(at: source.appendingPathComponent("manifest.json"), id: "MISSING")
+        try Data([0xBB]).write(to: source.appendingPathComponent("unreferenced.wav"))
+
+        XCTAssertThrowsError(try CorpusImporter.importItems(urls: [source], into: destination)) { error in
+            guard case CorpusImporter.Error.missingReferencedAudio("MISSING.wav") = error else {
+                return XCTFail("expected missingReferencedAudio, got \(error)")
+            }
+        }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: destination.appendingPathComponent("OLD.wav").path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: destination.appendingPathComponent("unreferenced.wav").path))
+    }
+
     func testImportRejectsMissingManifest() throws {
         let source = scratch.appendingPathComponent("wavs", isDirectory: true)
         let destination = scratch.appendingPathComponent("dest", isDirectory: true)

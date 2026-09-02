@@ -163,13 +163,13 @@ struct HarnessView: View {
             Text("Exercises the full bundle-generation pathway. Usable with DevFixtures.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-            Button("20-minute evaluation run") {
+            Button("Start 20-minute test") {
                 model.startTwentyMinuteEvaluationRun()
             }
             Text(
                 model.isDevFixtureCorpus
                     ? "A 20-minute DevFixtures run is not a canonical gate attempt."
-                    : "Produces a full artifact set for the canonical listening procedure once a real Phase 1 corpus is loaded."
+                    : "Starts the sweep automatically and produces the full artifact set for the listening procedure."
             )
             .font(.footnote)
             .foregroundStyle(.secondary)

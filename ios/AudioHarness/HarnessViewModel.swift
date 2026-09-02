@@ -125,7 +125,11 @@ final class HarnessViewModel: ObservableObject {
             _ = try CorpusLoader.ensureDocumentsCorpusDirectory(at: destination)
             let result = try CorpusImporter.importItems(urls: urls, into: destination)
             reloadCorpus()
-            lastMessage = "Uploaded \(result.wavCount) WAV files. Source: \(corpusSourceDescription)."
+            if engine.loadedCorpus.source == .documentsPhase1 {
+                lastMessage = "Loaded \(corpusCount) assets from \(result.wavCount) WAV files. Tap Start 20-minute test when ready."
+            } else {
+                lastMessage = "Corpus files were copied, but the Documents corpus did not activate. Check manifest.json and reload."
+            }
         } catch {
             lastMessage = "Corpus upload failed: \(error.localizedDescription)"
         }

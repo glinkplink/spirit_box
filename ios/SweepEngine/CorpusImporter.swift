@@ -10,6 +10,8 @@ public enum CorpusImporter {
     public enum Error: Swift.Error, Equatable, LocalizedError {
         case missingManifest
         case missingAudio
+        case invalidManifest(String)
+        case missingReferencedAudio(String)
         case copyFailed(String)
 
         public var errorDescription: String? {
@@ -18,6 +20,10 @@ public enum CorpusImporter {
                 return "Select a corpus folder or files that include manifest.json."
             case .missingAudio:
                 return "The selected corpus has no WAV files."
+            case .invalidManifest(let detail):
+                return "The selected manifest is invalid: \(detail)"
+            case .missingReferencedAudio(let filename):
+                return "The selected corpus is missing a WAV referenced by manifest.json: \(filename)"
             case .copyFailed(let detail):
                 return "Could not copy corpus files: \(detail)"
             }
@@ -35,21 +41,78 @@ public enum CorpusImporter {
         guard hasManifest else { throw Error.missingManifest }
         guard wavCount > 0 else { throw Error.missingAudio }
 
+        let parent = destination.deletingLastPathComponent()
+        let suffix = UUID().uuidString
+        let staging = parent.appendingPathComponent(".\(CorpusLoader.documentsDirectoryName)-import-\(suffix)", isDirectory: true)
+        let backup = parent.appendingPathComponent(".\(CorpusLoader.documentsDirectoryName)-backup-\(suffix)", isDirectory: true)
+        var removeBackupOnExit = false
+
+        defer {
+            try? fileManager.removeItem(at: staging)
+            if removeBackupOnExit {
+                try? fileManager.removeItem(at: backup)
+            }
+        }
+
         do {
-            try fileManager.createDirectory(at: destination, withIntermediateDirectories: true)
-            try clearPreviousCorpus(at: destination, fileManager: fileManager)
+            try fileManager.createDirectory(at: parent, withIntermediateDirectories: true)
+            try fileManager.createDirectory(at: staging, withIntermediateDirectories: true)
             for source in sources {
-                let destFile = destination.appendingPathComponent(source.lastPathComponent)
-                if fileManager.fileExists(atPath: destFile.path) {
-                    try fileManager.removeItem(at: destFile)
-                }
+                let destFile = staging.appendingPathComponent(source.lastPathComponent)
                 try fileManager.copyItem(at: source, to: destFile)
             }
+            try validateStagedCorpus(at: staging, fileManager: fileManager)
+
+            var isDirectory: ObjCBool = false
+            let destinationExists = fileManager.fileExists(atPath: destination.path, isDirectory: &isDirectory)
+            if destinationExists && !isDirectory.boolValue {
+                throw Error.copyFailed("Documents/\(CorpusLoader.documentsDirectoryName) is not a folder.")
+            }
+
+            if destinationExists {
+                try fileManager.moveItem(at: destination, to: backup)
+            }
+
+            do {
+                try fileManager.moveItem(at: staging, to: destination)
+                removeBackupOnExit = destinationExists
+            } catch {
+                if destinationExists && !fileManager.fileExists(atPath: destination.path) {
+                    try? fileManager.moveItem(at: backup, to: destination)
+                }
+                throw error
+            }
+        } catch let error as Error {
+            throw error
         } catch {
             throw Error.copyFailed(error.localizedDescription)
         }
 
         return Result(copiedFileCount: sources.count, wavCount: wavCount)
+    }
+
+    private static func validateStagedCorpus(at root: URL, fileManager: FileManager) throws {
+        let manifestURL = root.appendingPathComponent(CorpusLoader.manifestFileName)
+        let manifest: CorpusManifest
+        do {
+            manifest = try JSONDecoder().decode(CorpusManifest.self, from: Data(contentsOf: manifestURL))
+        } catch {
+            throw Error.invalidManifest(error.localizedDescription)
+        }
+
+        guard !manifest.assets.isEmpty else {
+            throw Error.invalidManifest("it does not declare any assets")
+        }
+
+        for asset in manifest.assets {
+            let path = asset.relativePath.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !path.isEmpty else {
+                throw Error.invalidManifest("asset \(asset.assetID) has no WAV path")
+            }
+            guard fileManager.fileExists(atPath: root.appendingPathComponent(path).path) else {
+                throw Error.missingReferencedAudio(path)
+            }
+        }
     }
 
     private static func collectPayload(urls: [URL], fileManager: FileManager) -> [URL] {
@@ -92,14 +155,4 @@ public enum CorpusImporter {
         return url.pathExtension.lowercased() == "wav"
     }
 
-    private static func clearPreviousCorpus(at destination: URL, fileManager: FileManager) throws {
-        let existing = (try? fileManager.contentsOfDirectory(
-            at: destination,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        )) ?? []
-        for file in existing where isCorpusFile(file) {
-            try fileManager.removeItem(at: file)
-        }
-    }
 }

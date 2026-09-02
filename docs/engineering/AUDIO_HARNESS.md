@@ -142,8 +142,10 @@ This procedure has **not** been physically verified on a TestFlight iPhone in th
 4. In the harness **Corpus** section, tap **Upload corpus**.
 5. Select the `SpiritBoxPhase1Corpus` folder, or select `manifest.json` plus the WAV files.
 6. Confirm **Source** is `Documents/SpiritBoxPhase1Corpus` and the expected asset count appears.
+7. Tap **Start 20-minute test**. The harness starts the sweep automatically and writes the evaluation bundle.
 
 A stale `manifest.json` in Documents with no WAV files does not block the bundled `me_test` corpus.
+An incomplete or invalid upload is rejected before it replaces the previously loaded Documents corpus.
 
 Optional Files-app copy (same destination):
 
