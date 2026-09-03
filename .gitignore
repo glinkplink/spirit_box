@@ -76,6 +76,7 @@ private-corpus/
 
 # Local developer recordings and generated intake corpora (never commit voice data)
 recordings/
+reference_audio/
 build/corpus/
 
 # IDE / editor
@@ -86,5 +87,7 @@ build/corpus/
 *.xcdebugger
 
 # Python
+.venv*/
+venv/
 __pycache__/
 *.pyc
