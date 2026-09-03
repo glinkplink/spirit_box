@@ -105,6 +105,19 @@ final class HarnessDocumentsTests: XCTestCase {
         XCTAssertNotNil(CapturePersistenceVerifier.verify(wavURL: wavURL))
     }
 
+    func testPublishedCaptureVerifierAcceptsAudioGateRunMix() throws {
+        let documents = scratchDirectory.appendingPathComponent("Documents", isDirectory: true)
+        let runDirectory = AudioGateRunLocator.directory(in: documents)
+            .appendingPathComponent("20260903-170000-abcd", isDirectory: true)
+        try FileManager.default.createDirectory(at: runDirectory, withIntermediateDirectories: true)
+
+        let wavURL = runDirectory.appendingPathComponent(AudioGateRunLocator.wavFileName)
+        try Data([0x01]).write(to: wavURL)
+
+        XCTAssertNotNil(CapturePersistenceVerifier.verify(wavURL: wavURL))
+        XCTAssertNil(CapturePersistenceVerifier.verifyPublishedCapture(wavURL: wavURL))
+    }
+
     func testFilesSharingConfiguredInHostedHarnessBundle() {
         XCTAssertTrue(HarnessDocuments.filesSharingConfigured())
     }
