@@ -2,7 +2,8 @@
 
 **Project:** iPhone Spirit-Box Instrument  
 **Date:** September 2, 2026  
-**Status:** Phase 1 corpus production plan  
+**Status:** Revised Phase 1 corpus production plan — transition-dominant, sub-word source material
+
 **Locked architecture:** Offline original/explicitly licensed human vocal corpus + phoneme bank + non-semantic sweep renderer
 
 > **Decision rule:** optimize for the cheapest, fastest corpus that can survive a 15–20 minute blind listening test without sounding canned, repetitive, semantically steered, or like a small clip randomizer.
@@ -15,17 +16,19 @@
 
 ## Recommendation
 
-**Commission four original human performers directly for Phase 1, preferably through four separate fixed-price Upwork contracts, and require a project-specific performer release/rider in addition to marketplace terms.** Record roughly 40 raw takes per performer, retain **30 accepted source assets per performer**, and build a **120-asset prototype bank**.
+First run the no-spend **Phase 0 A/B/C corpus gate** in Section 2. If the transition-dominant source wins, **commission four original human performers directly for Phase 1**, preferably through four separate fixed-price Upwork contracts, and require a project-specific performer release/rider in addition to marketplace terms. Record 40 raw takes per performer, retain **30 accepted source assets per performer**, and build a **120-asset prototype bank**.
 
 Do **not** buy a generic speech corpus, scrape public-domain speech, use radio clips, or use AI voices for the prototype. Those routes save little money at this scale and add provenance, license, consistency, or credibility risk.
 
 The Phase 1 corpus should contain:
 
-- **28 vowel-core assets** — short, sustained, non-word monophthong-like vocal material;
-- **32 continuant/sonorant assets** — sibilants, fricatives, hums and nasal texture;
-- **40 coarticulated transition assets** — short CV/VC/cluster fragments built around neutral vowels, designed to sound human without forming a vocabulary;
-- **20 breath/transient assets** — breaths plus a few human plosive releases;
+- **76 coarticulated transition assets** — short CV/VC/limited-cluster mouth motions built mainly around neutral vowels, designed to preserve human articulation without forming a vocabulary;
+- **12 vowel-core assets** — short, sustained, non-word vowel texture;
+- **12 continuant/sonorant assets** — sibilants, fricatives, hums and nasal texture;
+- **20 breath/transient assets** — natural breaths plus soft human plosive/affricate releases;
 - **0 required stored static/hiss/crackle assets** — synthesize those procedurally at runtime.
+
+This is a deliberate correction to the earlier isolated-phoneme-heavy mix. **Transitions are 63% of the accepted bank; sustained vowels plus continuants are 20%.** The performers supply authentic sub-word human articulation. The renderer supplies the eerie instrument character through short cuts, filtering, noise, reverse playback, varying start points and sweep timing.
 
 The 120 count refers to **genuinely distinct human recordings**, not pitch-shifted, reversed, filtered or time-stretched derivatives. Reverse playback, random cropping, radio-band filtering, gain variation and modest pitch/formant variation can be runtime transformations, but they do not count as new corpus assets.
 
@@ -61,8 +64,10 @@ The 120 count refers to **genuinely distinct human recordings**, not pitch-shift
 | Raw takes requested | **40 per performer / 160 total** |
 | Accepted source assets | **30 per performer / 120 total** |
 | Voice families | Low/dry; mid/neutral; high/light; textured/rougher or older-sounding |
-| Full words | **0 deliberately recorded** |
-| Full phrases/sentences | **0** |
+| Full words | **0 permitted** |
+| Full phrases/sentences | **0 permitted** |
+| Target sound duration | **0.20–0.90 s**, depending on source class |
+| Accepted mix per performer | **19 transitions + 3 vowels + 3 continuants + 5 breaths/releases** |
 | Languages | No deliberate multilingual material in Phase 1 |
 | Strong accents | Not recruited as a feature; mild natural accent is fine |
 | Whisper bank | No. Use breaths/unvoiced textures and limited breathier delivery instead |
@@ -80,25 +85,56 @@ Diphone/concatenative synthesis literature emphasizes transitions and coarticula
 
 ### AUDIO-DESIGN INFERENCE
 
-For this product, that argues against a bank made entirely from isolated vowels or consonants. It also argues against long partial words. The best middle ground is:
+For this product, that argues against both an isolated-phoneme-heavy bank and continuous pseudo-speech. The best middle ground is:
 
-- **short vowel cores** for voiced human texture;
-- **continuants/fricatives/nasals** for speech-like energy without lexical content;
-- **short CV/VC coarticulation fragments** for natural articulation;
-- **breath and plosive transients** to break cadence;
+- **a majority of short CV/VC/limited-cluster transitions** for real formant movement, consonant releases, onsets and offsets;
+- **short vowel cores** for voiced human texture, used sparingly;
+- **continuants/fricatives/nasals** for speech-like energy without lexical content, used sparingly;
+- **breath, plosive and affricate transients** to break cadence;
 - **procedural noise** to provide continuous radio-like glue.
+
+The performer does **not** speak a nonsense sentence and the production team does **not** store 3–10 second pseudo-language passages. Each take is one raw mouth sound lasting roughly 0.20–0.90 seconds. This preserves local human speech motion without preserving sentence cadence, pseudo-words or long repeatable performer trajectories.
 
 ### What we intentionally exclude
 
 - complete `yes`, `no`, `hello`, `help`, `dead`, `leave`, `run`, `here`, names, pronouns, numbers or paranormal vocabulary;
 - long diphthongs that are easily heard as English words/interjections, especially isolated `/aɪ/` (“I”), `/eɪ/` (“A”), `/oʊ/` (“oh”), or `/ju/` (“you”);
 - scripted sentences;
+- fluent nonsense or invented-language sentences;
+- complete pseudo-words or multi-syllable utterances;
 - acted ghost whispers;
 - laughter, screams, crying or horror performance;
 - deliberate question/answer cadence;
 - “radio DJ” impressions;
 - intentionally backwards speech;
 - content sourced from existing broadcasts or other apps.
+
+## Phase 0 — no-spend corpus correction gate
+
+Before posting or funding performer contracts, answer this question:
+
+> **Does a transition-dominant bank sound materially more like fleeting human speech than the current isolated-phoneme-heavy bank while remaining non-semantic?**
+
+Create at least **three deterministic 20-second renders per arm** from the same available pilot voices:
+
+| Arm | Corpus | Presentation |
+|---|---|---|
+| **A — current control** | Existing isolated-heavy material | Current 300 ms presentation |
+| **B — source correction** | 60–70% short sub-word transitions; supporting vowels, continuants, breaths and releases | Mostly dry; no extra radio-style processing beyond what is needed for a fair render |
+| **C — reference-match experiment** | Same source pool as B | Hidden EQ-profile switching, restrained noise, short fades, mild speed variation and an experimental reverse arm |
+
+Use **200 / 250 / 300 / 350 ms** as focused internal experimental sweep steps for this gate. This does **not** change the canonical V1 control values of 75 / 125 / 200 / 300 ms. A sweep step is not automatically a command to change performer or source on every boundary: the test may allow a source to persist across **2–3 steps**, capped at **900 ms**, while crop/filter position continues to move. Treat **35–55% vocal activity**, **20–30% reverse**, approximately **0.92x–1.08x speed**, and multiple hidden spectral profiles as experiment arms—not locked production settings.
+
+Keep one dominant foreground voice. Continuous noise should sit beneath it as glue rather than masking it; secondary vocal bleed, if tested at all, must be rare and materially quieter. Use only very short anti-click fades, roughly **5–15 ms**. Do not add exposed echo/reverb controls, heavy ambience, stacked chatter or wall-to-wall static.
+
+Blind the render labels, use multiple listeners, and log the exact source ID, crop/start point, duration, direction, speed and spectral profile for every event. Optimize for:
+
+- fleeting, recognizably human articulation rather than tones/hiss;
+- no repeated identifiable word, name or phrase;
+- no deliberate semantic content or reactive timing;
+- no obvious clip-randomizer cadence.
+
+If B/C does not materially beat A, do not commission 120 revised assets yet. Diagnose the corpus/scheduler once before spending money or revisiting the locked architecture.
 
 ---
 
@@ -119,12 +155,12 @@ A practical cast can include different masculine/feminine-presenting voices, but
 
 ## Should every performer record the same material?
 
-**No.** Use a **shared core + performer-specific transition subset**.
+**No.** Use a **small shared transition core + performer-specific transition and texture subsets**.
 
-- Every performer records the same vowel/continuant/breath core so runtime can substitute timbres for similar source classes.
-- Each performer gets eight unique transition targets.
-- About three quarters of prompt *types* are shared in Phase 1, while a quarter are unique. The actual recordings remain independent.
-- Production expansion should reduce overlap further.
+- Every performer records the same ten transition targets so runtime can substitute timbres for comparable articulations.
+- Each performer gets nine additional transition targets plus assigned vowel, continuant and transient subsets.
+- Only one third of accepted prompt types are shared. The actual recordings remain independent.
+- Production expansion should keep shared coverage small unless the prototype proves interchangeability is more valuable than source diversity.
 
 ### Why not fully identical sheets?
 
@@ -153,118 +189,91 @@ If Phase 1 passes but production still sounds overly homogeneous, add one natura
 
 ## Performer-wide rules
 
-- The text in quotation marks below is an **anchor for the sound only**. Never speak the example word.
+- Record **one raw mouth sound per take**, never a spoken line.
+- The text in quotation marks below is an **anchor for the sound only**. Never speak the example word. For example: “Make only the vowel from the middle of ‘cat.’ Do not say ‘cat.’ Hold that vowel naturally for about three-quarters of a second.”
 - Each file/take should begin with roughly **100–200 ms of quiet room tone**, make the target sound, then leave roughly **150–250 ms of quiet tail**.
 - No dramatic intonation, emotion, spooky delivery, sentence melody or “answer” cadence.
 - Use a comfortable pitch. Do not force very low/high pitch.
 - Vowels/continuants should be steady, not sung.
 - Transition fragments should be one smooth articulatory motion, not two clearly separated letters.
 - Do not whisper words. Do not insert an extra vowel to name a consonant (for example, do not say “ess” for `/s/`).
+- Do not connect targets into a list, pseudo-word, sentence or fluent nonsense passage.
 - Keep the same mic, distance, room and input gain for the entire session.
 
-## A. Shared core — every performer records this
+## A. Accepted-asset allocation — every performer
 
-| ID | Exact source | Plain-language intention | Raw takes | Target sound duration | Voicing | Delivery | Reverse/pitch plan |
-|---|---|---|---:|---:|---|---|---|
-| C01 | `/æ/` | vowel only from “cat” | 2 | 0.6–0.9 s | Voiced | steady, neutral | reverse allowed; no recorded pitch alt |
-| C02 | `/ɛ/` | vowel only from “bed” | 2 | 0.6–0.9 s | Voiced | steady, neutral | reverse allowed |
-| C03 | `/ɪ/` | vowel only from “bit” | 2 | 0.6–0.9 s | Voiced | steady, neutral | reverse allowed |
-| C04 | `/ʊ/` | vowel only from “book” | 2 | 0.6–0.9 s | Voiced | steady, neutral | reverse allowed |
-| C05 | `/ʌ/` | vowel only from “strut” | 2 | 0.6–0.9 s | Voiced | steady, neutral | reverse allowed |
-| C06 | `/ə/` | unstressed vowel at start of “about” | 2 | 0.6–0.9 s | Voiced | very neutral | reverse allowed |
-| C07 | `/s/` | continuous unvoiced hiss made by tongue/teeth; not “ess” | 1 + alt | 0.5–0.8 s | Unvoiced | steady | reverse allowed |
-| C08 | `/ʃ/` | continuous “sh” only | 1 + alt | 0.5–0.8 s | Unvoiced | steady | reverse allowed |
-| C09 | `/f/` | continuous “f” airflow only | 1 | 0.5–0.8 s | Unvoiced | steady | reverse allowed |
-| C10 | `/θ/` | unvoiced “th” as in “thin,” held; do not say a word | 1 | 0.5–0.8 s | Unvoiced | steady | reverse allowed |
-| C11 | `/h/` | soft breathy “h” airflow, no following vowel | 1 | 0.4–0.7 s | Unvoiced | natural | reverse allowed |
-| C12 | `/v/` | continuous voiced “v” only | 1 | 0.5–0.8 s | Voiced | steady | reverse allowed |
-| C13 | `/m/` | closed-mouth hum on comfortable pitch; not “em” | 1 + alt | 0.5–0.8 s | Voiced | neutral | reverse allowed |
-| C14 | `/ŋ/` | sustained “ng” from end of “sing”; no preceding vowel | 1 | 0.5–0.8 s | Voiced | neutral | reverse allowed |
-| C15 | `/k/` release | one soft unvoiced K release, no “kuh” | 1 | 0.15–0.30 s | Unvoiced | light | normally forward; reverse optional |
-| C16 | `/p/` release | one soft P release, no “puh” | 1 | 0.15–0.30 s | Unvoiced | light, use pop filter | normally forward |
-| C17 | quiet exhale | open-mouth natural exhale; no vocal pitch | 1 + alt | 0.35–0.8 s | Unvoiced | relaxed | reverse allowed |
-| C18 | short inhale | natural small inhale; not gasp/horror breath | 1 | 0.25–0.6 s | Unvoiced | relaxed | forward preferred |
+| Source class | Accepted per performer | Bank total | Target duration |
+|---|---:|---:|---:|
+| Coarticulated transitions | **19** | **76** | **0.20–0.55 s** |
+| Isolated vowels | **3** | **12** | **0.45–0.90 s** |
+| Continuants/sonorants | **3** | **12** | **0.40–0.90 s** |
+| Breaths/releases | **5** | **20** | **0.20–0.80 s** |
+| **Total** | **30** | **120** | **0.20–0.90 s** |
 
-`+ alt` means record a second natural take after finishing the main sheet. The alternate must be a **new performance**, not a louder copy.
+## B. Shared transition core — every performer records this
 
-## B. Performer-specific transition sheet
+Each target is one smooth mouth motion, not two named letters and not a word.
 
-### P01 — low/dry family
+| ID | Sound | Direction | Target duration |
+|---|---|---|---:|
+| T01 | `/sə/` | S into neutral schwa | 0.25–0.50 s |
+| T02 | `/fə/` | F into neutral schwa | 0.25–0.50 s |
+| T03 | `/mə/` | M into neutral schwa | 0.25–0.50 s |
+| T04 | `/kə/` | soft K into neutral schwa | 0.20–0.45 s |
+| T05 | `/pə/` | soft P into neutral schwa | 0.20–0.45 s |
+| T06 | `/əs/` | schwa closing into S | 0.25–0.50 s |
+| T07 | `/əf/` | schwa closing into F | 0.25–0.50 s |
+| T08 | `/əm/` | schwa closing into M | 0.25–0.50 s |
+| T09 | `/ək/` | schwa ending in a light K closure/release | 0.20–0.45 s |
+| T10 | `/əp/` | schwa ending in a light P closure/release | 0.20–0.45 s |
 
-| ID | Sound | Intention | Takes | Duration | Style |
-|---|---|---|---:|---:|---|
-| A01 | `/sə/` | smooth S into neutral schwa; not a word | 1 + alt | 0.30–0.45 s | dry/neutral |
-| A02 | `/fə/` | F into neutral schwa | 1 + alt | 0.30–0.45 s | dry/neutral |
-| A03 | `/kə/` | soft K into schwa, minimal emphasis | 1 | 0.25–0.40 s | dry |
-| A04 | `/mə/` | M into schwa | 1 | 0.30–0.45 s | neutral |
-| A05 | `/əs/` | schwa moving into S | 1 + alt | 0.30–0.45 s | neutral |
-| A06 | `/əf/` | schwa moving into F | 1 | 0.30–0.45 s | neutral |
-| A07 | `/ək/` | schwa ending in a light K closure/release | 1 + alt | 0.25–0.40 s | neutral |
-| A08 | `/əm/` | schwa closing into M | 1 | 0.30–0.45 s | neutral |
+## C. Performer-specific transition targets
 
-### P02 — mid/neutral family
+These expand articulatory coverage without asking anyone to speak fluent pseudo-language.
 
-| ID | Sound | Intention | Takes | Duration | Style |
-|---|---|---|---:|---:|---|
-| B01 | `/və/` | V into schwa | 1 + alt | 0.30–0.45 s | clean/neutral |
-| B02 | `/lə/` | light L into schwa, no word-like stress | 1 | 0.30–0.45 s | neutral |
-| B03 | `/gə/` | soft G into schwa | 1 | 0.25–0.40 s | neutral |
-| B04 | `/ʒə/` | “zh” sound from “measure” into schwa | 1 + alt | 0.30–0.45 s | neutral |
-| B05 | `/əv/` | schwa into V | 1 + alt | 0.30–0.45 s | neutral |
-| B06 | `/əl/` | schwa into light L | 1 | 0.30–0.45 s | neutral |
-| B07 | `/əg/` | schwa ending with soft G | 1 + alt | 0.25–0.40 s | neutral |
-| B08 | `/əʒ/` | schwa into “zh” | 1 | 0.30–0.45 s | neutral |
+| ID | P01 — low/dry | P02 — mid/neutral | P03 — high/light | P04 — distinct/textured |
+|---|---|---|---|---|
+| X01 | `/tə/` | `/bə/` | `/ʃə/` | `/tʃə/` |
+| X02 | `/nə/` | `/də/` | `/hə/` | `/dʒə/` |
+| X03 | `/rə/` | `/gə/` | `/ŋə/` | `/krə/` |
+| X04 | `/ət/` | `/əb/` | `/əʃ/` | `/frə/` |
+| X05 | `/ən/` | `/əd/` | `/əh/` | `/ətʃ/` |
+| X06 | `/ər/` | `/əg/` | `/əŋ/` | `/ədʒ/` |
+| X07 | `/və/` | `/lə/` | `/θə/` | `/əʒ/` |
+| X08 | `/əv/` | `/əl/` | `/əθ/` | `/ʃrə/` |
+| X09 | `/zə/` | `/əz/` | `/ʒə/` | `/vrə/` |
 
-### P03 — higher/light family
+All X targets use **0.20–0.55 s**. R-colored or clustered targets must remain compact and neutral; if a target becomes an obvious word, syllable name or theatrical utterance, stop and retake it.
 
-| ID | Sound | Intention | Takes | Duration | Style |
-|---|---|---|---:|---:|---|
-| C19 | `/pə/` | soft P into schwa | 1 + alt | 0.25–0.40 s | light, slightly airy |
-| C20 | `/bə/` | soft B into schwa | 1 | 0.25–0.40 s | light |
-| C21 | `/də/` | soft D into schwa | 1 | 0.25–0.40 s | light |
-| C22 | `/ʃə/` | SH into schwa | 1 + alt | 0.30–0.45 s | lightly breathy |
-| C23 | `/əp/` | schwa ending in soft P | 1 + alt | 0.25–0.40 s | light |
-| C24 | `/əb/` | schwa ending in B | 1 | 0.25–0.40 s | light |
-| C25 | `/əd/` | schwa ending in D | 1 + alt | 0.25–0.40 s | light |
-| C26 | `/əʃ/` | schwa into SH | 1 | 0.30–0.45 s | lightly breathy |
+## D. Assigned supporting textures
 
-### P04 — distinct/textured family
+| Performer | Three vowels | Three continuants/sonorants | Five breaths/releases |
+|---|---|---|---|
+| P01 | `/æ/`, `/ɛ/`, `/ə/` | `/s/`, `/f/`, `/m/` | soft `/k/`, `/p/`, `/t/` releases; quiet exhale; short inhale |
+| P02 | `/ɪ/`, `/ʌ/`, `/ə/` | `/ʃ/`, `/v/`, `/ŋ/` | soft `/k/`, `/p/`, `/tʃ/` releases; quiet exhale; short inhale |
+| P03 | `/æ/`, `/ɪ/`, `/ʊ/` | `/s/`, `/ʃ/`, `/m/` | soft `/k/`, `/t/`, `/tʃ/` releases; quiet exhale; short inhale |
+| P04 | `/ɛ/`, `/ʊ/`, `/ə/` | `/f/`, `/v/`, `/ŋ/` | soft `/p/`, `/t/`, `/tʃ/` releases; quiet exhale; short inhale |
 
-| ID | Sound | Intention | Takes | Duration | Style |
-|---|---|---|---:|---:|---|
-| D01 | `/tʃə/` | “ch” into schwa; not “cha” | 1 + alt | 0.25–0.40 s | soft/textured |
-| D02 | `/dʒə/` | “j” sound into schwa | 1 + alt | 0.25–0.40 s | soft/textured |
-| D03 | `/krə/` | compact K-R-schwa motion; no dramatic R | 1 | 0.30–0.45 s | neutral |
-| D04 | `/frə/` | F-R-schwa motion | 1 | 0.30–0.45 s | neutral |
-| D05 | `/ətʃ/` | schwa ending in CH | 1 + alt | 0.25–0.40 s | neutral |
-| D06 | `/ədʒ/` | schwa ending in J sound | 1 | 0.25–0.40 s | neutral |
-| D07 | `/əŋ/` | schwa closing into NG | 1 + alt | 0.30–0.45 s | neutral |
-| D08 | `/əh/` | short schwa releasing into H-airflow | 1 | 0.30–0.45 s | neutral |
+Vowels are the isolated vowel only, never the anchor word. Continuants are sustained raw articulations—`sss`, `shhh`, `fff`, `vvv`, `mmm`, or `ng`—without consonant names or added vowels. Releases are soft natural mouth transients, never “kuh,” “puh,” “tuh,” or “chuh.” Breaths are ordinary quiet breathing, never gasps or acted fear.
 
-## C. Second-take instruction
+## E. Second-take instruction
 
-Every performer records alternate takes for:
+Every performer records the 30 assigned targets once, then records a second natural take of **T01–T05 and X01–X05**. This creates **40 raw takes per performer / 160 total**. The alternate is a new performance, not a louder duplicate.
 
-- `/s/`
-- `/ʃ/`
-- `/m/`
-- quiet exhale
-- the four performer-specific transitions marked `+ alt`
-
-This creates **40 raw takes per performer**. The editor keeps only the best **30 accepted assets per performer** for the Phase 1 bank:
-
-- 7 vowel assets;
-- 8 continuant/sonorant assets;
-- 10 transition assets;
-- 5 breath/transient assets.
-
-The unused alternates remain in the archived raw masters but are not counted as V1 assets.
+The editor accepts one take for each of the 30 target slots. Unused alternates remain in the archived raw masters but are not counted as V1 assets.
 
 ## Recognition-risk review
 
+Screen the written sheet and the recorded output. Explicitly reject:
+
+- `yes`, `no`, `help`, `leave`, `dead` or close deliberate variants;
+- names, numbers, paranormal phrases or ordinary complete words;
+- a complete pseudo-word or repeated cadence that becomes labelable;
+- anything performed with sentence intonation or “answer” emphasis.
+
 After segmentation, each asset gets `recognition_risk = low | medium | high`.
 
-A clip is **high** if a normal listener can consistently label it as a complete ordinary word/interjection when heard alone. High-risk assets are removed from the prototype unless shortening/cropping turns them back into clearly non-word material.
+A clip is **high** if normal listeners can consistently label it as a complete ordinary word/interjection when heard alone, or if its articulation is memorable enough to function like a repeated catchphrase. High-risk assets are removed unless shortening/cropping turns them back into clearly sub-word material.
 
 ---
 
@@ -272,9 +281,9 @@ A clip is **high** if a normal listener can consistently label it as a complete 
 
 ## Project description
 
-We are creating source audio for a paid iPhone audio instrument. We need short, **non-word human vocal sounds**: individual vowels, consonant textures, very short phonetic transitions and natural breaths. These recordings will be chopped into much smaller fragments and combined with procedural noise in the app.
+We are creating source audio for a paid iPhone audio instrument. We need short, **sub-word human mouth sounds**: mostly tiny consonant-vowel/vowel-consonant transitions, plus a smaller set of vowels, consonant textures, natural breaths and soft releases. Each target sound is roughly **0.20–0.90 seconds**. The app will cut, filter, reverse and sweep through these sounds with procedural noise.
 
-This is **not traditional voice-over**. You will not record dialogue, character lines, ghost phrases, names, answers or sentences.
+This is **not traditional voice-over**. You will not record dialogue, recognizable words, invented-language sentences, character lines, ghost phrases, names, numbers, answers or any sentence-like material.
 
 ## Performance direction
 
@@ -285,7 +294,7 @@ Please sound like your normal voice in a neutral recording session.
 - use your natural register;
 - keep pitch and volume stable;
 - make clean, relaxed phonetic sounds;
-- keep transitions compact and non-expressive;
+- keep transitions compact, connected and non-expressive;
 - leave short room tone before/after each take;
 - record true alternate takes where requested.
 
@@ -297,6 +306,7 @@ Please sound like your normal voice in a neutral recording session.
 - growl, scream, laugh or cry;
 - use dramatic rising/falling sentence intonation;
 - say the example anchor words;
+- connect targets into pseudo-words or fluent nonsense speech;
 - improvise extra words or phrases;
 - process the audio.
 
@@ -316,13 +326,15 @@ Please sound like your normal voice in a neutral recording session.
 
 ## Audition before hire
 
-Before the full job, provide a **10-second raw sample from the same mic/room** containing:
+Before the full job, provide a **12-second raw sample from the same mic/room** containing:
 
 1. 2 seconds room tone;
 2. one `/ə/` schwa for about 0.8 s;
 3. one `/ʃ/` SH texture for about 0.6 s;
-4. one natural quiet exhale;
-5. remaining room tone.
+4. one `/sə/` transition for about 0.4 s;
+5. one `/əm/` transition for about 0.4 s;
+6. one natural quiet exhale;
+7. remaining room tone.
 
 Do not process it.
 
@@ -569,6 +581,7 @@ Reject/retake when there is:
 - strong electrical hum;
 - plosive blast that cannot be cleanly cropped;
 - performer drifting into words;
+- performer joining targets into pseudo-words, lists or sentence-like cadence;
 - theatrical spooky delivery;
 - inconsistent mic distance/gain across the session.
 
@@ -576,12 +589,12 @@ Do **not** make heavy denoising the default. A denoiser can leave swirly/metalli
 
 ### 3. Segment
 
-Retain enough internal duration for runtime random start offsets:
+Retain enough internal duration for runtime crop/start variation without manufacturing a longer utterance:
 
-- vowels/continuants: generally **0.50–0.90 s** source asset;
-- transitions: **0.25–0.45 s**;
-- breaths: **0.25–0.80 s**;
-- plosive transients: **0.15–0.30 s**.
+- vowels/continuants: generally **0.40–0.90 s** source asset;
+- transitions: **0.20–0.55 s**;
+- breaths: **0.20–0.80 s**;
+- plosive/affricate releases: **0.20–0.35 s**.
 
 The runtime renderer may consume only a smaller slice of that source.
 
@@ -623,15 +636,17 @@ Do not create dozens of pre-rendered filter/pitch variants in the asset folder.
 These operations can create useful *presentation variation* without pretending to create new sources:
 
 - random crop/start offset within a source-safe range;
-- short crossfades;
+- short **5–15 ms** anti-click fades/crossfades;
 - radio-band/band-pass filtering;
 - moderate gain variation;
 - forward/reverse when tagged safe;
-- modest pitch shift, initially around **±1–2 semitones maximum**;
+- mild playback-speed variation, with **0.92x–1.08x** as an experimental starting arm rather than a production constant;
+- modest pitch shift, if still needed, initially around **±1–2 semitones maximum**;
 - very occasional restrained formant adjustment if listening tests show it helps;
 - procedural static/hiss/crackle/noise bursts;
 - sparse tuning-like transients;
-- rate/direction effects already defined by the locked renderer.
+- rate/direction effects already defined by the locked renderer;
+- occasional same-source persistence across **2–3 sweep steps**, never beyond **900 ms**, only if the Phase 0 gate shows that it improves human articulation without exposing a repeatable pseudo-word.
 
 ### Transformations that genuinely help recognition resistance
 
@@ -639,7 +654,7 @@ Ranked roughly by value:
 
 1. **new real performer / genuinely new take**;
 2. **different phonetic context**;
-3. **random crop/start location inside a longer natural source**;
+3. **random crop/start location inside a crop-safe sub-word source**;
 4. **reverse of a source where articulation does not create an obvious gimmick**;
 5. **small combined pitch/formant variation**;
 6. **filter/EQ/noise masking**;
@@ -712,8 +727,8 @@ If synthetic clips were pre-generated and embedded, there would be no necessary 
 
 Examples:
 
-- `SBX_RAW_P01_C01_T01_20260903.wav`
-- `SBX_RAW_P03_C22_T02_20260903.wav`
+- `SBX_RAW_P01_T01_T01_20260903.wav`
+- `SBX_RAW_P03_X04_T02_20260903.wav`
 
 ### Accepted clean master
 
@@ -742,6 +757,7 @@ Do not encode human names in shipping filenames.
 | `delivery` | `dry`, `neutral`, `light_breathy` | Avoid repetitive texture |
 | `duration_ms` | integer | Crop/playback constraints |
 | `recognition_risk` | `low`, `medium`, `high` | Restrict speechy material |
+| `transition_direction` | `cv`, `vc`, `cluster`, `none` | Balance human articulatory motion |
 | `forward_allowed` | bool | Processing safety |
 | `reverse_allowed` | bool | Processing safety |
 | `crop_safe_start_ms` | integer | Runtime random crop |
@@ -826,7 +842,7 @@ Suggested expansion arithmetic:
 1. 4 → 6 genuinely distinct performers;
 2. more real coarticulation contexts;
 3. multiple real takes;
-4. longer crop-safe source windows;
+4. more varied crop-safe source windows within the 0.20–0.90 s ceiling;
 5. then runtime variation.
 
 Going from ~120 to ~480 multiplies source-ID space fourfold and increases voice families by 50% without creating a rights/QA project of its own. Going from 480 to 2,000 multiplies manual segmentation/listening/ledger work again, while many additional phonetic clips will be acoustically redundant.
@@ -844,13 +860,13 @@ These thresholds are **audio-design recommendations, not published scientific st
 
 Uncompressed 48 kHz / 16-bit / mono PCM is about 96 KB/sec.
 
-At an average accepted runtime-source duration of 0.30 s:
+At a conservative average accepted runtime-source duration of 0.40 s:
 
-- 120 clips ≈ **3.5 MB**;
-- 480 clips ≈ **13.8 MB**;
-- 600 clips ≈ **17.3 MB**;
-- 1,000 clips ≈ **28.8 MB**;
-- 2,000 clips ≈ **57.6 MB**.
+- 120 clips ≈ **4.6 MB**;
+- 480 clips ≈ **18.4 MB**;
+- 600 clips ≈ **23.0 MB**;
+- 1,000 clips ≈ **38.4 MB**;
+- 2,000 clips ≈ **76.8 MB**.
 
 At 24-bit these figures are 1.5× larger. Therefore **app size is not the primary reason to stop at 480–600**. The real costs are recording, rights tracking, QC and diminishing acoustic novelty.
 
@@ -920,17 +936,24 @@ Again, this is an inference from current marketplace rates. Do not commission it
 
 # 17. FASTEST EXECUTION PLAN
 
-## Day 1 — Wednesday, September 2, 2026
+## Gate day — before procurement
 
-1. Freeze this recording sheet as `CORPUS_SHEET_v1.0`.
+1. Record or assemble enough rights-clean pilot material to represent the revised 63%-transition mix.
+2. Render deterministic A/B/C comparisons exactly as specified in the Phase 0 gate.
+3. Blind the labels and compare multiple seeds with available listeners.
+4. Proceed only if B/C materially improves fleeting human articulation without creating repeatable words or randomizer cadence.
+
+## Production Day 1 — after a Phase 0 pass
+
+1. Freeze this recording sheet as `CORPUS_SHEET_v2.0`.
 2. Put the release/rider into a signable PDF or e-sign document.
 3. Post one Upwork job seeking **four separate adult voice performers**.
 4. Invite roughly 12–16 candidates selected for clearly different timbres.
 5. In parallel, message 4–6 Fiverr backups.
-6. Require the 10-second raw audition before hire.
+6. Require the 12-second raw audition before hire.
 7. Reject any candidate who will not explicitly accept app-embedding/transformation rights.
 
-## Day 2 — September 3
+## Production Day 2
 
 1. Hire the four best audition matches.
 2. Receive first full deliveries as they arrive.
@@ -938,7 +961,7 @@ Again, this is an inference from current marketplace rates. Do not commission it
 4. Freeze raw WAVs, hashes and signed rights records before editing.
 5. Replace a failing performer rather than spending hours repairing a poor room.
 
-## Day 3 — September 4
+## Production Day 3
 
 1. Segment/QC all accepted sources.
 2. Select exactly 30 per performer, target 120.
@@ -946,18 +969,18 @@ Again, this is an inference from current marketplace rates. Do not commission it
 4. Complete rights ledger.
 5. Generate procedural noise textures separately; do not add stock sounds.
 
-## Day 4 — September 5
+## Production Day 4
 
 1. Put the bank into the existing private audio harness/renderer.
 2. Run multiple 20-minute internal sessions at the locked sweep rates/directions.
 3. Use event logs to identify exact asset IDs behind anything recognizably repeated.
 4. Remove or recut high-recognition clips before external testing.
 
-## Days 5–6 — September 6–7
+## Production Days 5–6
 
 Run blind acceptance testing with **at least 6 listeners** and at least **3 different deterministic seeds/session renders**.
 
-## Day 7 — September 8
+## Production Day 7
 
 Make one of three decisions:
 
@@ -975,7 +998,7 @@ Yes, if 1-day performers deliver clean files, the first 120 assets can plausibly
 
 ## Goal
 
-Determine whether the corpus supports the product illusion of a **continuous non-semantic instrument** rather than a small collection of recognizable clips.
+Determine whether the corpus supports the product illusion of a **continuous non-semantic instrument** with fleeting human articulation, rather than a sequence of tones/hisses or a small collection of recognizable clips.
 
 This is not a test of paranormal communication.
 
@@ -1026,8 +1049,9 @@ Give each listener four buttons/check boxes or a simple timestamp form:
 - `VOICE` — “The same performer/cadence is becoming obvious.”
 - `PHRASE` — “This sounded like a complete intentional word or multiword phrase.”
 - `REACTIVE` — “This seemed predictably timed as a response to something said.”
+- `TONE` — “This sounded mainly like a held tone, hiss or HVAC-like texture instead of a flash of human articulation.”
 
-The internal harness event log should record the actual source ID/performer/family around every mark.
+The internal harness event log should record the actual source ID, performer, family, crop/start point, event duration, direction, speed and spectral profile around every mark.
 
 ## Post-session questions
 
@@ -1036,14 +1060,16 @@ Use these neutral questions after each session:
 1. **On a 1–5 scale, did this sound like one continuous instrument (5) or a small collection of clips being triggered (1)?**
 2. **How noticeable was repetition?** 1 = none noticed, 5 = persistent/obvious.
 3. **How varied did the human/vocal texture feel?** 1 = one voice/cadence, 5 = broad variation.
-4. **How artificial or processed did the vocal material sound?** 1 = natural source texture, 5 = obviously synthetic/effect-heavy.
-5. **Did it seem predictably reactive to your speech/questions?** 1 = not at all, 5 = clearly/predictably.
-6. **Did you think complete phrases were intentionally assembled?** 1 = not at all, 5 = clearly.
-7. “What, specifically, repeated?”
-8. “Describe any word or phrase you thought you heard.”
-9. “Did one particular voice keep coming back in a recognizable way?”
-10. “What made it sound clip-based, if anything?”
-11. “What made it sound continuous/instrument-like, if anything?”
+4. **How often did the output sound like fleeting human articulation rather than tones or hiss?** 1 = almost never, 5 = consistently when vocals appeared.
+5. **How artificial or processed did the vocal material sound?** 1 = natural source texture, 5 = obviously synthetic/effect-heavy.
+6. **Did it seem predictably reactive to your speech/questions?** 1 = not at all, 5 = clearly/predictably.
+7. **Did you think complete phrases were intentionally assembled?** 1 = not at all, 5 = clearly.
+8. “What, specifically, repeated?”
+9. “Describe any word or phrase you thought you heard.”
+10. “Did one particular voice keep coming back in a recognizable way?”
+11. “What made it sound like tones/static, if anything?”
+12. “What made it sound clip-based, if anything?”
+13. “What made it sound continuous/instrument-like, if anything?”
 
 Do **not** ask “Did it sound fake?” before the descriptive questions; that primes a global judgment rather than locating the defect.
 
@@ -1052,6 +1078,7 @@ Do **not** ask “Did it sound fake?” before the descriptive questions; that p
 These are **project decision thresholds**, not validated scientific standards:
 
 - at least **5 of 6 listeners** rate the continuous-instrument question **4 or 5**;
+- at least **5 of 6 listeners** rate the fleeting-human-articulation question **4 or 5**;
 - no exact distinctive source motif is independently flagged as a repeat by **2+ listeners on the same render** unless the event log shows it was genuinely repeated unusually soon;
 - no multiword phrase is independently reported by **2+ listeners as intentionally assembled**;
 - no listener reports persistent one-performer cadence throughout the session;
@@ -1088,7 +1115,7 @@ Evidence:
 
 Evidence:
 
-- exact asset IDs are not repeating unusually, but everything sounds like the same vowels/cadence;
+- exact asset IDs are not repeating unusually, but output still collapses into steady vowels, hiss or one cadence;
 - too many units resemble words;
 - transitions are too clean or syllabic;
 - breaths/continuants are too sparse;
@@ -1139,7 +1166,7 @@ Record **45 new accepted assets each**, emphasizing:
 - alternate natural vowel onsets/offsets;
 - new breaths and mouth transients;
 - true alternate delivery intensity (still neutral, not theatrical);
-- longer crop-safe continuant/vowel windows.
+- additional 0.20–0.90 s crop-safe articulations with different attacks, releases and formant motion.
 
 Do not simply rerecord the exact Phase 1 sheet 45 more times.
 
@@ -1151,10 +1178,10 @@ Choose timbres that are genuinely distant from the existing four. If Phase 1 alr
 
 ## Production common-core strategy
 
-Reduce shared prompt overlap from Phase 1. A good production target is roughly:
+Keep shared prompt overlap at or below Phase 1. A good production target is roughly:
 
-- **~50% common coverage** needed for interchangeable classes;
-- **~50% performer-specific phonetic/context material**.
+- **~20–30% common coverage** needed for interchangeable classes;
+- **~70–80% performer-specific phonetic/context material**.
 
 ## What not to duplicate
 
@@ -1184,13 +1211,14 @@ Before shipping:
 | Rank | Risk | Severity | Why | Mitigation |
 |---:|---|---|---|---|
 | **1** | Repetition / canned feel | **Critical** | Directly attacks product trust and repeat use | 4 real voices, 120-asset gate, metadata, blind test, expand to ~480 only after pass |
-| **2** | Corpus composition becomes word-like | **High** | Could look like scripted paranormal answers despite non-semantic intent | safe vowel/transition sheet, recognition-risk tag, remove stable words, no vocabulary |
-| **3** | Legal/licensing ambiguity | **High** | One unclear asset can contaminate shipping corpus | custom release + marketplace terms snapshot + asset ledger + no random stock/speech corpus |
-| **4** | Performer consistency / room signature | **Medium-high** | Noise/room becomes a recognizable “clip family” | audition same setup, raw 48/24 mono, reject bad rooms instead of heavy repair |
-| **5** | Audio quality after processing | **Medium** | Narrow-band/chopping can expose clicks and denoise artifacts | raw headroom, short fades, no aggressive pre-processing, device tests |
-| **6** | Synthetic/AI credibility | **Medium if used; low if avoided** | Unnecessary trust and clone-rights questions | human-only vocal source; explicit no-AI clause |
-| **7** | Cost | **Low-medium** | Prototype is inexpensive, production still manageable | spend ~$250–$600 first; do not commission 480 until pass |
-| **8** | App-size burden | **Low** | Hundreds of mono microclips are only tens of MB | retain 24-bit masters; ship 16-bit runtime PCM if appropriate |
+| **2** | Corpus composition becomes word-like | **High** | Could look like scripted paranormal answers despite non-semantic intent | sub-word sheet, script/output screening, recognition-risk tag, remove stable words, no vocabulary |
+| **3** | Corpus remains tone/hiss-like | **High** | Repeats the failure of an isolated-heavy bank and never resembles fleeting speech | 63% transition mix, Phase 0 A/B/C gate, explicit listener metric |
+| **4** | Legal/licensing ambiguity | **High** | One unclear asset can contaminate shipping corpus | custom release + marketplace terms snapshot + asset ledger + no random stock/speech corpus |
+| **5** | Performer consistency / room signature | **Medium-high** | Noise/room becomes a recognizable “clip family” | audition same setup, raw 48/24 mono, reject bad rooms instead of heavy repair |
+| **6** | Audio quality after processing | **Medium** | Narrow-band/chopping can expose clicks and denoise artifacts | raw headroom, short fades, no aggressive pre-processing, device tests |
+| **7** | Synthetic/AI credibility | **Medium if used; low if avoided** | Unnecessary trust and clone-rights questions | human-only vocal source; explicit no-AI clause |
+| **8** | Cost | **Low-medium** | Prototype is inexpensive, production still manageable | run the no-spend gate first; then spend ~$250–$600; do not commission 480 until pass |
+| **9** | App-size burden | **Low** | Hundreds of mono microclips are only tens of MB | retain 24-bit masters; ship 16-bit runtime PCM if appropriate |
 
 ## Strongest bear case
 
@@ -1215,7 +1243,8 @@ That is why the **blind audio gate precedes full production**.
 
 - Four performers is safer than three for the prototype.
 - 120 genuine sources is an efficient first test.
-- CV/VC transitions around neutral vowels are likely to sound more human than isolated phonemes without becoming a vocabulary.
+- A transition-dominant mix of 0.20–0.90 s sub-word articulations is likely to sound more human than an isolated-heavy bank without becoming a vocabulary.
+- Continuous nonsense speech is unnecessary and creates avoidable pseudo-word and sentence-cadence risk.
 - 400–600 real sources is likely to be the best initial production range; ~480 is the recommended target.
 - Procedural non-vocal texture is better than stored stock hiss/crackle.
 - Strong accents/multiple languages are more likely to distract than help in Phase 1.
@@ -1233,13 +1262,13 @@ That is why the **blind audio gate precedes full production**.
 
 # 23. CHEAPEST NEXT ACTION
 
-**Post one four-performer Upwork casting job today using the performer brief above, but do not hire anyone until they send the 10-second raw audition and explicitly agree to the rights rider.**
+**Run the no-spend Phase 0 A/B/C corpus gate before posting or hiring.** Use available rights-clean pilot voices to compare the current isolated-heavy control with the revised transition-dominant source, both dry and with restrained reference-match processing.
 
 That single action answers the cheapest remaining production question:
 
-> Can we obtain four audibly different, clean human sources with explicit paid-app transformation/embedding rights at roughly the expected cost and speed?
+> Does the corrected source composition create fleeting human articulation without storing words, pseudo-sentences or semantic answers?
 
-If yes, commission only the **120-asset Phase 1 corpus**. Do not commission the 480-asset production bank yet.
+If yes, begin casting, require the 12-second audition and explicit rights agreement, then commission only the **120-asset Phase 1 corpus**. Do not commission the 480-asset production bank yet.
 
 ---
 
@@ -1338,10 +1367,12 @@ Used only for current studio-cost scale; no studio is recommended for Phase 1.
 
 # FINAL DECISION
 
-**SOURCE:** four commissioned human performers.  
-**PROTOTYPE:** 120 accepted original assets.  
-**FORMAT:** 48 kHz / 24-bit / mono raw WAV masters.  
-**TEXTURE:** procedural hiss/static/crackle at runtime.  
-**RIGHTS:** assignment/license + explicit mobile embedding/transformation + no royalties + same-product marketing + future versions + explicit no-AI/no-clone clause.  
-**PRODUCTION:** expand to ~480 / six performers **only after the 20-minute blind test passes**.  
-**KILL RULE:** if one focused second attempt still sounds recognizably canned/randomized, stop rather than introducing semantic answers, AI, question timing or copyrighted radio.
+- **SOURCE:** four commissioned human performers.
+- **PROTOTYPE:** 120 accepted original assets.
+- **COMPOSITION:** 76 transitions, 12 vowels, 12 continuants/sonorants and 20 breaths/releases; every source is a 0.20–0.90 s sub-word mouth sound.
+- **FORMAT:** 48 kHz / 24-bit / mono raw WAV masters.
+- **TEXTURE:** procedural hiss/static/crackle at runtime.
+- **RIGHTS:** assignment/license + explicit mobile embedding/transformation + no royalties + same-product marketing + future versions + explicit no-AI/no-clone clause.
+- **GATE:** run the deterministic A/B/C corpus comparison before performer spend; no continuous nonsense speech, recognizable words, names, numbers, phrases or sentence intonation.
+- **PRODUCTION:** expand to ~480 / six performers **only after the revised corpus and 20-minute blind test pass**.
+- **KILL RULE:** if one focused second attempt still sounds recognizably canned/randomized, stop rather than introducing semantic answers, AI, question timing or copyrighted radio.
