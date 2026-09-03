@@ -173,4 +173,41 @@ public enum CapturePersistenceVerifier {
 
         return nil
     }
+
+    /// Same disk checks as `verify` for standalone captures. Audio-gate run mixes live under
+    /// `Documents/AudioGateRuns/<run>/engine-output.wav` and must not be judged by the
+    /// EngineOutputCaptures folder rule.
+    public static func verifyPublishedCapture(
+        wavURL: URL,
+        fileManager: FileManager = .default
+    ) -> String? {
+        let runDirectory = wavURL.deletingLastPathComponent()
+        if runDirectory.deletingLastPathComponent().lastPathComponent == AudioGateRunLocator.directoryName {
+            return verifyAudioGateRunMix(wavURL: wavURL, fileManager: fileManager)
+        }
+        return verify(wavURL: wavURL, fileManager: fileManager)
+    }
+
+    private static func verifyAudioGateRunMix(
+        wavURL: URL,
+        fileManager: FileManager
+    ) -> String? {
+        guard fileManager.fileExists(atPath: wavURL.path) else {
+            return "Capture WAV was not written to disk."
+        }
+        let attributes: [FileAttributeKey: Any]
+        do {
+            attributes = try fileManager.attributesOfItem(atPath: wavURL.path)
+        } catch {
+            return "Could not read capture WAV attributes: \(error.localizedDescription)"
+        }
+        let size = (attributes[.size] as? NSNumber)?.intValue ?? 0
+        if size <= 0 {
+            return "Capture WAV is empty."
+        }
+        guard wavURL.pathExtension.lowercased() == "wav" else {
+            return "Capture file is not a WAV."
+        }
+        return nil
+    }
 }

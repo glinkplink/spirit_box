@@ -260,7 +260,7 @@ final class HarnessViewModel: ObservableObject {
             captureStatusText = "Capturing engine mix \(elapsed)s / \(duration)s → \(url.lastPathComponent)"
         case .finished(let url, let seconds):
             lastCaptureFilename = url.lastPathComponent
-            if let verificationError = CapturePersistenceVerifier.verify(wavURL: url) {
+            if let verificationError = CapturePersistenceVerifier.verifyPublishedCapture(wavURL: url) {
                 lastCaptureExists = false
                 lastCaptureSize = "—"
                 captureStatusText = "Capture failed: \(verificationError)"
