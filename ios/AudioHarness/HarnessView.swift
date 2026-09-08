@@ -111,7 +111,7 @@ struct HarnessView: View {
             Button("Upload corpus") {
                 isUploadingCorpus = model.prepareCorpusUpload()
             }
-            Text("Pick the prepared SpiritBoxPhase1Corpus folder, or manifest.json plus the WAV files. This replaces Documents/SpiritBoxPhase1Corpus.")
+            Text("Pick the prepared SpiritBoxPhase1Corpus folder, or manifest.json plus the WAV files. This replaces Documents/SpiritBoxPhase1Corpus. A leftover Documents copy from an older bank is ignored after a new TestFlight bundle until you upload again.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
             LabeledContent("Source", value: model.corpusSourceDescription)

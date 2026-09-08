@@ -1,17 +1,47 @@
+import CryptoKit
 import Foundation
 
 /// Discovers and loads a corpus without changing scheduler/engine APIs.
 ///
 /// Search order:
-/// 1. Documents/SpiritBoxPhase1Corpus/manifest.json  (drop-in Phase 1, no rebuild)
-/// 2. Bundle Phase1/manifest.json
-/// 3. Bundle DevFixtures/manifest.json  (DEV / TEST ONLY)
+/// 1. `Documents/SpiritBoxPhase1Corpus` **only if** it is a usable drop-in **and** it was
+///    uploaded against the currently bundled Phase 1 identity. A leftover Documents copy
+///    from a previous bank must not hide a newly bundled corpus after TestFlight.
+/// 2. bundled `Phase1/manifest.json`
+/// 3. usable Documents corpus when no bundled Phase 1 exists
+/// 4. bundled `DevFixtures/manifest.json` (DEV / TEST ONLY)
 public struct DocumentsCorpusFolderStatus: Equatable, Sendable {
     public let url: URL
     public let directoryExists: Bool
     public let manifestExists: Bool
     public let createdDirectory: Bool
     public let diagnostic: String?
+}
+
+/// Remembers that the user explicitly uploaded a Documents corpus for one bundled bank.
+public final class DocumentsCorpusOverridePolicy: @unchecked Sendable {
+    public static let defaultsKey = "SpiritBox.documentsCorpusOverrideBundleIdentity"
+
+    private let defaults: UserDefaults
+
+    public init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
+
+    public func shouldUseDocuments(bundleIdentity: String?) -> Bool {
+        guard let bundleIdentity, !bundleIdentity.isEmpty else {
+            return true
+        }
+        return defaults.string(forKey: Self.defaultsKey) == bundleIdentity
+    }
+
+    public func rememberDocumentsOverride(forBundleIdentity identity: String?) {
+        if let identity, !identity.isEmpty {
+            defaults.set(identity, forKey: Self.defaultsKey)
+        } else {
+            defaults.removeObject(forKey: Self.defaultsKey)
+        }
+    }
 }
 
 public enum CorpusLoader {
@@ -28,6 +58,28 @@ public enum CorpusLoader {
     /// Files-app copy target. Uses the app display name, not a container UUID path.
     public static func filesAppCorpusInstruction(appDisplayName: String) -> String {
         "Files → On My iPhone → \(appDisplayName) → \(documentsDirectoryName)"
+    }
+
+    public static func bundledPhase1Identity(
+        bundle: Bundle = .main,
+        fileManager: FileManager = .default
+    ) -> String? {
+        guard let root = bundleDirectory(bundle, named: bundlePhase1Directory) else {
+            return nil
+        }
+        return manifestIdentity(at: root, fileManager: fileManager)
+    }
+
+    public static func manifestIdentity(at root: URL, fileManager: FileManager = .default) -> String? {
+        let url = root.appendingPathComponent(manifestFileName)
+        guard let data = try? Data(contentsOf: url), !data.isEmpty else {
+            return nil
+        }
+        var hex = ""
+        for byte in SHA256.hash(data: data) {
+            hex += String(format: "%02x", Int(byte))
+        }
+        return hex
     }
 
     /// Creates `Documents/SpiritBoxPhase1Corpus` if missing. Never deletes or overwrites files.
@@ -89,7 +141,8 @@ public enum CorpusLoader {
     public static func load(
         fileManager: FileManager = .default,
         bundle: Bundle = .main,
-        documentsDirectory: URL? = nil
+        documentsDirectory: URL? = nil,
+        overridePolicy: DocumentsCorpusOverridePolicy = DocumentsCorpusOverridePolicy()
     ) throws -> LoadedCorpus {
         let documentsRoot: URL
         if let documentsDirectory {
@@ -98,19 +151,45 @@ public enum CorpusLoader {
             documentsRoot = try documentsCorpusURL(fileManager: fileManager)
         }
 
-        if let loaded = loadManifest(
-            root: documentsRoot,
-            fileManager: fileManager,
-            source: .documentsPhase1,
-            fallbackLabel: "Phase 1 corpus (Documents)",
-            forceDevFixture: false
-        ), isUsableCorpus(loaded, fileManager: fileManager) {
-            return loaded
+        return loadFromRoots(
+            documentsRoot: documentsRoot,
+            bundlePhase1Root: bundleDirectory(bundle, named: bundlePhase1Directory),
+            bundleDevFixturesRoot: bundleDirectory(bundle, named: bundleDevFixturesDirectory),
+            overridePolicy: overridePolicy,
+            fileManager: fileManager
+        )
+    }
+
+    static func loadFromRoots(
+        documentsRoot: URL?,
+        bundlePhase1Root: URL?,
+        bundleDevFixturesRoot: URL?,
+        overridePolicy: DocumentsCorpusOverridePolicy,
+        fileManager: FileManager = .default
+    ) -> LoadedCorpus {
+        let documentsLoaded: LoadedCorpus?
+        if let documentsRoot {
+            let loaded = loadManifest(
+                root: documentsRoot,
+                fileManager: fileManager,
+                source: .documentsPhase1,
+                fallbackLabel: "Phase 1 corpus (Documents)",
+                forceDevFixture: false
+            )
+            documentsLoaded = loaded.flatMap { isUsableCorpus($0, fileManager: fileManager) ? $0 : nil }
+        } else {
+            documentsLoaded = nil
         }
 
-        if let phase1Root = bundleDirectory(bundle, named: bundlePhase1Directory),
+        let bundleIdentity = bundlePhase1Root.flatMap { manifestIdentity(at: $0, fileManager: fileManager) }
+
+        if let documentsLoaded, overridePolicy.shouldUseDocuments(bundleIdentity: bundleIdentity) {
+            return documentsLoaded
+        }
+
+        if let bundlePhase1Root,
            let loaded = loadManifest(
-               root: phase1Root,
+               root: bundlePhase1Root,
                fileManager: fileManager,
                source: .bundlePhase1,
                fallbackLabel: "Phase 1 corpus (bundle)",
@@ -119,9 +198,13 @@ public enum CorpusLoader {
             return loaded
         }
 
-        if let fixtureRoot = bundleDirectory(bundle, named: bundleDevFixturesDirectory),
+        if let documentsLoaded {
+            return documentsLoaded
+        }
+
+        if let bundleDevFixturesRoot,
            let loaded = loadManifest(
-               root: fixtureRoot,
+               root: bundleDevFixturesRoot,
                fileManager: fileManager,
                source: .bundleDevFixtures,
                fallbackLabel: "DEV fixtures — TEST ONLY",
