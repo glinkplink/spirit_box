@@ -163,7 +163,7 @@ The harness **Upload corpus** button imports `manifest.json` and WAV files from 
 4. Confirm **Source** is `Documents/SpiritBoxPhase1Corpus` with the expected asset count.
 5. Run the 15–20 minute listening gate per `docs/engineering/AUDIO_HARNESS.md`.
 
-Loader precedence: usable Documents Phase 1 → bundled Phase1 → bundled DevFixtures → empty.
+Loader precedence: Documents Phase 1 uploaded for the current bundled identity → bundled Phase1 → leftover Documents only if no bundled Phase1 → bundled DevFixtures → empty.
 
 ## Running tests
 

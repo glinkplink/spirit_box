@@ -78,9 +78,10 @@ Application Bundle ID: **`com.glinkplink.spiritbox`** (App Store Connect). Test 
 
 `CorpusLoader` searches in this order:
 
-1. `Documents/SpiritBoxPhase1Corpus/manifest.json` on the device / simulator, **only if at least one referenced WAV is present** (a manifest-only folder from a failed Files copy is ignored)
+1. `Documents/SpiritBoxPhase1Corpus/manifest.json` on the device / simulator, **only if** at least one referenced WAV is present **and** that Documents bank was uploaded against the currently bundled Phase 1 identity. A leftover Documents copy from a previous TestFlight bank is ignored so a rebuild can actually change what you hear. A manifest-only folder from a failed Files copy is also ignored.
 2. bundled `Phase1/manifest.json`
-3. bundled `DevFixtures/manifest.json` (DEV / TEST ONLY fallback)
+3. usable Documents corpus when no bundled Phase 1 exists
+4. bundled `DevFixtures/manifest.json` (DEV / TEST ONLY fallback)
 
 If nothing is found, the harness starts with **zero assets**. START still runs the procedural noise bed and shows that the fragment scheduler is idle.
 
@@ -155,7 +156,7 @@ Optional Files-app copy (same destination):
 4. Copy `manifest.json` and the WAV files **into** `SpiritBoxPhase1Corpus`. Do not leave them only under `On My iPhone → Audio Harness`.
 5. Return to the harness and tap **Reload corpus**.
 
-Loader precedence: usable Documents Phase 1 → bundled Phase1 → bundled DevFixtures → empty.
+Loader precedence: Documents Phase 1 uploaded for the current bundled identity → bundled Phase1 → leftover Documents only if no bundled Phase1 → bundled DevFixtures → empty.
 
 **DEV FIXTURES CANNOT PASS THE CANONICAL AUDIO GATE.** Copying files onto a device only makes a real Phase 1 bank loadable. It does not pass the gate.
 

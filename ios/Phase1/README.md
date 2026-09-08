@@ -12,5 +12,5 @@ Regenerate from `recordings/New Recording 105.m4a`:
 cp -a build/recording-105-new/SpiritBoxPhase1Corpus/. ios/Phase1/
 ```
 
-Loader order: `Documents/SpiritBoxPhase1Corpus` (if manifest + at least one WAV present) → this folder → `DevFixtures`.
-If a previous Documents corpus is still on the device, delete the app or use **Upload corpus** / replace that folder, otherwise Documents wins over this bundle.
+Loader order: Documents corpus uploaded for the current bundled identity → this folder → leftover Documents only if no bundle → `DevFixtures`.
+A leftover Documents copy from an older bank is ignored after this bundle ships. Upload corpus still overrides this bundle until the next bundled bank change.

@@ -93,31 +93,21 @@ final class CorpusModelTests: XCTestCase {
     }
 
     func testDocumentsPhase1LoadsWhenPresent() throws {
-        let temp = FileManager.default.temporaryDirectory
-            .appendingPathComponent("SpiritBoxCorpusTests-\(UUID().uuidString)", isDirectory: true)
-        let documents = temp.appendingPathComponent("SpiritBoxPhase1Corpus", isDirectory: true)
-        try FileManager.default.createDirectory(at: documents, withIntermediateDirectories: true)
-        try writeManifest(
-            at: documents.appendingPathComponent("manifest.json"),
-            id: "PHASE1_A",
-            kind: "phase1"
-        )
-        FileManager.default.createFile(
-            atPath: documents.appendingPathComponent("PHASE1_A.wav").path,
-            contents: Data([0x01])
-        )
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let documents = try writeCorpus(at: temp.appendingPathComponent("SpiritBoxPhase1Corpus"), id: "PHASE1_A")
+        let policy = DocumentsCorpusOverridePolicy(defaults: isolatedDefaults())
 
-        let loaded = try CorpusLoader.load(
-            fileManager: .default,
-            bundle: .main,
-            documentsDirectory: documents
+        let loaded = CorpusLoader.loadFromRoots(
+            documentsRoot: documents,
+            bundlePhase1Root: nil,
+            bundleDevFixturesRoot: nil,
+            overridePolicy: policy
         )
 
         XCTAssertEqual(loaded.assets.first?.assetID, "PHASE1_A")
         XCTAssertEqual(loaded.source, .documentsPhase1)
         XCTAssertFalse(loaded.isDevFixture)
-
-        try? FileManager.default.removeItem(at: temp)
     }
 
     func testMissingManifestReturnsNilThenEmptyFallback() {
@@ -238,6 +228,68 @@ final class CorpusModelTests: XCTestCase {
         XCTAssertGreaterThan(loaded.assetCount, 0)
     }
 
+    func testStaleDocumentsDoesNotOverrideBundledPhase1() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let documents = try writeCorpus(at: temp.appendingPathComponent("docs"), id: "OLD_DOCS")
+        let bundled = try writeCorpus(at: temp.appendingPathComponent("bundle"), id: "NEW_BUNDLE")
+        let policy = DocumentsCorpusOverridePolicy(defaults: isolatedDefaults())
+
+        let loaded = CorpusLoader.loadFromRoots(
+            documentsRoot: documents,
+            bundlePhase1Root: bundled,
+            bundleDevFixturesRoot: nil,
+            overridePolicy: policy
+        )
+
+        XCTAssertEqual(loaded.source, .bundlePhase1)
+        XCTAssertEqual(loaded.assets.first?.assetID, "NEW_BUNDLE")
+        XCTAssertNotEqual(loaded.assets.first?.assetID, "OLD_DOCS")
+    }
+
+    func testDocumentsWinsAfterUploadForTheCurrentBundledCorpus() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let documents = try writeCorpus(at: temp.appendingPathComponent("docs"), id: "UPLOADED")
+        let bundled = try writeCorpus(at: temp.appendingPathComponent("bundle"), id: "NEW_BUNDLE")
+        let policy = DocumentsCorpusOverridePolicy(defaults: isolatedDefaults())
+        policy.rememberDocumentsOverride(
+            forBundleIdentity: CorpusLoader.manifestIdentity(at: bundled)
+        )
+
+        let loaded = CorpusLoader.loadFromRoots(
+            documentsRoot: documents,
+            bundlePhase1Root: bundled,
+            bundleDevFixturesRoot: nil,
+            overridePolicy: policy
+        )
+
+        XCTAssertEqual(loaded.source, .documentsPhase1)
+        XCTAssertEqual(loaded.assets.first?.assetID, "UPLOADED")
+    }
+
+    func testDocumentsOverrideIsIgnoredAfterBundledCorpusChanges() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let documents = try writeCorpus(at: temp.appendingPathComponent("docs"), id: "OLD_UPLOAD")
+        let previousBundle = try writeCorpus(at: temp.appendingPathComponent("bundle-old"), id: "OLD_BUNDLE")
+        let currentBundle = try writeCorpus(at: temp.appendingPathComponent("bundle-new"), id: "NEW_BUNDLE")
+        let policy = DocumentsCorpusOverridePolicy(defaults: isolatedDefaults())
+        policy.rememberDocumentsOverride(
+            forBundleIdentity: CorpusLoader.manifestIdentity(at: previousBundle)
+        )
+
+        let loaded = CorpusLoader.loadFromRoots(
+            documentsRoot: documents,
+            bundlePhase1Root: currentBundle,
+            bundleDevFixturesRoot: nil,
+            overridePolicy: policy
+        )
+
+        XCTAssertEqual(loaded.source, .bundlePhase1)
+        XCTAssertEqual(loaded.assets.first?.assetID, "NEW_BUNDLE")
+    }
+
     func testDocumentsCorpusTakesPrecedenceOverBundleAfterManifestIsCopied() throws {
         let temp = try makeTempRoot()
         defer { try? FileManager.default.removeItem(at: temp) }
@@ -252,11 +304,16 @@ final class CorpusModelTests: XCTestCase {
             atPath: corpus.appendingPathComponent("DOCS_WINS.wav").path,
             contents: Data([0x01])
         )
+        let policy = DocumentsCorpusOverridePolicy(defaults: isolatedDefaults())
+        if let identity = CorpusLoader.bundledPhase1Identity(bundle: .main) {
+            policy.rememberDocumentsOverride(forBundleIdentity: identity)
+        }
 
         let loaded = try CorpusLoader.load(
             fileManager: .default,
             bundle: .main,
-            documentsDirectory: corpus
+            documentsDirectory: corpus,
+            overridePolicy: policy
         )
 
         XCTAssertEqual(loaded.source, .documentsPhase1)
@@ -310,6 +367,29 @@ final class CorpusModelTests: XCTestCase {
             .appendingPathComponent("SpiritBoxCorpusTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
         return temp
+    }
+
+    private func isolatedDefaults() -> UserDefaults {
+        let suite = "SpiritBoxCorpusTests-\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suite) else {
+            return UserDefaults()
+        }
+        defaults.removePersistentDomain(forName: suite)
+        return defaults
+    }
+
+    private func writeCorpus(at url: URL, id: String) throws -> URL {
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        try writeManifest(
+            at: url.appendingPathComponent(CorpusLoader.manifestFileName),
+            id: id,
+            kind: "phase1"
+        )
+        FileManager.default.createFile(
+            atPath: url.appendingPathComponent("\(id).wav").path,
+            contents: Data([0x01])
+        )
+        return url
     }
 
     private func writeManifest(at url: URL, id: String, kind: String) throws {

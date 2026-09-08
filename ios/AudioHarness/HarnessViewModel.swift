@@ -93,6 +93,8 @@ final class HarnessViewModel: ObservableObject {
                 lastMessage = diagnostic
             } else if loaded.assetCount == 0 {
                 lastMessage = "Zero assets. START will run the noise bed only."
+            } else if folder.manifestExists, loaded.source == .bundlePhase1 {
+                lastMessage = "Using bundled corpus. Leftover Documents copy ignored until you Upload corpus."
             } else {
                 lastMessage = nil
             }
@@ -124,6 +126,9 @@ final class HarnessViewModel: ObservableObject {
             let destination = try CorpusLoader.documentsCorpusURL()
             _ = try CorpusLoader.ensureDocumentsCorpusDirectory(at: destination)
             let result = try CorpusImporter.importItems(urls: urls, into: destination)
+            DocumentsCorpusOverridePolicy().rememberDocumentsOverride(
+                forBundleIdentity: CorpusLoader.bundledPhase1Identity()
+            )
             reloadCorpus()
             if engine.loadedCorpus.source == .documentsPhase1 {
                 lastMessage = "Loaded \(corpusCount) assets from \(result.wavCount) WAV files. Tap Start 20-minute test when ready."
