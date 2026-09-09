@@ -139,7 +139,7 @@ Applies to the private audio harness and, later, the production sweep engine. Ca
 | A-11 | Zero corpus | Engine with empty/missing bank | Safe failure: clear error or silent engine — **no crash**; **PRODUCT DECISION REQUIRED** for exact UX |
 | A-12 | One-asset corpus | Minimal bank | Stresses repetition handling; documents scheduler fallback |
 | A-13 | Small corpus | Harness-scale bank (e.g. dev subset) | Engineering regression only — **not** audio-gate |
-| A-14 | Production-sized corpus | Phase 1 (~120) → production (~480) when available | Required for canonical audio gate |
+| A-14 | Production-sized corpus | VCTK candidate (1,200) or commissioned Phase 1 (~120); production scale TBD after gate | Required for canonical audio gate |
 | A-15 | Procedural noise continuity | Listen 5+ min | Noise bed continuous; no long unintended silence |
 | A-16 | Clipping | Normal and high volume | No harsh digital clipping on device speaker |
 | A-17 | Gaps / seams | Headphones + speaker | No regular audible dropouts between fragments |

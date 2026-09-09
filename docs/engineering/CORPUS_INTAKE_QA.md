@@ -1,6 +1,8 @@
 # Corpus intake QA tooling
 
-Developer-only validation for Phase 1 human corpus deliveries **before** loading into the iOS audio harness.
+Developer-only validation for Phase 1 corpus deliveries **before** loading into the iOS audio harness.
+
+**VCTK candidate:** use generic validation (omit `--phase1-strict`). See `docs/production/VCTK-PHASE1-CANDIDATE.md`. Commissioned four-performer deliveries still use `--phase1-strict` when applicable.
 
 This tool answers:
 
