@@ -6,14 +6,14 @@ final class SweepRateTests: XCTestCase {
         XCTAssertEqual(SweepRate.allCases.map(\.milliseconds), [75, 125, 200, 300])
     }
 
-    func testDefaultIs200Milliseconds() {
-        XCTAssertEqual(SweepRate.default, .ms200)
-        XCTAssertEqual(SweepRate.default.milliseconds, 200)
+    func testDefaultIs300Milliseconds() {
+        XCTAssertEqual(SweepRate.default, .ms300)
+        XCTAssertEqual(SweepRate.default.milliseconds, 300)
     }
 
     func testEngineStoresEachLockedRate() {
         let engine = SweepAudioEngine()
-        XCTAssertEqual(engine.currentRate, .ms200)
+        XCTAssertEqual(engine.currentRate, .ms300)
         for rate in SweepRate.allCases {
             engine.setSweepRate(rate)
             XCTAssertEqual(engine.currentRate, rate)

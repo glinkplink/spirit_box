@@ -34,6 +34,7 @@
 		A00000000000000000000057 /* AudioGateRunTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000056 /* AudioGateRunTests.swift */; };
 		A0000000000000000000005B /* HarnessDocuments.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005A /* HarnessDocuments.swift */; };
 		A0000000000000000000005D /* HarnessDocumentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000005C /* HarnessDocumentsTests.swift */; };
+		A00000000000000000000063 /* VocalDensitySchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000062 /* VocalDensitySchedulerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,7 @@
 		A00000000000000000000056 /* AudioGateRunTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioGateRunTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000005A /* HarnessDocuments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarnessDocuments.swift; sourceTree = "<group>"; };
 		A0000000000000000000005C /* HarnessDocumentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarnessDocumentsTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000062 /* VocalDensitySchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocalDensitySchedulerTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000012 /* DevFixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DevFixtures; sourceTree = "<group>"; };
 		A00000000000000000000013 /* Phase1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Phase1; sourceTree = "<group>"; };
 		A00000000000000000000058 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -149,6 +151,7 @@
 				A00000000000000000000052 /* EngineOutputCaptureTests.swift */,
 				A00000000000000000000056 /* AudioGateRunTests.swift */,
 				A0000000000000000000005C /* HarnessDocumentsTests.swift */,
+				A00000000000000000000062 /* VocalDensitySchedulerTests.swift */,
 			);
 			path = SweepEngineTests;
 			sourceTree = "<group>";
@@ -285,6 +288,7 @@
 				A00000000000000000000053 /* EngineOutputCaptureTests.swift in Sources */,
 				A00000000000000000000057 /* AudioGateRunTests.swift in Sources */,
 				A0000000000000000000005D /* HarnessDocumentsTests.swift in Sources */,
+				A00000000000000000000063 /* VocalDensitySchedulerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

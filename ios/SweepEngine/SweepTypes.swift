@@ -8,7 +8,7 @@ public enum SweepRate: Int, CaseIterable, Equatable, Sendable {
     case ms200 = 200
     case ms300 = 300
 
-    public static let `default` = SweepRate.ms200
+    public static let `default` = SweepRate.ms300
 
     public var milliseconds: Int { rawValue }
 

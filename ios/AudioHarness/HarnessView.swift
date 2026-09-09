@@ -13,6 +13,7 @@ struct HarnessView: View {
                 transportSection
                 rateSection
                 directionSection
+                tuningSection
                 corpusSection
                 nowSection
                 audioGateRunSection
@@ -103,6 +104,59 @@ struct HarnessView: View {
             Text("Current: \(model.direction.debugLabel) — ordered walk through eligible assets")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private var tuningSection: some View {
+        Section("Renderer tuning (internal)") {
+            Text("Listening-test preset: 300 ms, FWD, ~33% vocal, lowered static. Not customer UI.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Stepper(
+                "Vocal density \(Int((model.rendererSettings.vocalEventProbability * 100).rounded()))%",
+                value: vocalDensityBinding,
+                in: 0.05...0.90,
+                step: 0.05
+            )
+            Stepper(
+                "Gap/cluster \(Int((model.rendererSettings.clusteriness * 100).rounded()))%",
+                value: clusterinessBinding,
+                in: 0...1,
+                step: 0.05
+            )
+            Stepper(
+                String(format: "Static gain %.3f", model.rendererSettings.staticGain),
+                value: staticGainBinding,
+                in: Float(0.008)...Float(0.12),
+                step: Float(0.004)
+            )
+            Stepper(
+                String(format: "Vocal gain %.2f", model.rendererSettings.vocalGain),
+                value: vocalGainBinding,
+                in: Float(0.40)...Float(1.0),
+                step: Float(0.02)
+            )
+            Stepper(
+                "Min exposure \(Int((model.rendererSettings.minVocalExposureSeconds * 1000).rounded())) ms",
+                value: minExposureBinding,
+                in: 0.030...0.120,
+                step: 0.005
+            )
+            Stepper(
+                "Max exposure \(Int((model.rendererSettings.maxVocalExposureSeconds * 1000).rounded())) ms",
+                value: maxExposureBinding,
+                in: 0.060...0.200,
+                step: 0.010
+            )
+            Stepper(
+                "Anti-repeat window \(model.rendererSettings.recentExclusionWindow)",
+                value: antiRepeatBinding,
+                in: 0...24,
+                step: 1
+            )
+            Button("Reset listening-test defaults") {
+                model.resetListeningTestDefaults()
+            }
         }
     }
 
@@ -278,7 +332,7 @@ struct HarnessView: View {
             } else {
                 ForEach(model.events) { event in
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(event.assetID)
+                        Text(event.containsVocal ? event.assetID : "noise-only")
                             .font(.system(.caption, design: .monospaced).weight(.semibold))
                         Text(event.debugLine)
                             .font(.system(.caption2, design: .monospaced))
@@ -300,6 +354,46 @@ struct HarnessView: View {
         Binding(
             get: { model.direction },
             set: { model.applyDirection($0) }
+        )
+    }
+
+    private var vocalDensityBinding: Binding<Double> {
+        settingsBinding(\.vocalEventProbability)
+    }
+
+    private var clusterinessBinding: Binding<Double> {
+        settingsBinding(\.clusteriness)
+    }
+
+    private var staticGainBinding: Binding<Float> {
+        settingsBinding(\.staticGain)
+    }
+
+    private var vocalGainBinding: Binding<Float> {
+        settingsBinding(\.vocalGain)
+    }
+
+    private var minExposureBinding: Binding<Double> {
+        settingsBinding(\.minVocalExposureSeconds)
+    }
+
+    private var maxExposureBinding: Binding<Double> {
+        settingsBinding(\.maxVocalExposureSeconds)
+    }
+
+    private var antiRepeatBinding: Binding<Int> {
+        settingsBinding(\.recentExclusionWindow)
+    }
+
+    private func settingsBinding<Value>(_ keyPath: WritableKeyPath<SweepRendererSettings, Value>) -> Binding<Value> {
+        Binding(
+            get: { model.rendererSettings[keyPath: keyPath] },
+            set: { newValue in
+                var settings = model.rendererSettings
+                settings[keyPath: keyPath] = newValue
+                model.rendererSettings = settings
+                model.applyRendererSettings()
+            }
         )
     }
 }

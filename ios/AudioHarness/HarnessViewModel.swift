@@ -6,6 +6,7 @@ final class HarnessViewModel: ObservableObject {
     @Published var isRunning = false
     @Published var sweepRate: SweepRate = .default
     @Published var direction: SweepDirection = .forward
+    @Published var rendererSettings = SweepRendererSettings.listeningTest
     @Published var corpusCount = 0
     @Published var skippedMalformedCount = 0
     @Published var corpusLabel = "No corpus loaded"
@@ -168,6 +169,19 @@ final class HarnessViewModel: ObservableObject {
         engine.setDirection(direction)
     }
 
+    func applyRendererSettings() {
+        engine.setRendererSettings(rendererSettings)
+        rendererSettings = engine.currentRendererSettings
+    }
+
+    func resetListeningTestDefaults() {
+        rendererSettings = .listeningTest
+        applySweepRate(.ms300)
+        applyDirection(.forward)
+        applyRendererSettings()
+        lastMessage = "Listening-test defaults: 300 ms FWD, 33% vocal, lowered static."
+    }
+
     func startTwoMinuteCapture() {
         startCapture(seconds: EngineOutputCaptureLocator.defaultDurationSeconds)
     }
@@ -253,8 +267,8 @@ final class HarnessViewModel: ObservableObject {
     }
 
     private func handle(_ event: SweepEvent) {
-        currentAssetID = event.assetID
-        currentVoiceFamily = event.voiceFamily ?? event.performerID
+        currentAssetID = event.containsVocal ? event.assetID : "noise-only"
+        currentVoiceFamily = event.containsVocal ? (event.voiceFamily ?? event.performerID) : "—"
         events.insert(event, at: 0)
         if events.count > 200 {
             events.removeLast(events.count - 200)

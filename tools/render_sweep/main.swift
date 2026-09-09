@@ -87,7 +87,7 @@ do {
     let root = URL(fileURLWithPath: args[1], isDirectory: true)
     let manifest = try JSONDecoder().decode(CorpusManifest.self, from: Data(contentsOf: root.appendingPathComponent("manifest.json")))
     guard let seconds = Int(args[3]), (1...1200).contains(seconds),
-          let rate = SweepRate(rawValue: args.count > 4 ? Int(args[4]) ?? 0 : 200),
+          let rate = SweepRate(rawValue: args.count > 4 ? Int(args[4]) ?? 0 : 300),
           let direction = SweepDirection(rawValue: args.count > 5 ? args[5] : "forward"),
           let seed = UInt64(args.count > 6 ? args[6] : "12648430") else {
         throw NSError(domain: "render-sweep: invalid arguments", code: 2)

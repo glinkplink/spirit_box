@@ -10,11 +10,16 @@ import sys
 import wave
 
 
+def is_vocal(event):
+    return bool(event.get('contains_vocal', True)) and event.get('asset_id')
+
+
 def diversity(events, assets):
     """Enforce an unseen admissible source before repeats, without relaxing safety.
 
     This is a fairness contract, not a percentage fitted to a particular seed.
     Any repeat while an unseen source is admissible is a coverage failure.
+    Vocal-only: noise-only slots do not consume the asset scheduler.
     """
     unseen = {a['asset_id']: a for a in assets}
     available = len(unseen)
@@ -47,7 +52,8 @@ def diversity(events, assets):
         assert unique == available, 'Two corpus passes must reach every bundled source'
     ordered = sorted(distances)
     return dict(available_assets=available, unique_assets=unique,
-                unique_assets_per_event=unique / len(events), corpus_coverage=unique / available,
+                unique_assets_per_event=(unique / len(events) if events else 0),
+                corpus_coverage=unique / available,
                 conservative_unique_lower_bound=lower_bound,
                 per_speaker_event_counts=dict(sorted(speakers.items())),
                 repeat_distance=dict(minimum=min(distances) if distances else None,
@@ -71,36 +77,63 @@ def check(directory, manifest_path=None):
               for i in range(0, len(pcm), block)]
     assert min(levels) > .0001, f'Silent 20ms block: {min(levels)}'
     events = [json.loads(line) for line in (directory / 'events.jsonl').read_text().splitlines() if line]
-    assert events, 'No vocal events'
+    assert events, 'No sweep slot events'
+    vocals = [event for event in events if is_vocal(event)]
+    noise = [event for event in events if not is_vocal(event)]
+    assert vocals, 'No vocal events'
+    assert noise, 'Expected noise-only slots; voices were scheduled continuously'
+    density = len(vocals) / len(events)
+    assert 0.15 <= density <= 0.50, f'Vocal density {density:.3f} is not intermittent'
+    max_noise_run = 0
+    run = 0
+    for event in events:
+        if is_vocal(event):
+            run = 0
+        else:
+            run += 1
+            max_noise_run = max(max_noise_run, run)
+    assert max_noise_run >= 2, 'Expected consecutive noise-only slots'
     manifest_path = manifest_path or Path(__file__).resolve().parents[1] / 'ios/Phase1/manifest.json'
     assets = json.loads(manifest_path.read_text())['assets']
     direction = events[0]['direction'].lower()
     assets = [a for a in assets if a.get(direction + '_allowed', True)]
-    diversity_report = diversity(events, assets)
+    diversity_report = diversity(vocals, assets)
     engine_diagnostics = json.loads((directory / 'engine-diagnostics.json').read_text())
     assert engine_diagnostics['available_assets'] == len(assets)
     assert engine_diagnostics['decoded_source_count'] >= len(assets)
     last_asset, last_speaker, last_utterance = {}, {}, {}
     source_ids = set()
     for index, event in enumerate(events):
-        aid, speaker, utterance = event['asset_id'], event['performer_id'], event['utterance_id']
-        for key, history, minimum in [(aid, last_asset, 64), (speaker, last_speaker, 2), (utterance, last_utterance, 32)]:
-            if key in history:
-                assert index - history[key] > minimum, (event, minimum)
-            history[key] = index
+        if index:
+            previous = events[index - 1]
+            delta = event['render_time_seconds'] - previous['render_time_seconds']
+            assert abs(delta - previous['sweep_rate_ms'] / 1000) < 1 / sample_rate, (delta, previous)
+        if not is_vocal(event):
+            assert event.get('contains_vocal') is False
+            continue
         assert event['source_start_frame'] >= 0
         assert event['emitted_frame_count'] > 0
         assert event['emitted_frame_count'] <= event['sweep_rate_ms'] * 48
+        if event['sweep_rate_ms'] >= 200:
+            assert event['emitted_frame_count'] < event['sweep_rate_ms'] * 48
+            assert event['emitted_frame_count'] <= round(0.130 * sample_rate)
         assert event['crop_offset_frames'] + event['emitted_frame_count'] <= event['source_frame_count']
         assert not event['relaxed_constraints']
-        if index:
-            previous = events[index-1]
-            delta = event['render_time_seconds'] - previous['render_time_seconds']
-            assert abs(delta - previous['sweep_rate_ms']/1000) < 1/sample_rate, (delta, previous)
-        source_ids.add(aid)
+        source_ids.add(event['asset_id'])
+    for vocal_index, event in enumerate(vocals):
+        aid, speaker, utterance = event['asset_id'], event['performer_id'], event['utterance_id']
+        for key, history, minimum in [(aid, last_asset, 64), (speaker, last_speaker, 2), (utterance, last_utterance, 32)]:
+            if key in history:
+                assert vocal_index - history[key] > minimum, (event, minimum)
+            history[key] = vocal_index
+    for earlier, later in zip(vocals, vocals[1:]):
+        earlier_end = earlier['render_time_seconds'] + earlier['emitted_frame_count'] / sample_rate
+        assert earlier_end <= later['render_time_seconds'] + 1 / sample_rate, 'Overlapping vocal fragments'
     result = dict(duration_seconds=duration, sample_rate=sample_rate, channels=channels,
                   peak=peak, minimum_20ms_rms=min(levels), events=len(events),
-                  unique_assets=len(source_ids), speakers=sorted(last_speaker),
+                  vocal_events=len(vocals), noise_only_events=len(noise),
+                  vocal_density=density, unique_assets=len(source_ids),
+                  speakers=sorted(last_speaker),
                   diversity=diversity_report, engine=engine_diagnostics,
                   technical_checks='PASS', human_listening='NOT_RUN')
     (directory / 'technical-checks.json').write_text(json.dumps(result, indent=2) + '\n')

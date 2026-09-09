@@ -39,7 +39,7 @@ public enum ScheduleOutcome: Equatable, Sendable {
 /// Must never use meaning, user speech, microphone input, or expected answers.
 public final class SweepScheduler: @unchecked Sendable {
     private let assets: [SourceAsset]
-    public let configuration: SchedulerConfiguration
+    public var configuration: SchedulerConfiguration
 
     private var historyIDs: [String] = []
     private var lastEventIndexByAssetID: [String: Int] = [:]
@@ -277,5 +277,53 @@ public final class SweepScheduler: @unchecked Sendable {
             eventsSinceSpeakerUse: speakerDistance,
             decisionSummary: summary
         )
+    }
+}
+
+/// Independent Layer B scheduler: decide whether a sweep slot exposes a vocal.
+///
+/// Does not pick assets, listen to the microphone, or time events to questions.
+/// Stickiness is only to avoid a metronomic voice / noise / voice pattern.
+public final class VocalDensityScheduler: @unchecked Sendable {
+    public let settings: SweepRendererSettings
+    private var seed: UInt64
+    private var lastWasVocal = false
+
+    public init(settings: SweepRendererSettings = .listeningTest, seed: UInt64 = 0xC0FFEE) {
+        self.settings = settings
+        self.seed = seed
+    }
+
+    public func reset(seed: UInt64? = nil) {
+        if let seed {
+            self.seed = seed
+        }
+        lastWasVocal = false
+    }
+
+    public var continueProbability: Double {
+        slotProbability(afterVocal: true)
+    }
+
+    public var startProbability: Double {
+        slotProbability(afterVocal: false)
+    }
+
+    public func nextContainsVocal() -> Bool {
+        let probability = lastWasVocal ? continueProbability : startProbability
+        seed = seed &* 6_364_136_223_846_793_005 &+ 1
+        let draw = Double(seed % 10_000) / 10_000.0
+        let vocal = draw < probability
+        lastWasVocal = vocal
+        return vocal
+    }
+
+    private func slotProbability(afterVocal: Bool) -> Double {
+        let base = min(1, max(0, settings.vocalEventProbability))
+        let cluster = min(1, max(0, settings.clusteriness))
+        if afterVocal {
+            return min(1, max(0, base + cluster * (1 - base) * 0.55))
+        }
+        return min(1, max(0, base * (1 - cluster * 0.55)))
     }
 }

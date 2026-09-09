@@ -1,17 +1,105 @@
 import AVFoundation
 import Foundation
 
-/// Internal tuning only; shared by live playback and offline final-mix rendering.
+/// Internal renderer tuning. Shared by live playback, the harness, and offline mix.
+/// These are listening-test parameters, not customer-facing product constants.
+public struct SweepRendererSettings: Equatable, Sendable {
+    /// Fraction of sweep slots that expose a vocal fragment. Start ~0.33.
+    public var vocalEventProbability: Double
+    /// 0 = independent Bernoulli slots; 1 = sticky gaps and short clusters.
+    public var clusteriness: Double
+    public var staticGain: Float
+    public var vocalGain: Float
+    public var outputGain: Float
+    public var minVocalExposureSeconds: Double
+    public var maxVocalExposureSeconds: Double
+    public var minExposureFractionOfDwell: Double
+    public var maxExposureFractionOfDwell: Double
+    public var fadeSeconds: Double
+    public var recentExclusionWindow: Int
+    public var highPassHz: Double
+    public var lowPassHz: Double
+    public var gainVariation: Float
+    public var vocalPeakLimit: Float
+    public var scheduleAheadSeconds: Double
+
+    /// Default preset for the next 200/300 ms listening tests.
+    public static let listeningTest = SweepRendererSettings()
+
+    public init(
+        vocalEventProbability: Double = 0.33,
+        clusteriness: Double = 0.45,
+        staticGain: Float = 0.032,
+        vocalGain: Float = 0.88,
+        outputGain: Float = 0.82,
+        minVocalExposureSeconds: Double = 0.050,
+        maxVocalExposureSeconds: Double = 0.130,
+        minExposureFractionOfDwell: Double = 0.22,
+        maxExposureFractionOfDwell: Double = 0.48,
+        fadeSeconds: Double = 0.008,
+        recentExclusionWindow: Int = 8,
+        highPassHz: Double = 280.0,
+        lowPassHz: Double = 4_200.0,
+        gainVariation: Float = 0.08,
+        vocalPeakLimit: Float = 0.65,
+        scheduleAheadSeconds: Double = 0.040
+    ) {
+        self.vocalEventProbability = min(1, max(0, vocalEventProbability))
+        self.clusteriness = min(1, max(0, clusteriness))
+        self.staticGain = max(0, staticGain)
+        self.vocalGain = max(0, vocalGain)
+        self.outputGain = min(1, max(0, outputGain))
+        self.minVocalExposureSeconds = min(maxVocalExposureSeconds, max(0.015, minVocalExposureSeconds))
+        self.maxVocalExposureSeconds = max(self.minVocalExposureSeconds, maxVocalExposureSeconds)
+        self.minExposureFractionOfDwell = min(1, max(0.05, minExposureFractionOfDwell))
+        self.maxExposureFractionOfDwell = min(1, max(self.minExposureFractionOfDwell, maxExposureFractionOfDwell))
+        self.fadeSeconds = min(0.025, max(0.003, fadeSeconds))
+        self.recentExclusionWindow = max(0, recentExclusionWindow)
+        self.highPassHz = highPassHz
+        self.lowPassHz = lowPassHz
+        self.gainVariation = min(0.2, max(0, gainVariation))
+        self.vocalPeakLimit = min(0.95, max(0.1, vocalPeakLimit))
+        self.scheduleAheadSeconds = min(0.12, max(0.02, scheduleAheadSeconds))
+    }
+
+    public var schedulerConfiguration: SchedulerConfiguration {
+        SchedulerConfiguration(recentExclusionWindow: recentExclusionWindow)
+    }
+
+    public func clamped() -> SweepRendererSettings {
+        SweepRendererSettings(
+            vocalEventProbability: vocalEventProbability,
+            clusteriness: clusteriness,
+            staticGain: staticGain,
+            vocalGain: vocalGain,
+            outputGain: outputGain,
+            minVocalExposureSeconds: minVocalExposureSeconds,
+            maxVocalExposureSeconds: maxVocalExposureSeconds,
+            minExposureFractionOfDwell: minExposureFractionOfDwell,
+            maxExposureFractionOfDwell: maxExposureFractionOfDwell,
+            fadeSeconds: fadeSeconds,
+            recentExclusionWindow: recentExclusionWindow,
+            highPassHz: highPassHz,
+            lowPassHz: lowPassHz,
+            gainVariation: gainVariation,
+            vocalPeakLimit: vocalPeakLimit,
+            scheduleAheadSeconds: scheduleAheadSeconds
+        )
+    }
+}
+
+/// Back-compat aliases for the listening-test defaults.
 enum SweepTuning {
-    static let staticGain: Float = 0.09
-    static let vocalGain: Float = 0.88
-    static let outputGain: Float = 0.82
-    static let highPassHz = 280.0
-    static let lowPassHz = 4_200.0
-    static let fadeSeconds = 0.006
-    static let gainVariation: Float = 0.08
-    static let vocalPeakLimit: Float = 0.65
-    static let scheduleAheadSeconds = 0.040
+    static let listeningTest = SweepRendererSettings.listeningTest
+    static var staticGain: Float { listeningTest.staticGain }
+    static var vocalGain: Float { listeningTest.vocalGain }
+    static var outputGain: Float { listeningTest.outputGain }
+    static var highPassHz: Double { listeningTest.highPassHz }
+    static var lowPassHz: Double { listeningTest.lowPassHz }
+    static var fadeSeconds: Double { listeningTest.fadeSeconds }
+    static var gainVariation: Float { listeningTest.gainVariation }
+    static var vocalPeakLimit: Float { listeningTest.vocalPeakLimit }
+    static var scheduleAheadSeconds: Double { listeningTest.scheduleAheadSeconds }
 }
 
 enum FragmentBufferFactory {
@@ -33,20 +121,28 @@ enum FragmentBufferFactory {
         asset: SourceAsset,
         sweepRate: SweepRate,
         direction: SweepDirection,
-        startJitterFraction: Double
+        startJitterFraction: Double,
+        durationJitterFraction: Double = 0,
+        placementJitterFraction: Double = 0,
+        settings: SweepRendererSettings = .listeningTest
     ) -> AVAudioPCMBuffer {
         let cropped = crop(
             convertedSource,
             asset: asset,
             sweepRate: sweepRate,
-            startJitterFraction: min(1, max(0, startJitterFraction))
+            startJitterFraction: min(1, max(0, startJitterFraction)),
+            durationJitterFraction: min(1, max(0, durationJitterFraction)),
+            settings: settings
         )
         let oriented = direction == .reverse ? reverse(cropped) : cropped
-        applyRadioShape(oriented, variation: startJitterFraction)
-        applyFades(oriented, fadeSeconds: SweepTuning.fadeSeconds)
-        // The slot always lasts one dwell. A short source leaves static, never a
-        // looped/stretched syllable or a late wall-clock gap before the next slot.
-        return padded(oriented, frames: Int(convertedSource.format.sampleRate * sweepRate.timeInterval))
+        applyRadioShape(oriented, variation: startJitterFraction, settings: settings)
+        applyFades(oriented, fadeSeconds: settings.fadeSeconds)
+        // One dwell-sized vocal slot: glimpse plus zeros. The independent noise
+        // bed continues; never stretch, loop, or overlap a second speaker.
+        let dwellFrames = Int(convertedSource.format.sampleRate * sweepRate.timeInterval)
+        let slack = max(0, dwellFrames - Int(oriented.frameLength))
+        let lead = min(slack, Int(Double(slack) * min(1, max(0, placementJitterFraction))))
+        return padded(oriented, frames: dwellFrames, leadFrames: lead)
     }
 
     static func makeBuffer(
@@ -55,7 +151,10 @@ enum FragmentBufferFactory {
         sweepRate: SweepRate,
         direction: SweepDirection,
         outputFormat: AVAudioFormat,
-        startJitterFraction: Double
+        startJitterFraction: Double,
+        durationJitterFraction: Double = 0,
+        placementJitterFraction: Double = 0,
+        settings: SweepRendererSettings = .listeningTest
     ) throws -> AVAudioPCMBuffer {
         let converted = try loadConvertedSource(fileURL: fileURL, outputFormat: outputFormat)
         return makeBuffer(
@@ -63,7 +162,10 @@ enum FragmentBufferFactory {
             asset: asset,
             sweepRate: sweepRate,
             direction: direction,
-            startJitterFraction: startJitterFraction
+            startJitterFraction: startJitterFraction,
+            durationJitterFraction: durationJitterFraction,
+            placementJitterFraction: placementJitterFraction,
+            settings: settings
         )
     }
 
@@ -103,9 +205,16 @@ enum FragmentBufferFactory {
         _ buffer: AVAudioPCMBuffer,
         asset: SourceAsset,
         sweepRate: SweepRate,
-        startJitterFraction: Double
+        startJitterFraction: Double,
+        durationJitterFraction: Double = 0,
+        settings: SweepRendererSettings = .listeningTest
     ) -> AVAudioPCMBuffer {
-        let bounds = cropBounds(buffer, asset: asset, sweepRate: sweepRate, startJitterFraction: startJitterFraction)
+        let bounds = cropBounds(
+            buffer, asset: asset, sweepRate: sweepRate,
+            startJitterFraction: startJitterFraction,
+            durationJitterFraction: durationJitterFraction,
+            settings: settings
+        )
         let start = bounds.start
         let length = bounds.count
         guard length > 0 else { return buffer }
@@ -118,15 +227,36 @@ enum FragmentBufferFactory {
         return sliced
     }
 
+    /// Exposed source frames for one vocal glimpse. Never time-stretches; never
+    /// longer than the dwell. Sweep rate sizes the window; it does not speed speech.
+    static func exposureFrameCount(
+        sampleRate: Double,
+        sweepRate: SweepRate,
+        availableFrames: Int,
+        durationJitterFraction: Double,
+        settings: SweepRendererSettings = .listeningTest
+    ) -> Int {
+        let dwellFrames = max(1, Int((sampleRate * sweepRate.timeInterval).rounded()))
+        let minFrames = max(1, Int((sampleRate * settings.minVocalExposureSeconds).rounded()))
+        let maxFrames = max(minFrames, Int((sampleRate * settings.maxVocalExposureSeconds).rounded()))
+        let ceiling = max(1, min(availableFrames, dwellFrames, maxFrames))
+        let rateMin = Int((Double(dwellFrames) * settings.minExposureFractionOfDwell).rounded())
+        let rateMax = Int((Double(dwellFrames) * settings.maxExposureFractionOfDwell).rounded())
+        let floor = min(ceiling, max(1, minFrames, rateMin))
+        let high = min(ceiling, max(floor, rateMax))
+        let jitter = min(1, max(0, durationJitterFraction))
+        return min(ceiling, floor + Int(Double(max(0, high - floor)) * jitter))
+    }
+
     static func cropBounds(
         _ buffer: AVAudioPCMBuffer, asset: SourceAsset,
-        sweepRate: SweepRate, startJitterFraction: Double
+        sweepRate: SweepRate, startJitterFraction: Double,
+        durationJitterFraction: Double = 0,
+        settings: SweepRendererSettings = .listeningTest
     ) -> (start: Int, count: Int) {
         let sampleRate = buffer.format.sampleRate
         let total = Int(buffer.frameLength)
         guard total > 0 else { return (0, 0) }
-
-        let desired = max(1, Int((sampleRate * sweepRate.timeInterval).rounded()))
 
         let safeStartMs = max(0, asset.cropSafeStartMs ?? 0)
         let safeEndMs: Int
@@ -141,7 +271,10 @@ enum FragmentBufferFactory {
         let safeStart = min(total - 1, Int((Double(safeStartMs) / 1000.0) * sampleRate))
         let safeEnd = min(total, max(safeStart + 1, Int((Double(safeEndMs) / 1000.0) * sampleRate)))
         let available = max(1, safeEnd - safeStart)
-        let playFrames = min(total, desired, available)
+        let playFrames = exposureFrameCount(
+            sampleRate: sampleRate, sweepRate: sweepRate, availableFrames: available,
+            durationJitterFraction: durationJitterFraction, settings: settings
+        )
         let maxStart = max(safeStart, safeEnd - playFrames)
         let span = max(0, maxStart - safeStart)
         let start = min(safeEnd - 1, safeStart + Int(Double(span) * min(1, max(0, startJitterFraction))))
@@ -151,26 +284,34 @@ enum FragmentBufferFactory {
         return (start, length)
     }
 
-    static func padded(_ source: AVAudioPCMBuffer, frames: Int) -> AVAudioPCMBuffer {
-        guard frames > Int(source.frameLength),
-              let output = AVAudioPCMBuffer(pcmFormat: source.format, frameCapacity: AVAudioFrameCount(frames)),
+    static func padded(_ source: AVAudioPCMBuffer, frames: Int, leadFrames: Int = 0) -> AVAudioPCMBuffer {
+        let lead = min(max(0, leadFrames), max(0, frames - Int(source.frameLength)))
+        guard frames > Int(source.frameLength) || lead > 0,
+              let output = AVAudioPCMBuffer(pcmFormat: source.format, frameCapacity: AVAudioFrameCount(max(frames, Int(source.frameLength)))),
               let channels = output.floatChannelData else { return source }
         output.frameLength = AVAudioFrameCount(frames)
         for channel in 0..<Int(source.format.channelCount) {
             channels[channel].initialize(repeating: 0, count: frames)
         }
-        copyFrames(from: source, to: output, sourceStart: 0, count: Int(source.frameLength))
+        copyFrames(from: source, to: output, sourceStart: 0, count: Int(source.frameLength), destStart: lead)
         return output
     }
 
-    static func applyRadioShape(_ buffer: AVAudioPCMBuffer, variation: Double) {
+    static func applyRadioShape(
+        _ buffer: AVAudioPCMBuffer,
+        variation: Double,
+        settings: SweepRendererSettings = .listeningTest
+    ) {
         guard let channels = buffer.floatChannelData else { return }
         let dt = 1 / buffer.format.sampleRate
-        let hpRC = 1 / (2 * Double.pi * SweepTuning.highPassHz)
-        let lpRC = 1 / (2 * Double.pi * SweepTuning.lowPassHz)
+        let mix = min(1, max(0, variation))
+        let hpHz = settings.highPassHz * (0.92 + 0.16 * mix)
+        let lpHz = settings.lowPassHz * (0.90 + 0.20 * mix)
+        let hpRC = 1 / (2 * Double.pi * hpHz)
+        let lpRC = 1 / (2 * Double.pi * lpHz)
         let hp = Float(hpRC / (hpRC + dt))
         let lp = Float(dt / (lpRC + dt))
-        let gain = 1 + (Float(min(1, max(0, variation))) * 2 - 1) * SweepTuning.gainVariation
+        let gain = 1 + (Float(mix) * 2 - 1) * settings.gainVariation
         for channel in 0..<Int(buffer.format.channelCount) {
             var previous: Float = 0, high: Float = 0, low: Float = 0
             var peak: Float = 0
@@ -184,8 +325,8 @@ enum FragmentBufferFactory {
                 peak = max(peak, abs(samples[index]))
             }
             // Whole-window attenuation prevents clipping without nonlinear distortion.
-            if peak > SweepTuning.vocalPeakLimit {
-                let attenuation = SweepTuning.vocalPeakLimit / peak
+            if peak > settings.vocalPeakLimit {
+                let attenuation = settings.vocalPeakLimit / peak
                 for index in 0..<Int(buffer.frameLength) { samples[index] *= attenuation }
             }
         }
@@ -244,15 +385,18 @@ enum FragmentBufferFactory {
         from source: AVAudioPCMBuffer,
         to dest: AVAudioPCMBuffer,
         sourceStart: Int,
-        count: Int
+        count: Int,
+        destStart: Int = 0
     ) {
         if let inData = source.floatChannelData, let outData = dest.floatChannelData {
             for channel in 0..<Int(source.format.channelCount) {
-                outData[channel].update(from: inData[channel].advanced(by: sourceStart), count: count)
+                outData[channel].advanced(by: destStart)
+                    .update(from: inData[channel].advanced(by: sourceStart), count: count)
             }
         } else if let inData = source.int16ChannelData, let outData = dest.int16ChannelData {
             for channel in 0..<Int(source.format.channelCount) {
-                outData[channel].update(from: inData[channel].advanced(by: sourceStart), count: count)
+                outData[channel].advanced(by: destStart)
+                    .update(from: inData[channel].advanced(by: sourceStart), count: count)
             }
         }
     }

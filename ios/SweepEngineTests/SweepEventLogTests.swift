@@ -32,6 +32,21 @@ final class SweepEventLogTests: XCTestCase {
         XCTAssertEqual(recent[0].eventsSincePreviousUse, 2)
     }
 
+    func testNoiseOnlyEventsAreLoggedWithoutAssetIdentity() {
+        let event = SweepEvent.noiseOnlySlot(
+            rate: .ms300, direction: .forward, timestamp: Date(timeIntervalSince1970: 1)
+        )
+        XCTAssertFalse(event.containsVocal)
+        XCTAssertTrue(event.assetID.isEmpty)
+        XCTAssertTrue(event.debugLine.contains("noise"))
+        XCTAssertTrue(event.debugLine.contains("300ms"))
+        XCTAssertTrue(event.debugLine.contains("FWD"))
+        XCTAssertFalse(event.debugLine.contains("answer"))
+        let payload = try? JSONSerialization.jsonObject(with: Data(event.diagnosticJSONLine().utf8)) as? [String: Any]
+        XCTAssertEqual(payload?["contains_vocal"] as? Bool, false)
+        XCTAssertEqual(payload?["sweep_rate_ms"] as? Int, 300)
+    }
+
     func testCaptureLocatorUsesDiagnosticEngineMixName() {
         let docs = URL(fileURLWithPath: "/tmp/docs")
         let url = EngineOutputCaptureLocator.makeFileURL(

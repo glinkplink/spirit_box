@@ -87,12 +87,12 @@ nor cooldown history. Selection remains entirely technical and deterministic.
 Fixed seeds reproduce scheduler, crop/gain variation and offline noise.
 
 The existing rate controls write the same `SweepRate` property. Every new slot
-uses its current value for exposure length and slot duration. One player schedules
-non-overlapping vocal slots at sample times; the noise source runs independently.
-Sources shorter than the dwell expose available material then static, without
-stretching, looping, or layering voices. Current crops remain 200–240 ms: at 300 ms
-some of the dwell is intentionally static-only. Whether that cadence needs longer
-source windows is a listening decision.
+uses its current value for opportunity cadence and glimpse size. One player
+schedules at most one vocal fragment per slot; most slots are noise-only. The
+noise source runs independently. Glimpses are cropped regions with short
+envelopes, never time-stretched to fill the dwell. Current crops remain 200–240 ms
+sources; runtime exposure is shorter than the dwell (about 50–130 ms depending on
+rate and jitter).
 
 A 5 ms maintenance timer fills a **40 ms lookahead**, but does not define audio
 cadence. Rate/direction changes apply to the next unscheduled slot, normally within
@@ -109,23 +109,29 @@ Actual device cold-start latency and deadline behavior still require measurement
 
 ## Current internal tuning
 
-`SweepTuning` in `FragmentBufferFactory.swift` is the single tuning location:
+`SweepRendererSettings.listeningTest` in `FragmentBufferFactory.swift` is the
+single default tuning location (also editable in the harness):
 
 | Setting | Value |
 |---|---|
-| Procedural static gain | 0.09 |
+| Vocal event probability | 0.33 |
+| Gap/cluster stickiness | 0.45 |
+| Procedural static gain | 0.032 |
 | Vocal player gain | 0.88 |
 | Final mixer gain | 0.82 |
-| High-pass / low-pass | 280 / 4200 Hz, first-order stages |
-| Boundary fades | 6 ms each, no vocal overlap |
+| Vocal exposure | 50–130 ms, 22–48% of dwell |
+| High-pass / low-pass | 280 / 4200 Hz, first-order stages, slight per-glimpse variation |
+| Boundary fades | 8 ms each, no vocal overlap |
 | Per-window gain variation | ±8% |
 | Processed vocal peak ceiling | 0.65, whole-window attenuation |
 | Scheduler lookahead | 40 ms |
+| Anti-repeat window | 8 (plus VCTK cooldowns) |
 
 The existing procedural filtered white/brown noise and sparse crackle continue
-between voice windows. No stored static loop, reverb, echo, stacked vocals, pitch
-sweeps, semantic selection, microphone analysis, or sensor inputs were added.
-Worst-case bounded voice plus noise remains below full scale at these gains.
+whether or not a vocal is scheduled. No stored static loop, reverb, echo, stacked
+vocals, pitch sweeps, semantic selection, microphone analysis, or sensor inputs
+were added. Worst-case bounded voice plus noise remains below full scale at these
+gains.
 
 ## First listening sample
 
@@ -140,9 +146,12 @@ This captures the actual final mixer, with no microphone permission.
 **macOS with Xcode:** from repository root:
 
 ```bash
-./scripts/render-sweep.sh ios/Phase1 build/first-render-30s 30 200 forward 12648430
-python3 tools/check_sweep_render.py build/first-render-30s
-./scripts/render-sweep.sh ios/Phase1 build/first-render-60s 60 200 reverse 12648430
+./scripts/render-listening-tests.sh
+# or:
+./scripts/render-sweep.sh ios/Phase1 build/listening-60s-300ms 60 300 forward 12648430
+python3 tools/check_sweep_render.py build/listening-60s-300ms
+./scripts/render-sweep.sh ios/Phase1 build/listening-60s-200ms 60 200 forward 12648430
+python3 tools/check_sweep_render.py build/listening-60s-200ms
 ```
 
 Listen to `sweep.wav`; inspect adjacent `events.jsonl`. Each command compiles the
