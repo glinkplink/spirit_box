@@ -2,11 +2,23 @@
 
 **Project:** iPhone Spirit-Box Instrument  
 **Date:** September 2, 2026  
-**Status:** Revised Phase 1 corpus production plan — transition-dominant, sub-word source material
+**Status:** Revised Phase 1 corpus production plan — transition-dominant commissioned path **and** approved VCTK licensed-crop path
 
 **Locked architecture:** Offline original/explicitly licensed human vocal corpus + phoneme bank + non-semantic sweep renderer
 
 > **Decision rule:** optimize for the cheapest, fastest corpus that can survive a 15–20 minute blind listening test without sounding canned, repetitive, semantically steered, or like a small clip randomizer.
+
+> **Rendered-sweep rule (September 2026):** Approve or reject corpus material based on **what survives in the rendered sweep** (cropping, filtering, scheduling, runtime transforms), not on whether upstream recordings were originally full sentences. Recognizable words in audition are defects to remove; sentence-level source provenance alone is not a blocker.
+
+## Approved Phase 1 corpus paths
+
+| Path | Status | Doc |
+|---|---|---|
+| **VCTK six-speaker licensed microclips** | **Approved** Phase 1 candidate; potentially production-viable after human gate | `docs/production/VCTK-PHASE1-CANDIDATE.md` |
+| **Four commissioned performers (transition-dominant)** | Valid alternative / successor if VCTK fails gate | This document, Sections 1–2 |
+| Recording 105 pilot | Interim bundled bank for harness testing | `ios/Phase1/` |
+
+Both approved paths share the same product kill criterion: 15–20 minute physical-device listening gate per `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` Section 18.
 
 > **Legal note:** The rights language in this document is a practical drafting starting point, not legal advice. Have counsel review the final form if material money is involved, if a performer is union-represented, if a performer is outside the United States, or if use expands beyond the app/product scope described here.
 
@@ -18,7 +30,7 @@
 
 First run the no-spend **Phase 0 A/B/C corpus gate** in Section 2. If the transition-dominant source wins, **commission four original human performers directly for Phase 1**, preferably through four separate fixed-price Upwork contracts, and require a project-specific performer release/rider in addition to marketplace terms. Record 40 raw takes per performer, retain **30 accepted source assets per performer**, and build a **120-asset prototype bank**.
 
-Do **not** buy a generic speech corpus, scrape public-domain speech, use radio clips, or use AI voices for the prototype. Those routes save little money at this scale and add provenance, license, consistency, or credibility risk.
+Do **not** scrape public-domain speech, use radio clips, or use AI voices for the prototype. **Exception (approved):** the **VCTK 0.92** licensed-crop pipeline documented in `docs/production/VCTK-PHASE1-CANDIDATE.md` — CC BY 4.0, full provenance, recognition review, and attribution required. Other generic speech corpora remain disallowed without explicit product-owner approval.
 
 The Phase 1 corpus should contain:
 
@@ -50,7 +62,8 @@ The 120 count refers to **genuinely distinct human recordings**, not pitch-shift
 2. **Cheapest if immediately available:** self + friends/local adults through one decent recording setup, using the exact same signed release.
 3. **Fast fallback:** Fiverr custom offers, only after written confirmation of exact app-embedding/transformation rights.
 4. **Premium fallback:** Voices or Voice123 if remote-home-studio quality is repeatedly poor.
-5. **Do not use without written confirmation:** stock speech corpora, Common Voice-derived fragments, stock SFX whose license limits redistribution when sound itself is core output.
+5. **Approved licensed crop:** VCTK 0.92 per `docs/production/VCTK-PHASE1-CANDIDATE.md`.
+6. **Do not use without written confirmation:** other stock speech corpora, Common Voice-derived fragments, stock SFX whose license limits redistribution when sound itself is core output.
 
 ---
 
@@ -405,6 +418,14 @@ Requirements do not change:
 **Best use:** supplement one missing voice family or replace a marketplace performer who cannot deliver clean audio.
 
 ## 6.6 Commercial speech corpora / public datasets
+
+### CSTR VCTK Corpus 0.92
+
+**Status:** `APPROVED` for Phase 1 candidate and potential production use.
+
+Licensed under **CC BY 4.0** with publisher attribution. Build pipeline: `tools/build_vctk_candidate.py`. Operator doc: `docs/production/VCTK-PHASE1-CANDIDATE.md`.
+
+Product criterion is **rendered sweep behavior**, not upstream sentence structure. Use generic corpus intake validation (not `--phase1-strict`). Pass human recognition review and physical-device audio gate before bundling for release.
 
 ### Mozilla Common Voice
 

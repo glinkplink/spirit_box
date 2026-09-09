@@ -1,14 +1,28 @@
 # Phase 1 corpus acquisition — operator start here
 
-**Purpose:** Hire four adult human performers and collect the locked Phase 1 bank: **120 accepted original source assets** (4 × 30).
-
 **Authority:** `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`
 
 **Product authority:** `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md`
 
-**Do not:** redesign the corpus, commission 480 assets, hire AI voices, or use public/broadcast/stock/competitor audio.
+**Audio gate:** `NOT YET RUN — REQUIRES HUMAN PHYSICAL-DEVICE LISTENING TEST`
 
-**Audio gate:** `NOT YET RUN — WAITING FOR REAL PHASE 1 CORPUS`
+---
+
+## Active path: VCTK licensed microclips (approved)
+
+**Status:** APPROVED Phase 1 candidate — potentially production-viable after human gate.
+
+Start at `docs/production/VCTK-PHASE1-CANDIDATE.md`. Build locally with `tools/build_vctk_candidate.py`; import `SpiritBoxPhase1Corpus.zip` into the harness. Product approval is based on **rendered sweep quality**, not whether VCTK source utterances were originally full sentences.
+
+Skip the commissioned-performer steps below unless VCTK fails the listening gate or product owner pivots back to custom recording.
+
+---
+
+## Alternate path: four commissioned performers
+
+**Purpose:** Hire four adult human performers and collect the locked commissioned bank: **120 accepted original source assets** (4 × 30).
+
+**Do not:** redesign the corpus, commission 480 assets, hire AI voices, or use public/broadcast/competitor audio without approval.
 
 Sheet frozen as **CORPUS_SHEET_v1.0**. Do not change phonetic material.
 
@@ -151,7 +165,7 @@ Only after a real Phase 1 corpus is loaded. 15–20 minutes. This pack **does no
 - they want to add spooky acting, words, phrases, or “ghost” performance;
 - they are under 18;
 - source chain is unclear (not their own original human performance);
-- they insist on using public datasets, radio, YouTube, stock speech, or someone else’s voice.
+- they insist on using unapproved public datasets, radio, YouTube, stock speech (VCTK is the approved licensed exception), or someone else’s voice.
 
 ## Do not proceed to intake if
 

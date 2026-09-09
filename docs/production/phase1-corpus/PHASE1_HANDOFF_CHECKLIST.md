@@ -4,7 +4,9 @@ Use this when a performer delivery is ready for **technical corpus intake** (seg
 
 This checklist does **not** pass the product audio gate.
 
-**Audio gate status remains:** `NOT YET RUN — WAITING FOR REAL PHASE 1 CORPUS`
+**Audio gate status remains:** `NOT YET RUN — REQUIRES HUMAN PHYSICAL-DEVICE LISTENING TEST`
+
+**VCTK path:** use `docs/production/VCTK-PHASE1-CANDIDATE.md` instead of this commissioned-performer checklist.
 
 Do not treat DevFixtures as Phase 1.
 
