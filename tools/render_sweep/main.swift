@@ -1,4 +1,67 @@
 import Foundation
+import AVFoundation
+
+// Audit the actual buffer factory over every bundled source, both directions
+// and all dwell rates. This is a level measurement, not a listening verdict.
+func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
+    let format = AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1)!
+    func rms(_ buffer: AVAudioPCMBuffer, count: Int) -> Double {
+        let samples = buffer.floatChannelData![0]
+        return sqrt((0..<count).reduce(0.0) { $0 + Double(samples[$1]) * Double(samples[$1]) } / Double(count))
+    }
+    func db(_ value: Double) -> Double { 20 * log10(max(1e-12, value)) }
+    func distribution(_ values: [Double]) -> [String: Double] {
+        let v = values.sorted()
+        return ["min": v.first!, "p05": v[Int(Double(v.count - 1) * 0.05)],
+                "median": v[v.count / 2], "p95": v[Int(Double(v.count - 1) * 0.95)], "max": v.last!]
+    }
+    var reports: [String: Any] = [:]
+    let noise = ProceduralNoiseState()
+    let noiseRMS = sqrt((0..<48000).reduce(0.0) { sum, _ in
+        let x = Double(noise.nextSample() * SweepTuning.staticGain)
+        return sum + x * x
+    } / 48000)
+    var maximumPeak = 0.0
+    for rate in SweepRate.allCases {
+        var levels: [Double] = [], reverseDifferences: [Double] = [], changes: [Double] = [], balances: [Double] = []
+        for asset in assets {
+            let source = try FragmentBufferFactory.loadConvertedSource(fileURL: root.appendingPathComponent(asset.relativePath), outputFormat: format)
+            // Extremes and midpoint cover the entire bounded runtime gain range.
+            for jitter in [0.0, 0.5, 1.0] {
+                let crop = FragmentBufferFactory.crop(source, asset: asset, sweepRate: rate, startJitterFraction: jitter)
+                let count = Int(crop.frameLength)
+                let inputLevel = rms(crop, count: count)
+                var pair: [Double] = []
+                for direction in SweepDirection.allCases {
+                    let buffer = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
+                        sweepRate: rate, direction: direction, startJitterFraction: jitter)
+                    let level = rms(buffer, count: count)
+                    pair.append(db(level))
+                    levels.append(db(level * Double(SweepTuning.vocalGain * SweepTuning.outputGain)))
+                    changes.append(db(level / max(inputLevel, 1e-12)))
+                    balances.append(db(level * Double(SweepTuning.vocalGain) / noiseRMS))
+                    for i in 0..<Int(buffer.frameLength) {
+                        let sample = Double(buffer.floatChannelData![0][i])
+                        guard sample.isFinite, abs(sample) <= Double(SweepTuning.vocalPeakLimit) + 0.00001 else {
+                            throw NSError(domain: "level-audit: invalid vocal peak", code: 1)
+                        }
+                        maximumPeak = max(maximumPeak, abs(sample))
+                    }
+                }
+                reverseDifferences.append(abs(pair[0] - pair[1]))
+            }
+        }
+        reports[String(rate.milliseconds)] = ["active_vocal_rms_dbfs": distribution(levels),
+            "runtime_level_change_db": distribution(changes),
+            "reverse_absolute_rms_difference_db": distribution(reverseDifferences),
+            "active_voice_to_static_db": distribution(balances)]
+    }
+    reports["maximum_vocal_peak"] = maximumPeak
+    reports["worst_case_mix_peak_bound"] = (Double(SweepTuning.vocalPeakLimit * SweepTuning.vocalGain) + Double(SweepTuning.staticGain)) * Double(SweepTuning.outputGain)
+    reports["human_listening"] = "NOT_RUN"
+    try JSONSerialization.data(withJSONObject: reports, options: [.sortedKeys, .prettyPrinted])
+        .write(to: output.appendingPathComponent("level-audit.json"))
+}
 
 // Compile with the app's SweepEngine sources. No parallel DSP implementation.
 let args = CommandLine.arguments
@@ -23,6 +86,9 @@ do {
     engine.setDirection(direction)
     let start = Date()
     try engine.renderFinalMix(to: URL(fileURLWithPath: args[2], isDirectory: true), seconds: seconds, seed: seed)
+    if ProcessInfo.processInfo.environment["SPIRIT_BOX_LEVEL_AUDIT"] == "1" {
+        try auditLevels(assets: manifest.assets, root: root, output: URL(fileURLWithPath: args[2]))
+    }
     print("Rendered \(seconds)s of actual engine mix in \(Date().timeIntervalSince(start))s → \(args[2])/sweep.wav")
 } catch {
     fputs("Render failed: \(error)\n", stderr)

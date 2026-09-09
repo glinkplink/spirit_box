@@ -74,8 +74,10 @@ jobs:
           done
           build/render-sweep/render-sweep ios/Phase1 build/reverse-30s 30 200 reverse 12648430
           python3 tools/check_sweep_render.py build/reverse-30s
-          build/render-sweep/render-sweep ios/Phase1 build/listening-2min 120 200 forward 12648430
+          SPIRIT_BOX_LEVEL_AUDIT=1 build/render-sweep/render-sweep ios/Phase1 build/listening-2min 120 200 forward 12648430
           python3 tools/check_sweep_render.py build/listening-2min
+          build/render-sweep/render-sweep ios/Phase1 build/listening-12min 720 300 forward 1234
+          python3 tools/check_sweep_render.py build/listening-12min
       - name: Upload real rendered mix and source traces
         if: always()
         uses: actions/upload-artifact@v4

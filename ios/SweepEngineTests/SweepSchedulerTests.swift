@@ -272,6 +272,70 @@ final class SweepSchedulerTests: XCTestCase {
         XCTAssertEqual(first, ids(fromRepeating: a, direction: .forward, count: 300))
     }
 
+    func testProvenanceCoverageAcrossSeedsAndDirectionChanges() {
+        let assets = (0..<480).map { index in
+            SourceAsset(assetID: "window-\(index)", utteranceID: "sentence-\(index / 2)",
+                        performerID: "speaker-\(index / 80)")
+        }
+        // Include zero, extrema, related seeds and the original failing seed.
+        for seed in Array(UInt64(0)...UInt64(15)) + [1234, 0xC0FFEE, UInt64.max] {
+            for mode in 0..<3 {
+                let scheduler = SweepScheduler(assets: assets, seed: seed)
+                var seen = Set<String>()
+                for index in 0..<5000 {
+                    let direction: SweepDirection = mode == 0 ? .forward :
+                        mode == 1 ? .reverse : (index % 77 < 38 ? .forward : .reverse)
+                    guard case .picked(let pick) = scheduler.next(direction: direction) else {
+                        return XCTFail("Full corpus exhausted: seed \(seed)")
+                    }
+                    seen.insert(pick.asset.assetID)
+                }
+                XCTAssertEqual(seen.count, 480, "seed \(seed), mode \(mode)")
+            }
+        }
+    }
+
+    func testBundledVCTKCoverageOverTwentyMinutesWithCooldowns() throws {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "manifest", withExtension: "json", subdirectory: "Phase1"))
+        let assets = try JSONDecoder().decode(CorpusManifest.self, from: Data(contentsOf: url)).assets
+        XCTAssertEqual(assets.count, 1200)
+        for seed in [UInt64(0), 1234, 0xC0FFEE, UInt64.max] {
+            let scheduler = SweepScheduler(assets: assets, seed: seed)
+            var seen = Set<String>(), fragments: [String] = [], utterances: [String] = [], speakers: [String] = []
+            // 4,000 slots = 20 minutes at the slowest 300 ms dwell.
+            for index in 0..<4000 {
+                let direction: SweepDirection = index % 77 < 38 ? .forward : .reverse
+                guard case .picked(let pick) = scheduler.next(direction: direction) else {
+                    return XCTFail("Bundled corpus exhausted")
+                }
+                let utterance = try XCTUnwrap(pick.asset.utteranceID)
+                let speaker = try XCTUnwrap(pick.asset.performerID)
+                XCTAssertFalse(fragments.suffix(64).contains(pick.asset.assetID))
+                XCTAssertFalse(utterances.suffix(32).contains(utterance))
+                XCTAssertFalse(speakers.suffix(2).contains(speaker))
+                XCTAssertTrue(pick.relaxedConstraints.isEmpty)
+                fragments.append(pick.asset.assetID); utterances.append(utterance); speakers.append(speaker)
+                seen.insert(pick.asset.assetID)
+                // Two corpus-sized event budgets allow protection-driven deferrals.
+                // Full coverage is required, not a fitted percentage.
+                if index == 2399 { XCTAssertEqual(seen.count, 1200, "seed \(seed)") }
+            }
+            XCTAssertEqual(seen.count, 1200)
+        }
+    }
+
+    func testProvenanceDirectionChoosesOppositeNextAdmissibleRingNeighbor() {
+        let assets = (0..<120).map { index in
+            SourceAsset(assetID: "a\(index)", utteranceID: "u\(index)", performerID: "p\(index % 6)")
+        }
+        let scheduler = SweepScheduler(assets: assets, seed: 1234)
+        let ring = scheduler.orderedEligibleAssets(for: .forward)
+        guard case .picked(let first) = scheduler.next(direction: .forward) else { return XCTFail("First") }
+        XCTAssertEqual(first.asset, ring[0])
+        let expected = ring.reversed().first { $0.performerID != first.asset.performerID }
+        XCTAssertEqual(id(scheduler.next(direction: .reverse)), expected?.assetID)
+    }
+
     func testSentenceConstraintsNeverRelaxEvenForSingleSource() {
         let scheduler = SweepScheduler(assets: [
             SourceAsset(assetID: "a", utteranceID: "same-sentence", performerID: "p1"),

@@ -126,7 +126,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
             try file.write(from: buffer)
         }
         let engine = SweepAudioEngine()
-        engine.load(LoadedCorpus(assets: [SourceAsset(assetID: "test", durationMs: 1000, relativePath: "fixture.wav")],
+        engine.load(LoadedCorpus(assets: (0..<3).map { SourceAsset(assetID: "test-\($0)", durationMs: 1000, relativePath: "fixture.wav") },
             skippedMalformedCount: 0, source: .bundleDevFixtures, label: "test", isDevFixture: true, rootURL: root))
         engine.setSweepRate(.ms75)
         let changed = expectation(description: "New control values reach a vocal slot without restart")
@@ -134,6 +134,9 @@ final class FragmentBufferFactoryTests: XCTestCase {
         engine.onEvent = { event in
             if firstTime == nil {
                 firstTime = event.renderTimeSeconds
+                // Every source must already be decoded, including first-use
+                // assets selected after START. Playback no longer needs this file.
+                try? FileManager.default.removeItem(at: url)
                 for rate in SweepRate.allCases {
                     engine.setSweepRate(rate)
                     XCTAssertEqual(engine.currentRate, rate)

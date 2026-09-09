@@ -49,7 +49,7 @@ public final class SweepScheduler: @unchecked Sendable {
     private var recentSpeakers: [String] = []
     private var lastSpeakerIndex: [String: Int] = [:]
     private let seed: UInt64
-    private var traversalSeed: UInt64
+    private var useCounts: [String: Int] = [:]
     private let usesProvenance: Bool
     private var orderCache: [SweepDirection: [SourceAsset]] = [:]
     // Hard limits for sentence-derived corpora. Never relaxed to fill a vocal slot.
@@ -61,7 +61,6 @@ public final class SweepScheduler: @unchecked Sendable {
         self.assets = assets.filter { !$0.assetID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         self.configuration = configuration
         self.seed = seed
-        self.traversalSeed = seed
         self.usesProvenance = assets.contains { $0.utteranceID != nil || $0.rightsRecordID == "VCTK-0.92-CCBY4" }
     }
 
@@ -76,7 +75,7 @@ public final class SweepScheduler: @unchecked Sendable {
         recentUtterances = []
         recentSpeakers = []
         lastSpeakerIndex = [:]
-        traversalSeed = seed
+        useCounts = [:]
         lastEventIndexByAssetID = [:]
         eventCount = 0
         lastPickedID = nil
@@ -107,20 +106,30 @@ public final class SweepScheduler: @unchecked Sendable {
         let start = startIndex(in: ordered)
 
         if usesProvenance {
-            // Advance through a seeded ring in the selected direction, with bounded
-            // stride variation. Source-file order can never reconstruct a sentence.
-            traversalSeed = traversalSeed &* 6_364_136_223_846_793_005 &+ 1
-            let stride = Int((traversalSeed >> 32) % 7)
+            // Prefer the least-used admissible asset; directional ring order breaks
+            // ties. A last-pick cursor plus short strides can bounce in a tiny
+            // region forever when direction changes. Fairness must be independent
+            // of that cursor, and survives direction changes with the cooldowns.
+            let fragments = Set(historyIDs.suffix(Self.fragmentCooldown))
+            let utterances = Set(recentUtterances)
+            let speakers = Set(recentSpeakers.suffix(Self.speakerCooldown))
+            var candidate: SourceAsset?
+            var minimumUses = Int.max
             for offset in 0..<ordered.count {
-                let asset = ordered[(start + stride + offset) % ordered.count]
-                guard let utterance = asset.utteranceID, !utterance.isEmpty,
+                let asset = ordered[(start + offset) % ordered.count]
+                let uses = useCounts[asset.assetID, default: 0]
+                guard uses < minimumUses,
+                      let utterance = asset.utteranceID, !utterance.isEmpty,
                       let speaker = asset.performerID, !speaker.isEmpty,
-                      !historyIDs.suffix(Self.fragmentCooldown).contains(asset.assetID),
-                      !recentUtterances.contains(utterance),
-                      !recentSpeakers.suffix(Self.speakerCooldown).contains(speaker)
+                      !fragments.contains(asset.assetID),
+                      !utterances.contains(utterance),
+                      !speakers.contains(speaker)
                 else { continue }
-                return .picked(recordPick(asset, relaxed: []))
+                candidate = asset
+                minimumUses = uses
+                if uses == 0 { break }
             }
+            if let candidate { return .picked(recordPick(candidate, relaxed: [])) }
             // Noise continues; do not violate source protections for an exhausted bank.
             return .emptyCorpus
         }
@@ -254,6 +263,7 @@ public final class SweepScheduler: @unchecked Sendable {
             recentUtterances.append(utterance)
             recentUtterances = Array(recentUtterances.suffix(Self.utteranceCooldown))
         }
+        useCounts[asset.assetID, default: 0] += 1
         lastPickedID = asset.assetID
         lastEventIndexByAssetID[asset.assetID] = eventCount
         historyIDs.append(asset.assetID)

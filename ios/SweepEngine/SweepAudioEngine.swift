@@ -31,6 +31,9 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private var nextSlotFrame: AVAudioFramePosition = 0
     private var renderStartedAt = Date()
     private var offlineRendering = false
+    private var preloadSeconds = 0.0
+    private var decodedBytes = 0
+    private var maximumSlotPreparationSeconds = 0.0
 
     private var running = false
     private var sweepRate: SweepRate = .default
@@ -67,6 +70,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
     public func load(_ loaded: LoadedCorpus) {
         queue.sync {
+            if running { stopLocked(deactivateSession: true) }
             corpus = loaded
             scheduler = SweepScheduler(assets: loaded.assets)
             convertedBufferCache.removeAll(keepingCapacity: false)
@@ -241,6 +245,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
     private func preloadSourcesLocked() throws {
         guard let format = graphFormat else { throw CaptureError.engineFormatUnavailable }
+        let started = Date()
         // Decode off the audio render thread, before playback starts. No file I/O
         // is allowed in the live scheduling deadline.
         for asset in corpus.assets {
@@ -249,6 +254,12 @@ public final class SweepAudioEngine: @unchecked Sendable {
             }
             _ = try cachedConvertedBufferLocked(assetID: asset.assetID, url: url, format: format)
         }
+        preloadSeconds = Date().timeIntervalSince(started)
+        decodedBytes = convertedBufferCache.values.reduce(0) {
+            $0 + Int($1.frameCapacity) * Int($1.format.channelCount) * MemoryLayout<Float>.size
+        }
+        maximumSlotPreparationSeconds = 0
+        notifyRuntime("Prepared \(convertedBufferCache.count) sources: \(decodedBytes) PCM bytes in \(preloadSeconds)s.")
     }
 
     private func installTimerLocked() {
@@ -283,6 +294,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
     private func scheduleSlotLocked(at frame: AVAudioFramePosition) {
         guard let format = graphFormat else { return }
+        let started = Date()
+        defer { maximumSlotPreparationSeconds = max(maximumSlotPreparationSeconds, Date().timeIntervalSince(started)) }
         switch scheduler.next(direction: direction) {
         case .emptyCorpus:
             return
@@ -386,6 +399,16 @@ public final class SweepAudioEngine: @unchecked Sendable {
                 .filter { ($0.renderTimeSeconds ?? 0) < Double(seconds) }
                 .map { $0.diagnosticJSONLine() }.joined(separator: "\n")
             try (lines + "\n").write(to: directory.appendingPathComponent("events.jsonl"), atomically: true, encoding: .utf8)
+            let diagnostics: [String: Any] = [
+                "available_assets": corpus.assets.filter { $0.isEligible(for: direction) }.count,
+                "decoded_source_count": convertedBufferCache.count,
+                "decoded_pcm_bytes": decodedBytes,
+                "preload_seconds": preloadSeconds,
+                "maximum_slot_preparation_seconds": maximumSlotPreparationSeconds,
+                "schedule_ahead_seconds": SweepTuning.scheduleAheadSeconds
+            ]
+            try JSONSerialization.data(withJSONObject: diagnostics, options: [.sortedKeys, .prettyPrinted])
+                .write(to: directory.appendingPathComponent("engine-diagnostics.json"))
         }
     }
 
@@ -718,7 +741,20 @@ public final class SweepAudioEngine: @unchecked Sendable {
         guard let handle = captureEventFileHandle,
               let data = (event.diagnosticJSONLine() + "\n").data(using: .utf8)
         else { return }
-        handle.write(data)
+        // Share the bounded capture writer queue; never write files on the
+        // scheduling queue. If storage stalls, fail capture instead of growing
+        // a backlog or delaying playback.
+        guard captureBackpressure.wait(timeout: .now()) == .success else {
+            queue.async { [weak self] in
+                self?.finishCaptureLocked(reason: .failed("Capture event writer overrun."))
+            }
+            return
+        }
+        let backpressure = captureBackpressure
+        captureWriteQueue.async {
+            defer { backpressure.signal() }
+            handle.write(data)
+        }
     }
 
     private func writeFullEventLogSnapshotLocked(nextTo captureURL: URL) {
@@ -728,7 +764,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
     }
 
     private func closeCaptureEventFileLocked() {
-        try? captureEventFileHandle?.close()
+        captureWriteQueue.sync { try? captureEventFileHandle?.close() }
         captureEventFileHandle = nil
     }
 
