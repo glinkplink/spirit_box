@@ -254,6 +254,9 @@ public final class SweepAudioEngine: @unchecked Sendable {
             }
             _ = try cachedConvertedBufferLocked(assetID: asset.assetID, url: url, format: format)
         }
+        // Build both cached ring directions before playback as well.
+        _ = scheduler.orderedEligibleAssets(for: .forward)
+        _ = scheduler.orderedEligibleAssets(for: .reverse)
         preloadSeconds = Date().timeIntervalSince(started)
         decodedBytes = convertedBufferCache.values.reduce(0) {
             $0 + Int($1.frameCapacity) * Int($1.format.channelCount) * MemoryLayout<Float>.size
@@ -352,8 +355,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
                 offlineRendering = false
             }
             guard let format = graphFormat else { throw CaptureError.engineFormatUnavailable }
-            try preloadSourcesLocked()
             scheduler = SweepScheduler(assets: corpus.assets, seed: seed)
+            try preloadSourcesLocked()
             jitterSeed = seed
             noiseState.reset(seed: UInt32(truncatingIfNeeded: seed))
             nextSlotFrame = 0

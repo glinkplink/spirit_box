@@ -16,6 +16,15 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
                 "median": v[v.count / 2], "p95": v[Int(Double(v.count - 1) * 0.95)], "max": v.last!]
     }
     var reports: [String: Any] = [:]
+    var sourceLevels: [(id: String, dbfs: Double)] = []
+    for asset in assets {
+        let source = try FragmentBufferFactory.loadConvertedSource(fileURL: root.appendingPathComponent(asset.relativePath), outputFormat: format)
+        sourceLevels.append((asset.assetID, db(rms(source, count: Int(source.frameLength)))))
+    }
+    reports["source_rms_dbfs"] = distribution(sourceLevels.map(\.dbfs))
+    reports["quietest_sources"] = sourceLevels.sorted { $0.dbfs < $1.dbfs }.prefix(10).map {
+        ["asset_id": $0.id, "rms_dbfs": $0.dbfs] as [String: Any]
+    }
     let noise = ProceduralNoiseState()
     let noiseRMS = sqrt((0..<48000).reduce(0.0) { sum, _ in
         let x = Double(noise.nextSample() * SweepTuning.staticGain)
@@ -48,7 +57,12 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
                         maximumPeak = max(maximumPeak, abs(sample))
                     }
                 }
-                reverseDifferences.append(abs(pair[0] - pair[1]))
+                let difference = abs(pair[0] - pair[1])
+                // A direction-only change must not double/halve window energy.
+                guard difference < 3 else {
+                    throw NSError(domain: "level-audit: reverse level changed by >=3 dB for \(asset.assetID)", code: 1)
+                }
+                reverseDifferences.append(difference)
             }
         }
         reports[String(rate.milliseconds)] = ["active_vocal_rms_dbfs": distribution(levels),

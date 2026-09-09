@@ -16,7 +16,11 @@ class DiversityTests(unittest.TestCase):
 
     def test_small_cycle_rejected_even_when_cooldowns_allow_it(self):
         # 85 sources can satisfy all three cooldowns yet starve 395 sources.
+        self.assets[84]['performer_id'] = 'p2'  # Keep cooldowns across the cycle seam.
         events = (self.assets[:85] * 59)[:5000]
+        for i, event in enumerate(events):
+            for field, window in [('asset_id', 64), ('utterance_id', 32), ('performer_id', 2)]:
+                self.assertNotIn(event[field], [e[field] for e in events[max(0, i-window):i]])
         with self.assertRaisesRegex(AssertionError, 'Corpus starvation'):
             diversity(events, self.assets)
 
