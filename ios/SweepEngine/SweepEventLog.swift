@@ -2,6 +2,14 @@ import Foundation
 
 /// One scheduled fragment. Diagnostic only — no transcription or interpretation.
 public struct SweepEvent: Identifiable, Equatable, Sendable {
+    public var utteranceID: String? = nil
+    public var sourceFile: String? = nil
+    public var sourceStartFrame: Int? = nil
+    public var sourceFrameCount: Int? = nil
+    public var eventsSinceSpeakerUse: Int? = nil
+    public var renderTimeSeconds: Double? = nil
+    public var cropOffsetFrames: Int? = nil
+    public var emittedFrameCount: Int? = nil
     public var id: UUID
     public var timestamp: Date
     public var assetID: String
@@ -57,6 +65,11 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
             relaxedConstraints: pick.relaxedConstraints,
             decisionSummary: pick.decisionSummary
         )
+        utteranceID = pick.asset.utteranceID
+        sourceFile = pick.asset.sourceFile
+        sourceStartFrame = pick.asset.sourceStartFrame
+        sourceFrameCount = pick.asset.sourceFrameCount
+        eventsSinceSpeakerUse = pick.eventsSinceSpeakerUse
     }
 
     public var debugLine: String {
@@ -75,6 +88,14 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
             "relaxed_constraints": relaxedConstraints.map(\.rawValue),
             "decision_summary": decisionSummary,
         ]
+        if let utteranceID { payload["utterance_id"] = utteranceID }
+        if let sourceFile { payload["source_file"] = sourceFile }
+        if let sourceStartFrame { payload["source_start_frame"] = sourceStartFrame }
+        if let sourceFrameCount { payload["source_frame_count"] = sourceFrameCount }
+        if let eventsSinceSpeakerUse { payload["events_since_speaker_use"] = eventsSinceSpeakerUse }
+        if let renderTimeSeconds { payload["render_time_seconds"] = renderTimeSeconds }
+        if let cropOffsetFrames { payload["crop_offset_frames"] = cropOffsetFrames }
+        if let emittedFrameCount { payload["emitted_frame_count"] = emittedFrameCount }
         if let performerID { payload["performer_id"] = performerID }
         if let voiceFamily { payload["voice_family"] = voiceFamily }
         if let phoneticFamily { payload["phonetic_family"] = phoneticFamily }

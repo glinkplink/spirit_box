@@ -172,6 +172,10 @@ final class HarnessViewModel: ObservableObject {
         startCapture(seconds: EngineOutputCaptureLocator.defaultDurationSeconds)
     }
 
+    func startShortCapture(seconds: Int) {
+        startCapture(seconds: seconds)
+    }
+
     func startTwentyMinuteCapture() {
         startCapture(seconds: EngineOutputCaptureLocator.manualEvaluationDurationSeconds)
     }

@@ -54,3 +54,37 @@ jobs:
       - name: Build iOS target and run unit tests
         if: needs.classify-changes.outputs.ios_relevant == 'true'
         run: ./scripts/ci-ios-test.sh
+
+  render-final-mix:
+    needs: classify-changes
+    if: needs.classify-changes.outputs.ios_relevant == 'true'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render the actual app engine (30 seconds first)
+        run: |
+          ./scripts/render-sweep.sh ios/Phase1 build/listening-30s 30 200 forward 12648430
+          python3 tools/check_sweep_render.py build/listening-30s
+          build/render-sweep/render-sweep ios/Phase1 build/listening-60s 60 200 forward 12648430
+          python3 tools/check_sweep_render.py build/listening-60s
+          python3 tools/check_sweep_render.py build/listening-30s --compare-prefix build/listening-60s
+          for rate in 75 125 300; do
+            build/render-sweep/render-sweep ios/Phase1 "build/rate-${rate}" 30 "$rate" forward 12648430
+            python3 tools/check_sweep_render.py "build/rate-${rate}"
+          done
+          build/render-sweep/render-sweep ios/Phase1 build/reverse-30s 30 200 reverse 12648430
+          python3 tools/check_sweep_render.py build/reverse-30s
+          SPIRIT_BOX_LEVEL_AUDIT=1 build/render-sweep/render-sweep ios/Phase1 build/listening-2min 120 200 forward 12648430
+          python3 tools/check_sweep_render.py build/listening-2min
+          build/render-sweep/render-sweep ios/Phase1 build/listening-12min 720 300 forward 1234
+          python3 tools/check_sweep_render.py build/listening-12min
+      - name: Upload real rendered mix and source traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: actual-engine-listening-samples
+          path: |
+            build/listening-*/
+            build/rate-*/
+            build/reverse-*/
+          if-no-files-found: error

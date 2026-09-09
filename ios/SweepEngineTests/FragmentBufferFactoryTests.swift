@@ -72,4 +72,89 @@ final class FragmentBufferFactoryTests: XCTestCase {
         let cropped = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 0)
         XCTAssertEqual(Int(cropped.frameLength), 7_200)
     }
+    func testFinalVocalSlotsAreDwellSizedFiniteFadedAndBounded() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let source = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 9600))
+        source.frameLength = 9600
+        let input = try XCTUnwrap(source.floatChannelData)[0]
+        for i in 0..<9600 { input[i] = Float(sin(Double(i) * 0.12) * 4) }
+        let asset = SourceAsset(assetID: "test", durationMs: 200)
+        for rate in SweepRate.allCases {
+            for direction in SweepDirection.allCases {
+                let buffer = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
+                    sweepRate: rate, direction: direction, startJitterFraction: 0.5)
+                XCTAssertEqual(Int(buffer.frameLength), rate.milliseconds * 48)
+                let data = try XCTUnwrap(buffer.floatChannelData)[0]
+                XCTAssertEqual(data[0], 0, accuracy: 0.00001)
+                XCTAssertEqual(data[Int(buffer.frameLength) - 1], 0, accuracy: 0.00001)
+                for i in 0..<Int(buffer.frameLength) {
+                    XCTAssertTrue(data[i].isFinite)
+                    XCTAssertLessThanOrEqual(abs(data[i]), SweepTuning.vocalPeakLimit + 0.00001)
+                }
+            }
+        }
+        XCTAssertLessThan((SweepTuning.vocalPeakLimit * SweepTuning.vocalGain + SweepTuning.staticGain) * SweepTuning.outputGain, 1)
+    }
+
+    func testRadioShapeAttenuatesDCAndUltrasonicContent() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        func energy(hz: Double) throws -> Double {
+            let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 48000))
+            buffer.frameLength = 48000
+            let samples = try XCTUnwrap(buffer.floatChannelData)[0]
+            for i in 0..<48000 { samples[i] = Float(0.1 * cos(2 * Double.pi * hz * Double(i) / 48000)) }
+            FragmentBufferFactory.applyRadioShape(buffer, variation: 0.5)
+            return (24000..<48000).reduce(0) { $0 + Double(samples[$1] * samples[$1]) } / 24000
+        }
+        let mid = try energy(hz: 1000)
+        XCTAssertLessThan(try energy(hz: 0), mid * 0.01)
+        XCTAssertLessThan(try energy(hz: 18000), mid * 0.2)
+    }
+
+    func testLiveRateAndDirectionChangesKeepTheSameEngineRunning() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 48000))
+        buffer.frameLength = 48000
+        let samples = try XCTUnwrap(buffer.floatChannelData)[0]
+        for i in 0..<48000 { samples[i] = Float(sin(Double(i) * 0.13) * 0.1) }
+        let url = root.appendingPathComponent("fixture.wav")
+        do {
+            let file = try AVAudioFile(forWriting: url, settings: format.settings)
+            try file.write(from: buffer)
+        }
+        let engine = SweepAudioEngine()
+        engine.load(LoadedCorpus(assets: (0..<3).map { SourceAsset(assetID: "test-\($0)", durationMs: 1000, relativePath: "fixture.wav") },
+            skippedMalformedCount: 0, source: .bundleDevFixtures, label: "test", isDevFixture: true, rootURL: root))
+        engine.setSweepRate(.ms75)
+        let changed = expectation(description: "New control values reach a vocal slot without restart")
+        var firstTime: Double?
+        engine.onEvent = { event in
+            if firstTime == nil {
+                firstTime = event.renderTimeSeconds
+                // Every source must already be decoded, including first-use
+                // assets selected after START. Playback no longer needs this file.
+                try? FileManager.default.removeItem(at: url)
+                for rate in SweepRate.allCases {
+                    engine.setSweepRate(rate)
+                    XCTAssertEqual(engine.currentRate, rate)
+                    XCTAssertTrue(engine.isRunning)
+                }
+                engine.setDirection(.reverse)
+            } else if event.sweepRate == .ms300 && event.direction == .reverse {
+                XCTAssertLessThanOrEqual((event.renderTimeSeconds ?? 10) - (firstTime ?? 0), 0.34)
+                XCTAssertTrue(engine.isRunning)
+                engine.onEvent = nil
+                changed.fulfill()
+            }
+        }
+        defer { engine.onEvent = nil; engine.stop() }
+        try engine.start()
+        wait(for: [changed], timeout: 3)
+        engine.stop()
+        XCTAssertFalse(engine.isRunning)
+    }
+
 }

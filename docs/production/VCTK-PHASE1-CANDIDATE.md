@@ -27,7 +27,7 @@ For VCTK, each asset is a **200–240 ms interior crop** from one mic1 utterance
 Reproducible builds land under `build/vctk-production-candidate-*/` (never committed). Typical contents:
 
 - `SpiritBoxPhase1Corpus.zip` — import into harness via **Upload corpus**
-- `LISTEN-FIRST.mp3` — 2-minute diagnostic preview (start here)
+- `LISTEN-FIRST.mp3` — optional source diagnostic; not renderer acceptance audio
 - `session-20min-*.mp3` — three 20-minute preview seeds
 - `fragment-audition.wav` + `recognition-review.csv` — dry asset review
 - `provenance.json`, `rights-ledger.json`, `validation.json`
@@ -44,14 +44,22 @@ python3 tools/build_vctk_candidate.py /path/to/vctk/source /path/to/new/output
 
 Refuses to overwrite an existing output folder. Source FLACs remain untouched.
 
-## Release gates (unchanged)
+## Renderer experiment
+
+The renderer integration task uses the candidate through the actual app engine,
+starting with 30–60 seconds, then 2–5 minutes, then eventual endurance. Dry/jumbled
+voice listening is not a prerequisite. The integration branch bundles this candidate
+for testing; this does not constitute release or human audio-quality approval.
+See [renderer workflow and audit](../engineering/VCTK_RENDERER_INTEGRATION.md).
+
+## Release gates
 
 Technical intake PASS does **not** pass the product audio gate.
 
-1. **Recognition review** — audit `fragment-audition.wav`; mark `REMOVE` in `recognition-review.csv` for reliably recognizable words/phrases; rebuild if culls are material.
+1. **Rendered recognition review** — listen to the actual sweep mix; trace troublesome moments to source windows. Use the dry audition only to diagnose flagged assets; rebuild if culls are material.
 2. **Physical-device gate** — import corpus on iPhone; 15–20 minutes at low/normal volume, multiple sweep rates, forward and reverse; speaker and headphones.
 3. **Attribution** — integrate customer-visible CC BY 4.0 attribution before App Store release.
-4. **Bundle decision** — replace `ios/Phase1/` only after gates pass.
+4. **Release decision** — experimental bundling is permitted for this integration; production audio approval still requires the listening gates.
 
 ## Commissioned four-performer path
 

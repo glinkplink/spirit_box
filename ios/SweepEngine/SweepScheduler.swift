@@ -23,6 +23,7 @@ public struct SchedulePick: Equatable, Sendable {
     public var asset: SourceAsset
     public var relaxedConstraints: [RelaxedConstraint]
     public var eventsSincePreviousUse: Int?
+    public var eventsSinceSpeakerUse: Int? = nil
     public var decisionSummary: String
 }
 
@@ -44,10 +45,23 @@ public final class SweepScheduler: @unchecked Sendable {
     private var lastEventIndexByAssetID: [String: Int] = [:]
     private var eventCount = 0
     private var lastPickedID: String?
+    private var recentUtterances: [String] = []
+    private var recentSpeakers: [String] = []
+    private var lastSpeakerIndex: [String: Int] = [:]
+    private let seed: UInt64
+    private var useCounts: [String: Int] = [:]
+    private let usesProvenance: Bool
+    private var orderCache: [SweepDirection: [SourceAsset]] = [:]
+    // Hard limits for sentence-derived corpora. Never relaxed to fill a vocal slot.
+    public static let fragmentCooldown = 64
+    public static let utteranceCooldown = 32
+    public static let speakerCooldown = 2
 
-    public init(assets: [SourceAsset], configuration: SchedulerConfiguration = .default) {
+    public init(assets: [SourceAsset], configuration: SchedulerConfiguration = .default, seed: UInt64 = 0xC0FFEE) {
         self.assets = assets.filter { !$0.assetID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         self.configuration = configuration
+        self.seed = seed
+        self.usesProvenance = assets.contains { $0.utteranceID != nil || $0.rightsRecordID == "VCTK-0.92-CCBY4" }
     }
 
     public var acceptedAssetCount: Int { assets.count }
@@ -58,15 +72,28 @@ public final class SweepScheduler: @unchecked Sendable {
 
     public func resetHistory() {
         historyIDs = []
+        recentUtterances = []
+        recentSpeakers = []
+        lastSpeakerIndex = [:]
+        useCounts = [:]
         lastEventIndexByAssetID = [:]
         eventCount = 0
         lastPickedID = nil
     }
 
     public func orderedEligibleAssets(for direction: SweepDirection) -> [SourceAsset] {
+        if let cached = orderCache[direction] { return cached }
         let eligible = assets.filter { $0.isEligible(for: direction) }
-        let sorted = eligible.sorted { $0.assetID < $1.assetID }
-        return direction == .forward ? sorted : Array(sorted.reversed())
+        let sorted = eligible.sorted {
+            if usesProvenance {
+                let left = stableOrder($0.assetID), right = stableOrder($1.assetID)
+                if left != right { return left < right }
+            }
+            return $0.assetID < $1.assetID
+        }
+        let ordered = direction == .forward ? sorted : Array(sorted.reversed())
+        orderCache[direction] = ordered
+        return ordered
     }
 
     public func next(direction: SweepDirection) -> ScheduleOutcome {
@@ -77,6 +104,35 @@ public final class SweepScheduler: @unchecked Sendable {
 
         let last = lastPickedID.flatMap { id in assets.first { $0.assetID == id } }
         let start = startIndex(in: ordered)
+
+        if usesProvenance {
+            // Prefer the least-used admissible asset; directional ring order breaks
+            // ties. A last-pick cursor plus short strides can bounce in a tiny
+            // region forever when direction changes. Fairness must be independent
+            // of that cursor, and survives direction changes with the cooldowns.
+            let fragments = Set(historyIDs.suffix(Self.fragmentCooldown))
+            let utterances = Set(recentUtterances)
+            let speakers = Set(recentSpeakers.suffix(Self.speakerCooldown))
+            var candidate: SourceAsset?
+            var minimumUses = Int.max
+            for offset in 0..<ordered.count {
+                let asset = ordered[(start + offset) % ordered.count]
+                let uses = useCounts[asset.assetID, default: 0]
+                guard uses < minimumUses,
+                      let utterance = asset.utteranceID, !utterance.isEmpty,
+                      let speaker = asset.performerID, !speaker.isEmpty,
+                      !fragments.contains(asset.assetID),
+                      !utterances.contains(utterance),
+                      !speakers.contains(speaker)
+                else { continue }
+                candidate = asset
+                minimumUses = uses
+                if uses == 0 { break }
+            }
+            if let candidate { return .picked(recordPick(candidate, relaxed: [])) }
+            // Noise continues; do not violate source protections for an exhausted bank.
+            return .emptyCorpus
+        }
 
         let passes: [[RelaxedConstraint]] = [
             [],
@@ -99,6 +155,11 @@ public final class SweepScheduler: @unchecked Sendable {
         }
 
         return .picked(recordPick(ordered[start], relaxed: RelaxedConstraint.allCases))
+    }
+
+    private func stableOrder(_ id: String) -> UInt64 {
+        // Swift Hasher is process-randomized; FNV is stable across devices/runs.
+        id.utf8.reduce(14_695_981_039_346_656_037 ^ seed) { ($0 ^ UInt64($1)) &* 1_099_511_628_211 }
     }
 
     private func startIndex(in ordered: [SourceAsset]) -> Int {
@@ -192,15 +253,28 @@ public final class SweepScheduler: @unchecked Sendable {
             summary = "relaxed \(names)"
         }
 
+        let speakerDistance = asset.performerID.flatMap { lastSpeakerIndex[$0] }.map { eventCount - $0 }
+        if let speaker = asset.performerID {
+            lastSpeakerIndex[speaker] = eventCount
+            recentSpeakers.append(speaker)
+            recentSpeakers = Array(recentSpeakers.suffix(Self.speakerCooldown))
+        }
+        if let utterance = asset.utteranceID {
+            recentUtterances.append(utterance)
+            recentUtterances = Array(recentUtterances.suffix(Self.utteranceCooldown))
+        }
+        useCounts[asset.assetID, default: 0] += 1
         lastPickedID = asset.assetID
         lastEventIndexByAssetID[asset.assetID] = eventCount
         historyIDs.append(asset.assetID)
+        historyIDs = Array(historyIDs.suffix(max(Self.fragmentCooldown, configuration.recentExclusionWindow)))
         eventCount += 1
 
         return SchedulePick(
             asset: asset,
             relaxedConstraints: relaxed,
             eventsSincePreviousUse: sincePrevious,
+            eventsSinceSpeakerUse: speakerDistance,
             decisionSummary: summary
         )
     }

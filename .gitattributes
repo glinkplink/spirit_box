@@ -1,0 +1,3 @@
+# Preserve publisher notices byte-for-byte, including their original whitespace.
+ios/Phase1/UPSTREAM_README.txt -whitespace
+ios/Phase1/speaker-info.txt -whitespace

@@ -1,16 +1,19 @@
-# Bundled Phase 1 corpus (recording 105 pilot)
+# VCTK renderer experiment
 
-`manifest.json` and `rec105_*.wav` are bundled into the harness app so TestFlight builds load the corpus without copying files on device.
+1,200 PCM24 mono 48 kHz windows: 200 each from p225, p226, p227, p230,
+p234 and p237. Source: CSTR VCTK 0.92, mic1 only.
 
-This bank is a single-recording human pilot. Isolated-fragment recognition review and the physical-device listening gate have not run.
+Original license and publisher notices are preserved byte-for-byte in
+license_text.txt, UPSTREAM_README.txt, speaker-info.txt and ATTRIBUTION.txt.
+See ATTRIBUTION.txt for authors, DOI, license link and modifications.
 
-Regenerate from `recordings/New Recording 105.m4a`:
+The candidate audio is unchanged: one 200–240 ms interior window per utterance,
+DC removal, 100–10000 Hz filtering, bounded gain and 6 ms fades. Runtime adds
+narrow-band filtering, fades, bounded gain variation and procedural static.
+provenance.json retains original/output hashes and preparation measurements.
+manifest.json carries speaker, original utterance/file, crop start/count (48 kHz
+frames), duration and unique asset ID into the scheduler and event log.
 
-```bash
-.venv-kokoro/bin/python tools/render_recording_sweep.py \
-  'recordings/New Recording 105.m4a' build/recording-105-new
-cp -a build/recording-105-new/SpiritBoxPhase1Corpus/. ios/Phase1/
-```
-
-Loader order: Documents corpus uploaded for the current bundled identity → this folder → leftover Documents only if no bundle → `DevFixtures`.
-A leftover Documents copy from an older bank is ignored after this bundle ships. Upload corpus still overrides this bundle until the next bundled bank change.
+This is an experimental listening bank, not human audio-quality approval.
+Source masters remain in recordings/vctk-0.92; preparation output is under
+build/vctk-renderer-integration. No transcripts enter the runtime corpus.

@@ -43,6 +43,7 @@ is_ios_relevant_path() {
   case "${file}" in
     ios/*) return 0 ;;
     scripts/ci-ios-test.sh) return 0 ;;
+    scripts/render-sweep.sh|tools/render_sweep/*|tools/check_sweep_render.py) return 0 ;;
     assets/audio/*) return 0 ;;
     .github/workflows/ios-audio-harness.yml) return 0 ;;
   esac
