@@ -112,18 +112,44 @@ final class FragmentBufferFactoryTests: XCTestCase {
     }
 
     func testLiveRateAndDirectionChangesKeepTheSameEngineRunning() throws {
-        let engine = SweepAudioEngine()
-        // Noise-only graph exercises the actual start/control/stop lifecycle.
-        try engine.start()
-        defer { engine.stop() }
-        for rate in SweepRate.allCases {
-            engine.setSweepRate(rate)
-            XCTAssertEqual(engine.currentRate, rate)
-            XCTAssertTrue(engine.isRunning)
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 48000))
+        buffer.frameLength = 48000
+        let samples = try XCTUnwrap(buffer.floatChannelData)[0]
+        for i in 0..<48000 { samples[i] = Float(sin(Double(i) * 0.13) * 0.1) }
+        let url = root.appendingPathComponent("fixture.wav")
+        do {
+            let file = try AVAudioFile(forWriting: url, settings: format.settings)
+            try file.write(from: buffer)
         }
-        engine.setDirection(.reverse)
-        XCTAssertEqual(engine.currentDirection, .reverse)
-        XCTAssertTrue(engine.isRunning)
+        let engine = SweepAudioEngine()
+        engine.load(LoadedCorpus(assets: [SourceAsset(assetID: "test", durationMs: 1000, relativePath: "fixture.wav")],
+            skippedMalformedCount: 0, source: .bundleDevFixtures, label: "test", isDevFixture: true, rootURL: root))
+        engine.setSweepRate(.ms75)
+        let changed = expectation(description: "New control values reach a vocal slot without restart")
+        var firstTime: Double?
+        engine.onEvent = { event in
+            if firstTime == nil {
+                firstTime = event.renderTimeSeconds
+                for rate in SweepRate.allCases {
+                    engine.setSweepRate(rate)
+                    XCTAssertEqual(engine.currentRate, rate)
+                    XCTAssertTrue(engine.isRunning)
+                }
+                engine.setDirection(.reverse)
+            } else if event.sweepRate == .ms300 && event.direction == .reverse {
+                XCTAssertLessThanOrEqual((event.renderTimeSeconds ?? 10) - (firstTime ?? 0), 0.34)
+                XCTAssertTrue(engine.isRunning)
+                engine.onEvent = nil
+                changed.fulfill()
+            }
+        }
+        defer { engine.onEvent = nil; engine.stop() }
+        try engine.start()
+        wait(for: [changed], timeout: 3)
         engine.stop()
         XCTAssertFalse(engine.isRunning)
     }

@@ -282,6 +282,12 @@ final class SweepSchedulerTests: XCTestCase {
         XCTAssertEqual(scheduler.next(direction: .reverse), .emptyCorpus)
     }
 
+    func testLegacyVCTKManifestCannotBypassMissingProvenance() {
+        let scheduler = SweepScheduler(assets: [SourceAsset(assetID: "old-vctk", performerID: "p225",
+            rightsRecordID: "VCTK-0.92-CCBY4")])
+        XCTAssertEqual(scheduler.next(direction: .forward), .emptyCorpus)
+    }
+
     func testProvenanceSurvivesJSONAndEventLogging() throws {
         let original = SourceAsset(assetID: "a", utteranceID: "p225_001", sourceFile: "p225_001_mic1.flac",
                                    sourceStartFrame: 4800, sourceFrameCount: 9600, performerID: "p225")

@@ -62,7 +62,7 @@ public final class SweepScheduler: @unchecked Sendable {
         self.configuration = configuration
         self.seed = seed
         self.traversalSeed = seed
-        self.usesProvenance = assets.contains { $0.utteranceID != nil }
+        self.usesProvenance = assets.contains { $0.utteranceID != nil || $0.rightsRecordID == "VCTK-0.92-CCBY4" }
     }
 
     public var acceptedAssetCount: Int { assets.count }

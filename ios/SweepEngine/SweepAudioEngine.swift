@@ -332,7 +332,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
             defer {
                 fragmentPlayer.stop()
                 engine.stop()
-                engine.disableManualRenderingMode()
+                if engine.isInManualRenderingMode { engine.disableManualRenderingMode() }
                 detachGraphLocked()
                 offlineRendering = false
             }
