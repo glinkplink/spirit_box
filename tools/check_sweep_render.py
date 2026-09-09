@@ -55,4 +55,15 @@ def check(directory):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directory', type=Path)
-    check(parser.parse_args().directory)
+    parser.add_argument('--compare-prefix', type=Path, help='Require identical seeded PCM/events over the shorter duration')
+    args = parser.parse_args()
+    check(args.directory)
+    if args.compare_prefix:
+        with wave.open(str(args.directory / 'sweep.wav'), 'rb') as first, wave.open(str(args.compare_prefix / 'sweep.wav'), 'rb') as second:
+            count = min(first.getnframes(), second.getnframes())
+            assert first.getparams()[:3] == second.getparams()[:3]
+            assert first.readframes(count) == second.readframes(count), 'Seeded PCM prefix differs: offline scheduling was not reproducible'
+        a = (args.directory / 'events.jsonl').read_text().splitlines()
+        b = (args.compare_prefix / 'events.jsonl').read_text().splitlines()
+        assert a[:min(len(a),len(b))] == b[:min(len(a),len(b))], 'Seeded event prefix differs'
+        print('Seeded PCM and event prefix: identical')

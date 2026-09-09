@@ -168,6 +168,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         running = true
         scheduleThroughLocked(currentFrame: 0)
         do {
+            engine.prepare()
             try engine.start()
             fragmentPlayer.play()
             installTimerLocked()
@@ -348,12 +349,21 @@ public final class SweepAudioEngine: @unchecked Sendable {
             let writer = EngineOutputCaptureWriter()
             try writer.start(url: directory.appendingPathComponent("sweep.wav"), format: format, durationSeconds: seconds)
             defer { writer.stop() }
+            let target = AVAudioFramePosition(Double(seconds) * format.sampleRate)
+            // AVAudioPlayerNode internally prepares scheduled buffers asynchronously.
+            // A 40 ms LIVE lookahead is not 40 ms of wall time in fast offline mode.
+            // Queue the complete offline timeline before rendering, using exactly
+            // the live slot scheduler/DSP. Live playback remains bounded-lookahead.
+            while nextSlotFrame < target {
+                let frame = nextSlotFrame
+                nextSlotFrame += AVAudioFramePosition(format.sampleRate * sweepRate.timeInterval)
+                scheduleSlotLocked(at: frame)
+            }
+            engine.prepare()
             try engine.start()
             fragmentPlayer.play()
-            let target = AVAudioFramePosition(Double(seconds) * format.sampleRate)
             var retries = 0
             while engine.manualRenderingSampleTime < target {
-                scheduleThroughLocked(currentFrame: engine.manualRenderingSampleTime)
                 let count = AVAudioFrameCount(min(512, target - engine.manualRenderingSampleTime))
                 let output = engine.manualRenderingFormat
                 guard let buffer = AVAudioPCMBuffer(pcmFormat: output, frameCapacity: count) else {

@@ -140,7 +140,11 @@ python3 tools/check_sweep_render.py build/first-render-30s
 
 Listen to `sweep.wav`; inspect adjacent `events.jsonl`. Each command compiles the
 same `ios/SweepEngine/*.swift` files and renders the same AVAudioEngine graph,
-scheduler, buffer factory and mix. It refuses an existing output directory.
+scheduler, buffer factory and mix. It refuses an existing output directory. Offline mode prepares the complete vocal
+slot timeline before fast rendering, because the player's asynchronous scheduling
+cannot use wall-time lookahead when the audio clock runs faster than real time.
+The slot scheduler, processing and audio graph remain shared with live playback;
+CI requires identical PCM/event prefixes for identical seeds.
 Use `120` or `300` seconds for the next iteration and `900` or `1200` for eventual
 endurance. Linux cannot execute AVAudioEngine; it must not substitute Python audio
 and label it the app's renderer.
