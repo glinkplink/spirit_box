@@ -28,6 +28,9 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private var convertedBufferCache: [String: AVAudioPCMBuffer] = [:]
     private var captureEventFileHandle: FileHandle?
     private var jitterSeed: UInt64 = 0xC0FFEE
+    private var nextSlotFrame: AVAudioFramePosition = 0
+    private var renderStartedAt = Date()
+    private var offlineRendering = false
 
     private var running = false
     private var sweepRate: SweepRate = .default
@@ -72,16 +75,15 @@ public final class SweepAudioEngine: @unchecked Sendable {
     public func setSweepRate(_ rate: SweepRate) {
         queue.sync {
             sweepRate = rate
-            if running {
-                installTimerLocked()
-            }
+            // The next audio-clock slot reads this value; no engine restart,
+            // timer reset, or additional queued old-rate buffers.
         }
     }
 
     public func setDirection(_ direction: SweepDirection) {
         queue.sync {
             self.direction = direction
-            scheduler.resetTraversal()
+            // Keep the cursor: reverse traversal from the current source position.
         }
     }
 
@@ -90,7 +92,12 @@ public final class SweepAudioEngine: @unchecked Sendable {
             if running {
                 stopLocked(deactivateSession: false)
             }
-            try startLocked()
+            do {
+                try startLocked()
+            } catch {
+                stopLocked(deactivateSession: true)
+                throw error
+            }
         }
     }
 
@@ -147,16 +154,27 @@ public final class SweepAudioEngine: @unchecked Sendable {
     }
 
     private func startLocked() throws {
+        #if os(iOS)
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playback, mode: .default, options: [])
         try session.setActive(true)
+        #endif
 
         attachGraphLocked()
 
-        try engine.start()
-        fragmentPlayer.play()
+        try preloadSourcesLocked()
+        nextSlotFrame = 0
+        renderStartedAt = Date()
         running = true
-        installTimerLocked()
+        scheduleThroughLocked(currentFrame: 0)
+        do {
+            try engine.start()
+            fragmentPlayer.play()
+            installTimerLocked()
+        } catch {
+            stopLocked(deactivateSession: true)
+            throw error
+        }
 
         if corpus.assets.isEmpty {
             notifyRuntime("Zero-asset corpus: noise bed only. No fragments will be scheduled.")
@@ -180,9 +198,11 @@ public final class SweepAudioEngine: @unchecked Sendable {
         engine.reset()
         running = false
 
+        #if os(iOS)
         if deactivateSession {
             try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         }
+        #endif
     }
 
     private func attachGraphLocked() {
@@ -193,7 +213,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         graphFormat = format
         noiseState.reset()
 
-        let noise = ProceduralNoiseSource.makeNode(format: format, state: noiseState, amplitude: 0.045)
+        let noise = ProceduralNoiseSource.makeNode(format: format, state: noiseState, amplitude: SweepTuning.staticGain)
         noiseNode = noise
         fragmentPlayer = AVAudioPlayerNode()
 
@@ -201,8 +221,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
         engine.attach(fragmentPlayer)
         engine.connect(noise, to: engine.mainMixerNode, format: format)
         engine.connect(fragmentPlayer, to: engine.mainMixerNode, format: format)
-        fragmentPlayer.volume = 0.88
-        engine.mainMixerNode.outputVolume = 0.82
+        fragmentPlayer.volume = SweepTuning.vocalGain
+        engine.mainMixerNode.outputVolume = SweepTuning.outputGain
     }
 
     private func detachGraphLocked() {
@@ -217,67 +237,144 @@ public final class SweepAudioEngine: @unchecked Sendable {
         }
     }
 
+    private func preloadSourcesLocked() throws {
+        guard let format = graphFormat else { throw CaptureError.engineFormatUnavailable }
+        // Decode off the audio render thread, before playback starts. No file I/O
+        // is allowed in the live scheduling deadline.
+        for asset in corpus.assets {
+            guard let url = CorpusLoader.fileURL(for: asset, root: corpus.rootURL) else {
+                throw FragmentBufferFactory.FragmentError.emptyFile(asset.assetID)
+            }
+            _ = try cachedConvertedBufferLocked(assetID: asset.assetID, url: url, format: format)
+        }
+    }
+
     private func installTimerLocked() {
         timer?.cancel()
         let source = DispatchSource.makeTimerSource(queue: queue)
-        let interval = sweepRate.timeInterval
-        source.schedule(deadline: .now(), repeating: interval, leeway: .milliseconds(2))
+        source.schedule(deadline: .now(), repeating: .milliseconds(5), leeway: .milliseconds(1))
         source.setEventHandler { [weak self] in
-            self?.tickLocked()
+            guard let self, self.running,
+                  let time = self.fragmentPlayer.lastRenderTime,
+                  let playerTime = self.fragmentPlayer.playerTime(forNodeTime: time) else { return }
+            self.scheduleThroughLocked(currentFrame: playerTime.sampleTime)
+            self.updateCaptureElapsedLocked()
         }
         source.resume()
         timer = source
     }
 
-    private func tickLocked() {
-        guard running else { return }
-        updateCaptureElapsedLocked()
+    private func scheduleThroughLocked(currentFrame: AVAudioFramePosition) {
+        guard let format = graphFormat else { return }
+        let ahead = AVAudioFramePosition(format.sampleRate * SweepTuning.scheduleAheadSeconds)
+        if nextSlotFrame < currentFrame {
+            // Never enqueue a burst of stale fragments after a scheduling stall.
+            notifyRuntime("Vocal scheduling underrun at frame \(currentFrame); static continued.")
+            nextSlotFrame = currentFrame + ahead
+        }
+        while nextSlotFrame <= currentFrame + ahead {
+            let frame = nextSlotFrame
+            nextSlotFrame += AVAudioFramePosition(format.sampleRate * sweepRate.timeInterval)
+            scheduleSlotLocked(at: frame)
+        }
+    }
 
+    private func scheduleSlotLocked(at frame: AVAudioFramePosition) {
+        guard let format = graphFormat else { return }
         switch scheduler.next(direction: direction) {
         case .emptyCorpus:
             return
         case .picked(let pick):
-            playLocked(pick)
-            let event = SweepEvent(pick: pick, rate: sweepRate, direction: direction, timestamp: Date())
+            guard let converted = convertedBufferCache[pick.asset.assetID] else {
+                notifyRuntime("No decoded source for \(pick.asset.assetID)")
+                return
+            }
+            let jitter = nextJitterLocked()
+            let bounds = FragmentBufferFactory.cropBounds(
+                converted, asset: pick.asset, sweepRate: sweepRate, startJitterFraction: jitter
+            )
+            let buffer = FragmentBufferFactory.makeBuffer(
+                convertedSource: converted, asset: pick.asset, sweepRate: sweepRate,
+                direction: direction, startJitterFraction: jitter
+            )
+            fragmentPlayer.scheduleBuffer(
+                buffer, at: AVAudioTime(sampleTime: frame, atRate: format.sampleRate),
+                options: [], completionHandler: nil
+            )
+            let seconds = Double(frame) / format.sampleRate
+            var event = SweepEvent(pick: pick, rate: sweepRate, direction: direction,
+                                   timestamp: renderStartedAt.addingTimeInterval(seconds))
+            event.renderTimeSeconds = seconds
+            event.cropOffsetFrames = bounds.start
+            event.emittedFrameCount = bounds.count
             eventLog.append(event)
             appendCaptureEventLocked(event)
-            let callback = onEvent
-            DispatchQueue.main.async {
-                callback?(event)
+            if !offlineRendering {
+                let callback = onEvent
+                DispatchQueue.main.async { callback?(event) }
             }
         }
     }
 
-    private func playLocked(_ pick: SchedulePick) {
-        guard let format = graphFormat else { return }
-        guard let url = CorpusLoader.fileURL(for: pick.asset, root: corpus.rootURL) else {
-            notifyRuntime("Missing file locator for \(pick.asset.assetID)")
-            return
-        }
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            notifyRuntime("Missing audio file for \(pick.asset.assetID)")
-            return
-        }
-
-        do {
-            let converted = try cachedConvertedBufferLocked(assetID: pick.asset.assetID, url: url, format: format)
-            let jitter = nextJitterLocked()
-            let buffer = FragmentBufferFactory.makeBuffer(
-                convertedSource: converted,
-                asset: pick.asset,
-                sweepRate: sweepRate,
-                direction: direction,
-                startJitterFraction: jitter
-            )
-            if fragmentPlayer.engine == nil {
-                return
+    /// Developer-only offline final mix. Uses the live graph, slot scheduler,
+    /// buffer factory, procedural noise and gains, not a preview approximation.
+    /// Available on macOS / iOS for automation; no microphone or device input.
+    public func renderFinalMix(to directory: URL, seconds: Int, seed: UInt64 = 0xC0FFEE) throws {
+        try queue.sync {
+            guard !running, !engine.isRunning else { throw CaptureError.runInProgress }
+            guard (1...1200).contains(seconds) else { throw CaptureError.invalidDuration }
+            guard !FileManager.default.fileExists(atPath: directory.path) else {
+                throw CocoaError(.fileWriteFileExists)
             }
-            if !fragmentPlayer.isPlaying {
-                fragmentPlayer.play()
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false)
+            attachGraphLocked()
+            offlineRendering = true
+            defer {
+                fragmentPlayer.stop()
+                engine.stop()
+                engine.disableManualRenderingMode()
+                detachGraphLocked()
+                offlineRendering = false
             }
-            fragmentPlayer.scheduleBuffer(buffer, at: nil, options: [], completionHandler: nil)
-        } catch {
-            notifyRuntime("Fragment play failed for \(pick.asset.assetID): \(error.localizedDescription)")
+            guard let format = graphFormat else { throw CaptureError.engineFormatUnavailable }
+            try preloadSourcesLocked()
+            scheduler = SweepScheduler(assets: corpus.assets, seed: seed)
+            jitterSeed = seed
+            noiseState.reset(seed: UInt32(truncatingIfNeeded: seed))
+            nextSlotFrame = 0
+            renderStartedAt = Date(timeIntervalSince1970: 0)
+            eventLog.reset()
+            try engine.enableManualRenderingMode(.offline, format: format, maximumFrameCount: 512)
+            let writer = EngineOutputCaptureWriter()
+            try writer.start(url: directory.appendingPathComponent("sweep.wav"), format: format, durationSeconds: seconds)
+            defer { writer.stop() }
+            try engine.start()
+            fragmentPlayer.play()
+            let target = AVAudioFramePosition(Double(seconds) * format.sampleRate)
+            var retries = 0
+            while engine.manualRenderingSampleTime < target {
+                scheduleThroughLocked(currentFrame: engine.manualRenderingSampleTime)
+                let count = AVAudioFrameCount(min(512, target - engine.manualRenderingSampleTime))
+                let output = engine.manualRenderingFormat
+                guard let buffer = AVAudioPCMBuffer(pcmFormat: output, frameCapacity: count) else {
+                    throw CaptureError.engineFormatUnavailable
+                }
+                let status = try engine.renderOffline(count, to: buffer)
+                switch status {
+                case .success:
+                    try writer.write(buffer)
+                    retries = 0
+                case .cannotDoInCurrentContext:
+                    retries += 1
+                    if retries > 100 { throw CaptureError.offlineRenderFailed }
+                default:
+                    throw CaptureError.offlineRenderFailed
+                }
+            }
+            let lines = eventLog.allChronological()
+                .filter { ($0.renderTimeSeconds ?? 0) < Double(seconds) }
+                .map { $0.diagnosticJSONLine() }.joined(separator: "\n")
+            try (lines + "\n").write(to: directory.appendingPathComponent("events.jsonl"), atomically: true, encoding: .utf8)
         }
     }
 
@@ -396,10 +493,14 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
         let writeQueue = captureWriteQueue
         let backpressure = captureBackpressure
-        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: mixFormat) { buffer, _ in
+        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: mixFormat) { [weak self] buffer, _ in
             // Copy samples before returning from the tap. The engine may reuse the
             // original AVAudioPCMBuffer after this callback returns.
             if backpressure.wait(timeout: .now()) != .success {
+                self?.queue.async { [weak self] in
+                    guard let self, self.captureActive else { return }
+                    self.finishCaptureLocked(reason: .failed("Capture writer overrun: output frames were dropped."))
+                }
                 return
             }
             guard let copy = PCMBufferIndependentCopy.make(from: buffer) else {
@@ -628,6 +729,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
     }
 
     enum CaptureError: Error, LocalizedError, Equatable {
+        case invalidDuration
+        case offlineRenderFailed
         case sweepNotRunning
         case engineFormatUnavailable
         case runInProgress
@@ -635,6 +738,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
         var errorDescription: String? {
             switch self {
+            case .invalidDuration: return "Choose a render duration from 1 to 1200 seconds."
+            case .offlineRenderFailed: return "Offline audio rendering failed or stalled."
             case .sweepNotRunning:
                 return "START the sweep before capturing engine output."
             case .engineFormatUnavailable:

@@ -6,6 +6,10 @@ import Foundation
 /// or a paranormal interpretation.
 public struct SourceAsset: Identifiable, Hashable, Codable, Sendable, Equatable {
     public var assetID: String
+    public var utteranceID: String?
+    public var sourceFile: String?
+    public var sourceStartFrame: Int?
+    public var sourceFrameCount: Int?
     public var performerID: String?
     public var voiceFamily: String?
     public var sourceType: String?
@@ -28,6 +32,10 @@ public struct SourceAsset: Identifiable, Hashable, Codable, Sendable, Equatable 
 
     public init(
         assetID: String,
+        utteranceID: String? = nil,
+        sourceFile: String? = nil,
+        sourceStartFrame: Int? = nil,
+        sourceFrameCount: Int? = nil,
         performerID: String? = nil,
         voiceFamily: String? = nil,
         sourceType: String? = nil,
@@ -46,6 +54,10 @@ public struct SourceAsset: Identifiable, Hashable, Codable, Sendable, Equatable 
         relativePath: String = ""
     ) {
         self.assetID = assetID
+        self.utteranceID = utteranceID
+        self.sourceFile = sourceFile
+        self.sourceStartFrame = sourceStartFrame
+        self.sourceFrameCount = sourceFrameCount
         self.performerID = performerID
         self.voiceFamily = voiceFamily
         self.sourceType = sourceType
@@ -66,6 +78,10 @@ public struct SourceAsset: Identifiable, Hashable, Codable, Sendable, Equatable 
 
     enum CodingKeys: String, CodingKey {
         case assetID = "asset_id"
+        case utteranceID = "utterance_id"
+        case sourceFile = "source_file"
+        case sourceStartFrame = "source_start_frame"
+        case sourceFrameCount = "source_frame_count"
         case performerID = "performer_id"
         case voiceFamily = "voice_family"
         case sourceType = "source_type"
@@ -89,6 +105,10 @@ public struct SourceAsset: Identifiable, Hashable, Codable, Sendable, Equatable 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         assetID = try container.decode(String.self, forKey: .assetID)
+        utteranceID = try container.decodeIfPresent(String.self, forKey: .utteranceID)
+        sourceFile = try container.decodeIfPresent(String.self, forKey: .sourceFile)
+        sourceStartFrame = try container.decodeIfPresent(Int.self, forKey: .sourceStartFrame)
+        sourceFrameCount = try container.decodeIfPresent(Int.self, forKey: .sourceFrameCount)
         performerID = try container.decodeIfPresent(String.self, forKey: .performerID)
         voiceFamily = try container.decodeIfPresent(String.self, forKey: .voiceFamily)
         sourceType = try container.decodeIfPresent(String.self, forKey: .sourceType)
@@ -119,6 +139,10 @@ public struct SourceAsset: Identifiable, Hashable, Codable, Sendable, Equatable 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(assetID, forKey: .assetID)
+        try container.encodeIfPresent(utteranceID, forKey: .utteranceID)
+        try container.encodeIfPresent(sourceFile, forKey: .sourceFile)
+        try container.encodeIfPresent(sourceStartFrame, forKey: .sourceStartFrame)
+        try container.encodeIfPresent(sourceFrameCount, forKey: .sourceFrameCount)
         try container.encodeIfPresent(performerID, forKey: .performerID)
         try container.encodeIfPresent(voiceFamily, forKey: .voiceFamily)
         try container.encodeIfPresent(sourceType, forKey: .sourceType)

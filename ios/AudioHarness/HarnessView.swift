@@ -228,6 +228,9 @@ struct HarnessView: View {
             Text("Captures the rendered mix (noise + fragments). This is not customer session / microphone recording.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+            Button("Capture final mix (30 sec)") { model.startShortCapture(seconds: 30) }
+            Button("Capture final mix (60 sec)") { model.startShortCapture(seconds: 60) }
+            Button("Capture final mix (5 min)") { model.startShortCapture(seconds: 300) }
             Button("Capture final mix (2 min)") {
                 model.startTwoMinuteCapture()
             }

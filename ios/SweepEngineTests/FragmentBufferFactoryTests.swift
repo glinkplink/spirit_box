@@ -72,4 +72,60 @@ final class FragmentBufferFactoryTests: XCTestCase {
         let cropped = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 0)
         XCTAssertEqual(Int(cropped.frameLength), 7_200)
     }
+    func testFinalVocalSlotsAreDwellSizedFiniteFadedAndBounded() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let source = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 9600))
+        source.frameLength = 9600
+        let input = try XCTUnwrap(source.floatChannelData)[0]
+        for i in 0..<9600 { input[i] = Float(sin(Double(i) * 0.12) * 4) }
+        let asset = SourceAsset(assetID: "test", durationMs: 200)
+        for rate in SweepRate.allCases {
+            for direction in SweepDirection.allCases {
+                let buffer = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
+                    sweepRate: rate, direction: direction, startJitterFraction: 0.5)
+                XCTAssertEqual(Int(buffer.frameLength), rate.milliseconds * 48)
+                let data = try XCTUnwrap(buffer.floatChannelData)[0]
+                XCTAssertEqual(data[0], 0, accuracy: 0.00001)
+                XCTAssertEqual(data[Int(buffer.frameLength) - 1], 0, accuracy: 0.00001)
+                for i in 0..<Int(buffer.frameLength) {
+                    XCTAssertTrue(data[i].isFinite)
+                    XCTAssertLessThanOrEqual(abs(data[i]), SweepTuning.vocalPeakLimit + 0.00001)
+                }
+            }
+        }
+        XCTAssertLessThan((SweepTuning.vocalPeakLimit * SweepTuning.vocalGain + SweepTuning.staticGain) * SweepTuning.outputGain, 1)
+    }
+
+    func testRadioShapeAttenuatesDCAndUltrasonicContent() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        func energy(hz: Double) throws -> Double {
+            let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 48000))
+            buffer.frameLength = 48000
+            let samples = try XCTUnwrap(buffer.floatChannelData)[0]
+            for i in 0..<48000 { samples[i] = Float(0.1 * cos(2 * Double.pi * hz * Double(i) / 48000)) }
+            FragmentBufferFactory.applyRadioShape(buffer, variation: 0.5)
+            return (24000..<48000).reduce(0) { $0 + Double(samples[$1] * samples[$1]) } / 24000
+        }
+        let mid = try energy(hz: 1000)
+        XCTAssertLessThan(try energy(hz: 0), mid * 0.01)
+        XCTAssertLessThan(try energy(hz: 18000), mid * 0.2)
+    }
+
+    func testLiveRateAndDirectionChangesKeepTheSameEngineRunning() throws {
+        let engine = SweepAudioEngine()
+        // Noise-only graph exercises the actual start/control/stop lifecycle.
+        try engine.start()
+        defer { engine.stop() }
+        for rate in SweepRate.allCases {
+            engine.setSweepRate(rate)
+            XCTAssertEqual(engine.currentRate, rate)
+            XCTAssertTrue(engine.isRunning)
+        }
+        engine.setDirection(.reverse)
+        XCTAssertEqual(engine.currentDirection, .reverse)
+        XCTAssertTrue(engine.isRunning)
+        engine.stop()
+        XCTAssertFalse(engine.isRunning)
+    }
+
 }

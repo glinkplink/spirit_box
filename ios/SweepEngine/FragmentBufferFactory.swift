@@ -1,6 +1,19 @@
 import AVFoundation
 import Foundation
 
+/// Internal tuning only; shared by live playback and offline final-mix rendering.
+enum SweepTuning {
+    static let staticGain: Float = 0.09
+    static let vocalGain: Float = 0.88
+    static let outputGain: Float = 0.82
+    static let highPassHz = 280.0
+    static let lowPassHz = 4_200.0
+    static let fadeSeconds = 0.006
+    static let gainVariation: Float = 0.08
+    static let vocalPeakLimit: Float = 0.65
+    static let scheduleAheadSeconds = 0.040
+}
+
 enum FragmentBufferFactory {
     static func loadConvertedSource(fileURL: URL, outputFormat: AVAudioFormat) throws -> AVAudioPCMBuffer {
         let file = try AVAudioFile(forReading: fileURL)
@@ -29,8 +42,11 @@ enum FragmentBufferFactory {
             startJitterFraction: min(1, max(0, startJitterFraction))
         )
         let oriented = direction == .reverse ? reverse(cropped) : cropped
-        applyFades(oriented, fadeSeconds: 0.006)
-        return oriented
+        applyRadioShape(oriented, variation: startJitterFraction)
+        applyFades(oriented, fadeSeconds: SweepTuning.fadeSeconds)
+        // The slot always lasts one dwell. A short source leaves static, never a
+        // looped/stretched syllable or a late wall-clock gap before the next slot.
+        return padded(oriented, frames: Int(convertedSource.format.sampleRate * sweepRate.timeInterval))
     }
 
     static func makeBuffer(
@@ -89,9 +105,26 @@ enum FragmentBufferFactory {
         sweepRate: SweepRate,
         startJitterFraction: Double
     ) -> AVAudioPCMBuffer {
+        let bounds = cropBounds(buffer, asset: asset, sweepRate: sweepRate, startJitterFraction: startJitterFraction)
+        let start = bounds.start
+        let length = bounds.count
+        guard length > 0 else { return buffer }
+
+        guard let sliced = AVAudioPCMBuffer(pcmFormat: buffer.format, frameCapacity: AVAudioFrameCount(length)) else {
+            return buffer
+        }
+        sliced.frameLength = AVAudioFrameCount(length)
+        copyFrames(from: buffer, to: sliced, sourceStart: start, count: length)
+        return sliced
+    }
+
+    static func cropBounds(
+        _ buffer: AVAudioPCMBuffer, asset: SourceAsset,
+        sweepRate: SweepRate, startJitterFraction: Double
+    ) -> (start: Int, count: Int) {
         let sampleRate = buffer.format.sampleRate
         let total = Int(buffer.frameLength)
-        guard total > 0 else { return buffer }
+        guard total > 0 else { return (0, 0) }
 
         let desired = max(1, Int((sampleRate * sweepRate.timeInterval).rounded()))
 
@@ -111,16 +144,51 @@ enum FragmentBufferFactory {
         let playFrames = min(total, desired, available)
         let maxStart = max(safeStart, safeEnd - playFrames)
         let span = max(0, maxStart - safeStart)
-        let start = min(safeEnd - 1, safeStart + Int(Double(span) * startJitterFraction))
+        let start = min(safeEnd - 1, safeStart + Int(Double(span) * min(1, max(0, startJitterFraction))))
         let end = min(safeEnd, start + playFrames)
         let length = max(1, end - start)
 
-        guard let sliced = AVAudioPCMBuffer(pcmFormat: buffer.format, frameCapacity: AVAudioFrameCount(length)) else {
-            return buffer
+        return (start, length)
+    }
+
+    static func padded(_ source: AVAudioPCMBuffer, frames: Int) -> AVAudioPCMBuffer {
+        guard frames > Int(source.frameLength),
+              let output = AVAudioPCMBuffer(pcmFormat: source.format, frameCapacity: AVAudioFrameCount(frames)),
+              let channels = output.floatChannelData else { return source }
+        output.frameLength = AVAudioFrameCount(frames)
+        for channel in 0..<Int(source.format.channelCount) {
+            channels[channel].initialize(repeating: 0, count: frames)
         }
-        sliced.frameLength = AVAudioFrameCount(length)
-        copyFrames(from: buffer, to: sliced, sourceStart: start, count: length)
-        return sliced
+        copyFrames(from: source, to: output, sourceStart: 0, count: Int(source.frameLength))
+        return output
+    }
+
+    static func applyRadioShape(_ buffer: AVAudioPCMBuffer, variation: Double) {
+        guard let channels = buffer.floatChannelData else { return }
+        let dt = 1 / buffer.format.sampleRate
+        let hpRC = 1 / (2 * Double.pi * SweepTuning.highPassHz)
+        let lpRC = 1 / (2 * Double.pi * SweepTuning.lowPassHz)
+        let hp = Float(hpRC / (hpRC + dt))
+        let lp = Float(dt / (lpRC + dt))
+        let gain = 1 + (Float(min(1, max(0, variation))) * 2 - 1) * SweepTuning.gainVariation
+        for channel in 0..<Int(buffer.format.channelCount) {
+            var previous: Float = 0, high: Float = 0, low: Float = 0
+            var peak: Float = 0
+            let samples = channels[channel]
+            for index in 0..<Int(buffer.frameLength) {
+                let input = samples[index].isFinite ? samples[index] : 0
+                high = hp * (high + input - previous)
+                previous = input
+                low += lp * (high - low)
+                samples[index] = low * gain
+                peak = max(peak, abs(samples[index]))
+            }
+            // Whole-window attenuation prevents clipping without nonlinear distortion.
+            if peak > SweepTuning.vocalPeakLimit {
+                let attenuation = SweepTuning.vocalPeakLimit / peak
+                for index in 0..<Int(buffer.frameLength) { samples[index] *= attenuation }
+            }
+        }
     }
 
     static func reverse(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer {

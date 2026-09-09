@@ -12,7 +12,8 @@ final class ProceduralNoiseState: @unchecked Sendable {
         self.crackleCountdown = 24_000
     }
 
-    func reset() {
+    func reset(seed: UInt32 = 0x5EED_F15E) {
+        self.seed = seed
         brown = 0
         crackleCountdown = 24_000
     }

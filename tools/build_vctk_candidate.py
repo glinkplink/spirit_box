@@ -81,6 +81,9 @@ def prepare(source, out):
             sf.write(path, y, SR, subtype='PCM_24')
             duration = len(y)//48
             assets.append(dict(asset_id=aid, performer_id=speaker, voice_family=speaker,
+                utterance_id=Path(origin['source_file']).stem.removesuffix('_mic1'),
+                source_file=origin['source_file'], source_start_frame=origin['source_start_frame'],
+                source_frame_count=origin['source_frame_count'],
                 duration_ms=duration, forward_allowed=True, reverse_allowed=True,
                 crop_safe_start_ms=6, crop_safe_end_ms=duration-6, relative_path=path.name,
                 prep_version='vctk-candidate-1', rights_record_id='VCTK-0.92-CCBY4'))
@@ -149,13 +152,12 @@ def render(assets, clips, out, name, seconds, seed, dwell=.2, reverse=False):
 
 def main():
     p=argparse.ArgumentParser(); p.add_argument('source',type=Path);p.add_argument('output',type=Path)
+    p.add_argument('--diagnostic-previews', action='store_true', help='Optional old Python previews, not app renderer acceptance audio')
     a=p.parse_args(); a.output.mkdir(parents=True,exist_ok=False)
     assets,clips=prepare(a.source,a.output)
-    render(assets,clips,a.output,'LISTEN-FIRST',120,20260909)
-    for rate in (.075,.125,.2,.3):
-        render(assets,clips,a.output,f'reverse-{round(rate*1000)}ms',30,20260910,dwell=rate,reverse=True)
-    for seed in (20260911,20260912,20260913):
-        render(assets,clips,a.output,f'session-20min-{seed}',1200,seed)
+    shutil.copy2(a.output/'provenance.json', a.output/'SpiritBoxPhase1Corpus'/'provenance.json')
+    if a.diagnostic_previews:
+        render(assets,clips,a.output,'LISTEN-FIRST',60,20260909)
     with zipfile.ZipFile(a.output/'SpiritBoxPhase1Corpus.zip','w',zipfile.ZIP_DEFLATED) as z:
         for path in sorted((a.output/'SpiritBoxPhase1Corpus').iterdir()):
             z.write(path,str(path.relative_to(a.output)))
