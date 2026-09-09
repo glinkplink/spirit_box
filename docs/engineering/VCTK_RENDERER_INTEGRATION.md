@@ -33,7 +33,8 @@ Implemented in the existing engine and controls, with no product UI redesign:
   gain, whole-window peak attenuation, fades, and dwell-sized zero-padded vocal slots.
 - `SweepAudioEngine.swift`: predecoded sources, sample-time scheduling, short
   lookahead, shared live/offline render graph, frame-accurate diagnostic offsets,
-  startup failure cleanup, and explicit failure on capture-writer overrun.
+  startup failure cleanup, asynchronous capture progress that never waits for disk
+  on the scheduling queue, and explicit failure on capture-writer overrun.
 - `ProceduralNoiseSource.swift`: reproducible reset for offline QA.
 - `SweepEventLog.swift`: source provenance, speaker reuse distance, source-relative
   runtime crop/count, and scheduled sample-clock timestamp.

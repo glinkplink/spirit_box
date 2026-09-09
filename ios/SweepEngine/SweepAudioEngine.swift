@@ -36,6 +36,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private var sweepRate: SweepRate = .default
     private var direction: SweepDirection = .forward
     private var captureTickCounter = 0
+    private var captureGeneration = 0
     private var captureTapInstalled = false
     private var captureActive = false
     private var audioGateRun: ActiveAudioGateRun?
@@ -488,6 +489,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
             try captureWriter.start(url: wavURL, format: mixFormat, durationSeconds: durationSeconds)
         }
         captureTickCounter = 0
+        captureGeneration += 1
         captureActive = true
 
         do {
@@ -545,30 +547,29 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
     private func updateCaptureElapsedLocked() {
         guard captureActive else { return }
-        let snapshot: (writing: Bool, url: URL?, elapsed: Int, duration: Int) = captureWriteQueue.sync {
-            (captureWriter.isWriting, captureWriter.url, captureWriter.elapsedSeconds, captureWriter.durationSeconds)
-        }
-        guard snapshot.writing, let url = snapshot.url else { return }
         captureTickCounter += 1
-        if captureTickCounter % 4 == 0 {
-            publishCapture(
-                .capturing(
-                    elapsedSeconds: snapshot.elapsed,
-                    durationSeconds: snapshot.duration,
-                    url: url
-                )
-            )
-            if let run = audioGateRun {
-                publishAudioGateRun(
-                    .running(
-                        runID: run.location.runID,
-                        elapsedSeconds: snapshot.elapsed,
+        guard captureTickCounter % 50 == 0 else { return } // 250 ms, independent of dwell
+        let generation = captureGeneration
+        // Never wait for disk writes on the vocal scheduling queue. A slow capture
+        // destination must not stall the next live audio slot.
+        captureWriteQueue.async { [weak self] in
+            guard let self else { return }
+            let snapshot = (writing: self.captureWriter.isWriting, url: self.captureWriter.url,
+                            elapsed: self.captureWriter.elapsedSeconds, duration: self.captureWriter.durationSeconds)
+            self.queue.async { [weak self] in
+                guard let self, self.captureActive, self.captureGeneration == generation,
+                      snapshot.writing, let url = snapshot.url else { return }
+                self.publishCapture(.capturing(elapsedSeconds: snapshot.elapsed,
+                                               durationSeconds: snapshot.duration, url: url))
+                if let run = self.audioGateRun {
+                    self.publishAudioGateRun(.running(
+                        runID: run.location.runID, elapsedSeconds: snapshot.elapsed,
                         durationSeconds: snapshot.duration,
                         directoryName: run.location.directoryURL.lastPathComponent,
-                        corpusSource: describeCorpusSource(run.corpus.source),
+                        corpusSource: self.describeCorpusSource(run.corpus.source),
                         isDevFixture: run.corpus.isDevFixture
-                    )
-                )
+                    ))
+                }
             }
         }
     }
