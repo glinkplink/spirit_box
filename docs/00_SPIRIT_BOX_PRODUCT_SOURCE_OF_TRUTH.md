@@ -1,115 +1,108 @@
 # 00 — SPIRIT BOX PRODUCT SOURCE OF TRUTH
 
-**Status:** BUILD AUTHORIZED — subject only to the audio-harness gate in Section 18  
+**Status:** CONDITIONAL BUILD — not BUILD AUTHORIZED  
 **Date:** September 2, 2026  
+**Revalidated:** September 10, 2026  
 **Platform:** iPhone first  
 **Canonical role:** This document is the final product, positioning, design, monetization, and V1 implementation source of truth.
 
-> **Precedence rule:** If this file conflicts with any earlier plan or research document, **this file wins**.
+> **Precedence rule:** If this file conflicts with any earlier plan or research document, **this file wins**.  
+> **Evidence ledger:** `docs/research/RESEARCH-REVALIDATION-2026-09-10.md` records why prior BUILD AUTHORIZED / metadata-only / $9K / clean-slate WPPNT claims were demoted.
 
 Supporting evidence documents:
-- `docs/research/GHOST-HUNTER-UI-AUDIENCE-DEEP-DIVE.md`
-- `docs/research/GHOST-APP-FAILURE-FORENSICS-AND-COMPETITIVE-WHITE-SPACE.md`
-- `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` — stable architecture decision (Option B, legal/trust, terminology)
-- `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md` — current renderer tuning and perceptual experiments (evolving; not locked scope)
+- `docs/research/RESEARCH-REVALIDATION-2026-09-10.md` — current commercial/ASO/audio revalidation
+- `docs/research/GHOST-HUNTER-UI-AUDIENCE-DEEP-DIVE.md` — UI/interaction evidence (positioning updated by revalidation)
+- `docs/research/GHOST-APP-FAILURE-FORENSICS-AND-COMPETITIVE-WHITE-SPACE.md` — competitive forensics
+- `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` — current audio decision (reopened; not permanently locked)
+- `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md` — renderer experiments
+- `docs/launch/APP-STORE-CONVERSION-AND-ASO-PLAYBOOK.md` — ASO after cold-start correction
+- `docs/launch/GHOST-SPIRIT-BOX-FIRST-USERS-ACQUISITION-PLAN.md` — required seeding funnel
+- `docs/launch/INDIE-IOS-ASO-ZERO-AUDIENCE-LAUNCH-OPERATING-SYSTEM.md` — ASO process mechanics
 
-Do not reopen broad market research, competitor research, UI research, pricing research, or audio-architecture research before building unless materially new evidence appears.
+Do not treat September 2 conclusions as frozen. Reopen a decision only with new evidence that beats the 2026-09-10 ledger.
 
 ---
 
 # 1. EXECUTIVE PRODUCT DECISION
 
-We are building a **focused, tactile iPhone spirit-box instrument**.
+**Commercial thesis:** There is real App Store search intent for `spirit box`, and the current #1 listing is a weak, paywalled clone-mill product. That is **not** proof that a founder with no audience can sit on metadata and collect those users.
 
-It is not a paranormal super-app.
+**Acquisition thesis:** Become eligible for exact-intent queries with truthful metadata, **import the first 100–500 real users** through targeted investigator/micro-creator seeding (not a content career), convert them with a real trial and honest audio, then use downloads/ratings/behavior — which Apple actually names as ranking inputs — to attempt a rank climb.
 
-It does one job exceptionally well:
+**Audience:** People who want a pocket spirit-box **session** (hobbyist believers first; hardware investigators as the authenticity bar). Not tarot/astrology users.
+
+**Positioning:** Accessible paranormal **field instrument** — dark, atmospheric, one-thumb, easy to start. Not a male-coded hardware replica, not a witchy lifestyle app, not a horror game.
+
+**Audio architecture (current, reopenable):** Offline licensed **human-speech fragment** sweep (VCTK Phase 1 candidate) with radio-like static and intermittent recognizable shards. Non-semantic. No live internet radio in V1.
+
+**Product wedge:** Still **START → LISTEN → MARK → REPLAY**, but **convincing sweep audio + real trial + no weekly paywall** outrank MARK as the reason the product deserves to exist. MARK remains the listing story versus the current #1.
+
+**Pricing:** Unchanged hypothesis — complete free session, then **$1.99 Tonight Pass** or **$9.99 lifetime**. No ads, no auto-renewing subscription.
+
+**ASO:** Indexing via title/subtitle/keywords; ranking via behavior after seeding; conversion via instrument screenshots. Metadata-only bootstrap is **rejected**.
+
+**Launch:** Required seeding funnel in the acquisition plan. Optional tiny Apple Ads only as a measurement tool.
+
+**Remaining gates:** (1) 60–90s audio A/B then 15–20 min human gate; (2) TestFlight with 20–50 target testers; (3) launch seeding plan staffed before release.
+
+**Exact next action:** Run the smallest audio disproof test in the audio decision doc. Do not commission performers and do not polish App Store creative until that test has a winner.
+
+**Kill criteria:** Section 26.
+
+We are **not** building a paranormal super-app. V1 still does one job:
 
 > **START → LISTEN → MARK → REPLAY**
 
-The product should feel like a compact piece of paranormal field equipment translated into a polished iPhone experience.
+Still true:
 
-The winning V1 is:
-
-- a dark, restrained field-instrument interface;
-- an offline, disclosed audio/phoneme-bank sweep engine;
-- sweep-rate and forward/reverse controls;
-- local session recording;
-- a large one-thumb **MARK** control;
-- waveform replay centered around marked moments;
-- strong but disciplined mechanical haptics;
-- a real free trial before payment;
-- **$1.99 for 24-hour access** or **$9.99 lifetime** at launch;
-- no ads;
-- no auto-renewing subscription;
-- no account;
-- no backend;
-- no AI;
-- no generated ghost words or sentences;
-- no fake AM/FM/frequency claims;
-- no exact SB7/P-SB7 visual imitation.
-
-The commercial strategy is to compete for the high-intent user who searches for a **spirit box**, not to compete with GhostTube's ecosystem.
+- no account, no backend, no AI, no generated answers, no fake RF claims, no SB7/P-SB7 imitation.
 
 ---
 
 # 2. COMMERCIAL THESIS
 
-## 2.1 Why this product earned the right to be built
+## 2.1 Why this is only a CONDITIONAL BUILD
 
-Prior project research established:
+**VERIFIED FACT:** On 2026-09-10, iTunes Search still returns **Spirit Box SBX Ghost Talker** (2.86★ / 49 ratings, May 2026) at #1 for `spirit box`.
 
-- meaningful App Store search demand around `spirit box` and adjacent terms;
-- a May-2026 entrant climbed from unranked to #1 organically for `spirit box`;
-- meaningful modeled install traffic exists below rank #1 as well;
-- the recent leader is an extremely small product with mediocre ratings and aggressive monetization;
-- the likely RevenueCat-verified business associated with that entrant is generating roughly $9K/month;
-- feature-heavy paranormal products do not automatically outperform focused instruments;
-- users repeatedly complain about paywalls, subscriptions, ads, canned/repeated output, unclear mechanics, lost recordings, and fake-looking behavior.
+**VERIFIED FACT:** Apple ranks using text relevance **and** user behavior (downloads, ratings, reviews, and more).
 
-The category is crowded, but the research shows that crowding is not the same as strong competition. Many products fail because they are confusing, untrustworthy, badly monetized, unreliable, or poorly positioned.
+**VERIFIED FACT:** Multiple 2026 apps with `Spirit Box` in the title have 0–16 ratings and do **not** occupy that #1 slot (Jacob Weeces #12 / 4 ratings; SpectraBox 0 ratings; others absent from the top 15).
 
-## 2.2 What materially changed during deeper research
+**INFERENCE:** Demand-shaped intent exists. **Accessible** demand for a new unknown listing does not.
 
-The following are **not unique differentiators**:
+**NOT VERIFIED:** The older “~$9K/month RevenueCat” line for the May leader. Public estimates in that range attach more credibly to **Spirit Talker (Spotted Ghosts)**, a different app. Treat WPPNT revenue as **UNKNOWN**.
 
-- recording by itself;
-- replay by itself;
-- no ads;
-- no subscription;
-- offline operation;
-- magnetometer/EMF;
-- “professional UI.”
+**NOT PROVEN:** That WPPNT climbed on metadata alone. Ewregu already shipped adjacent paranormal (and unrelated utility/game) apps. WPPNT LTD (UK) is **dissolved** (5 Aug 2025) while Apple still shows that seller name.
 
-Competitors already offer some or all of those.
+We continue because: exact intent is still typed; the #1 product is hated for paywall and fake/repeated audio; a solo offline app is cheap to finish **if** audio passes; the founder will do bounded launch seeding.
 
-Our sharper product wedge is:
+We do **not** continue because success is demonstrated.
 
-> **A single-purpose field instrument where the user can immediately start a sweep, mark the exact moments that matter, and replay those moments later — with exceptional tactile feel and no generated answers.**
+## 2.2 What is not a unique differentiator
+
+Recording, replay, no ads, no subscription, offline, EMF, “pro UI,” and even tagging exist in some form (GhostTube EVP, SpectraBox, 2026 clones).
+
+The remaining stack that can still convert against the current #1:
+
+> **A disclosed offline sweep that actually sounds like interrupted radio speech, a complete free session, MARK → exact replay, and no weekly ambush.**
 
 ## 2.3 Why it could work
 
-- exact, proven search intent;
-- recent entrant proves the niche is penetrable;
-- current leader is commercially successful despite poor review quality;
-- product can be built and maintained by a solo developer;
-- no backend/content/live-ops burden;
-- the main user job is immediately understandable;
-- MARK-centered review gives a visible workflow advantage;
-- trust and monetization pain are repeated competitor weaknesses;
-- focused product avoids GhostTube's strongest moat.
+- Searchers still type `spirit box` and land on a 2.9★ paywall.
+- Category buyers already pay $4.99–$9.99 when they trust the session (Necrophonic, GhostTube, Bello).
+- Solo, offline, no backend.
+- Seeding 100–500 users is operationally small compared with “become a YouTuber.”
 
-## 2.4 Why it could fail
+## 2.4 Why it could fail (take these seriously)
 
-- a phoneme/audio bank may sound recognizably canned;
-- the differentiation is executional and easy for competitors to copy;
-- an established competitor may add MARK/replay before we gain ranking traction;
-- users may prefer literal live-radio fragments enough to reject an offline-bank product;
-- the field-instrument visual language may either look fake or drift too close to protected hardware trade dress;
-- $9.99 lifetime may monetize substantially worse than aggressive subscriptions;
-- App Store search ranking is not guaranteed merely because the product is better.
+- AppTweak’s historical **94.425** keyword-attributed installs (period unspecified) may mean the head term is **economically thin**.
+- Seeding may fail because qualified investigators refuse phone apps.
+- Audio may never sound like a box without live radio (which V1 will not ship).
+- Halloween may be the only real demand pulse.
+- A clone can copy MARK/trial in weeks.
 
-The bear case is real. We are building because the upside and build cost justify testing it, not because success is guaranteed.
+If those hit, **KILL** — do not add marketing theater.
 
 ---
 
@@ -195,7 +188,9 @@ GhostTube is structurally stronger there.
 
 ## One-sentence positioning
 
-> **A pocket spirit-box instrument for paranormal hobbyists: start a sweep, mark what catches your ear, and replay the exact moment — offline, with no generated answers, ads, or subscription.**
+> **An accessible pocket spirit-box instrument: start a sweep that sounds like interrupted radio speech, mark what catches your ear, and replay the exact moment — offline, with no generated answers, ads, or weekly subscription.**
+
+Visual tone: dark, atmospheric, high-contrast, one-thumb. **Not** a hardware-replica flex and **not** occult-lifestyle. Women are more likely than men to report ghost/paranormal belief in 2025 Gallup/YouGov data; that is a conversion reason to avoid excluding them, not a reason to become a witch app.
 
 ## Category promise
 
@@ -264,15 +259,19 @@ it does not belong in V1.
 
 # 6. FINAL AUDIO ARCHITECTURE
 
-## Decision
+## Decision (reopened 2026-09-10 — current, not permanently locked)
 
-Use an:
+Use:
 
-> **Offline, original/licensed audio/phoneme bank with a deterministic non-semantic sweep renderer.**
+> **Offline licensed human-speech fragments (large corpus, currently VCTK) + continuous radio-like static + a non-semantic sweep renderer that allows intermittent recognizable shards.**
 
-Do not build live internet radio in V1.
+This is architecture **C/G** in the revalidation ledger, not the old isolated-phoneme “never hear a word” doctrine.
 
-Do not build fully synthetic/procedural speech-like generation in V1.
+Do not build live internet radio in V1 (Apple 5.2.3 + rights + offline investigations).
+
+Do not build fully synthetic/procedural speech-like generation as the V1 hero (SpectraBox already owns that honesty story; it is a weak “old box” sound).
+
+Do not commission a four-performer corpus until a small renderer A/B on **existing** VCTK material fails for **source quality**, not scheduling.
 
 ## 6.1 Source material
 
@@ -303,7 +302,7 @@ Do not sample:
 
 Maintain an internal source-rights ledger for every audio asset.
 
-**Current Phase-1 candidate (September 2026):** a **1,200-asset VCTK-derived licensed speech corpus** (see `docs/production/VCTK-PHASE1-CANDIDATE.md`). Earlier isolated-phoneme-heavy prototype mixes and small-corpus size targets are superseded. Renderer/perceptual tuning experiments live in `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`.
+**Current Phase-1 candidate (September 2026):** a **1,200-asset VCTK-derived licensed speech corpus** (see `docs/production/VCTK-PHASE1-CANDIDATE.md`). Isolated-phoneme-heavy mixes are superseded. **Intermittent recognizable fragments in the rendered sweep are desirable** (that is how physical boxes sound). **Scripted answers, question-timed output, and repeated canned phrases are defects.** Renderer experiments: `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`. Next test: smallest A/B in `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md`.
 
 ## 6.2 Scheduler behavior
 
@@ -1056,22 +1055,19 @@ A subscription requires evidence that its LTV improvement outweighs:
 
 # 16. APP STORE / ASO DIRECTION
 
+ASO is **indexing + ranking + conversion + cold start + iteration**. It is not “fill metadata and wait.” Full process: `docs/launch/APP-STORE-CONVERSION-AND-ASO-PLAYBOOK.md` and `docs/launch/INDIE-IOS-ASO-ZERO-AUDIENCE-LAUNCH-OPERATING-SYSTEM.md`.
+
 ## 16.1 Search target
 
-Primary:
+Primary phrase in the **app name:** `Spirit Box`.
 
-- `spirit box`
+Secondary coverage (subtitle/keyword field; not a second business): ghost, box, talker, hunting, EVP, paranormal. Historical AppTweak scores (2026-09-02) are **dated**; `ITC` is a contaminated query.
 
-Secondary territory:
+Title remains provisional (`Spirit Box: Sweep & Replay` baseline) until one cheap Apple Ads / ASO-tool popularity pass. Do not delay audio work on that pass.
 
-- ghost box
-- ghost talker
-- ghost hunting
-- ghost app
-- paranormal
-- related terms validated through prior AppTweak research
+## 16.2 Cold start (required)
 
-The launch title should include **Spirit Box** unless final metadata validation presents a compelling reason not to.
+Do not ship assuming organic `spirit box` rank appears from metadata. Import testers then 100–500 launch users per the acquisition plan **before** judging ranking failure.
 
 ## 16.2 Working name
 
@@ -1211,11 +1207,12 @@ Monitor competitors after launch, not through another pre-build research maratho
 
 # 18. THE REMAINING AUDIO GATE: HUMAN LISTENING
 
-Broad research is finished. The private audio harness exists (`docs/engineering/AUDIO_HARNESS.md`).
+The private audio harness exists (`docs/engineering/AUDIO_HARNESS.md`). **Broad commercial research is not finished in the BUILD AUTHORIZED sense** — see CONDITIONAL BUILD status. Audio is still the product gate.
 
-The current Phase-1 candidate uses a **1,200-asset VCTK-derived licensed speech corpus** (`docs/production/VCTK-PHASE1-CANDIDATE.md`). Earlier prototype corpus sizes (3–4 voice families, 80–150 fragments) and isolated-phoneme recommendations are superseded. Current renderer/perceptual findings and tuning experiments are maintained in `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`.
+**First:** the smallest 60–90s A/B in `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` (longer sparse speech windows vs current preset).  
+**Then:** 15–20 minute endurance on device.
 
-**Production audio remains gated on human listening and the 15–20 minute endurance test below.**
+Do not start full product UI until the small A/B has a direction and the endurance gate is at least scheduled.
 
 ## 18.1 Harness requirements
 
@@ -1276,13 +1273,13 @@ Do not prime them with the desired answer.
 
 ## 18.3 Audio kill criterion
 
-**Do not build the full product on Option B if the intended V1 corpus cannot survive a 15–20 minute session without obvious recognizable repetition, sentence-like assembly, or a strong “clip randomizer” impression.**
+**Do not build the full product if the renderer cannot produce a sweep that unprimed listeners accept as “like a spirit box” — sparse interrupted speech fragments in static — without obvious clip-randomizer cadence, canned phrases, or dead silence.**
 
 If it fails:
 
-1. improve/rebuild the corpus and scheduler once;
+1. change **scheduler/windowing** on existing VCTK once (small A/B);
 2. retest;
-3. if the problem remains structural, reconsider a rights-cleared live-radio architecture or kill/reposition the product.
+3. if still structural, try the rights-cleared radio-like fallback or **KILL**. Do not scrape live streams.
 
 Do not “fix” failed audio by adding:
 
@@ -1652,25 +1649,31 @@ Do not preserve the product because we have already researched or built it.
 ## Kill or materially pivot if:
 
 ### Audio failure
-The bank cannot be made to feel like a continuous instrument without obvious repeated/canned behavior.
+Unprimed listeners still do not hear a spirit-box sweep after one renderer A/B and one corpus/scheduler retry.
+
+### Seeding failure
+We cannot recruit ~20 qualified testers or ~100 launch users with bounded outreach (not a creator career).
 
 ### Conversion failure
-After sufficient organic impressions, the App Store page cannot convert enough users to justify continued work.
+After **seeded** impressions, the page cannot convert.
 
 ### Ranking failure
-The app remains unable to gain meaningful search visibility despite strong listing conversion and ratings.
+90 days after launch **with** seeding + iteration, App Store Search still cannot show a path toward ≥~$1k/mo at observed conversion. Do not “fix” this by becoming a full-time marketer.
 
 ### Product differentiation failure
-Users consistently describe it as interchangeable with the existing leader and do not value MARK/replay.
+Users say it is interchangeable junk and do not use MARK/replay **or** the audio.
 
 ### Rating failure
-Reviews repeatedly attack the fundamental mechanism as deceptive despite accurate transparency and good audio execution.
+Reviews attack the mechanism as deceptive despite accurate disclosure.
 
 ### Competitive invalidation
-Before launch, a strong top-ranking entrant ships essentially the same focused tactile sweep + real trial + MARK/replay + one-time pricing proposition and materially closes the gap.
+A strong top-ranking entrant ships the same trial + honest sweep + MARK + one-time price and closes the gap before we have rank.
 
 ### Economics failure
-Real revenue per install and attainable organic volume imply an unattractive business even after reasonable pricing/listing iteration.
+Reachable organic + seeded traffic cannot support $1k/mo after a fair test. Historical AppTweak 94.425 is **not** a revenue forecast.
+
+### Wrong-business failure
+The only remaining path is live unlicensed radio, weekly subscriptions, or tarot/astrology.
 
 No sunk-cost argument overrides these conditions.
 
@@ -1680,38 +1683,28 @@ No sunk-cost argument overrides these conditions.
 
 ## VERIFIED / STRONG EVIDENCE
 
-- `spirit box` has meaningful App Store search demand.
-- a recent entrant has successfully penetrated the top result.
-- meaningful modeled traffic exists below #1.
-- a small product can generate commercially relevant revenue in this niche.
-- users repeatedly dislike hard paywalls, subscriptions, ads, repeated/canned audio and unclear mechanics.
-- recording/review is a real user need.
-- physical/instrument semantics matter to target users.
-- GhostTube's main moat is ecosystem/distribution/trust, not an unbeatable sweep engine.
-- phoneme/audio-bank spirit-box products are accepted in-market.
-- live internet radio introduces meaningful rights/network/maintenance complexity.
+- People still search `spirit box`; WPPNT remains API #1 with 2.86★ / 49 ratings (2026-09-10).
+- Apple uses metadata **and** downloads/ratings/reviews for search.
+- 2026 title-clone apps with almost no ratings do not reproduce that #1.
+- Users hate surprise weekly paywalls, canned repeated phrases, and also hate **unintelligible** / empty audio.
+- Physical boxes produce interrupted radio speech fragments, not a pure phoneme wash.
+- Live stream catalogs have App Review 5.2.3 risk.
+- GhostTube’s moat is creator distribution, not an unbeatable sweep.
 
 ## INFERENCES WE ARE BUILDING AROUND
 
-- MARK-centered review can be a visible reason to choose us.
-- better trust + better ratings can improve organic ranking durability.
-- field-instrument feel will convert better than generic utility or horror-game UI.
-- $1.99 Tonight can monetize casual/event-driven users without forcing them into Lifetime.
-- $9.99 is a strong enough launch price to learn from without overcommitting to aggressive subscriptions.
-- the offline bank architecture gives the best commercial balance of authenticity, speed and maintainability.
+- Seeding 100–500 users is the realistic cold start.
+- Honest trial + better audio can convert against the current #1.
+- MARK still helps the listing vs WPPNT; it is not a monopoly.
+- Accessible (not replica, not witchy) positioning matches mixed-gender belief data without changing the job.
+- $1.99 / $9.99 remains the pricing **hypothesis**.
+- VCTK + renderer retune is cheaper than commissioning voices.
 
 ## STILL UNKNOWN
 
-- actual paid conversion;
-- optimal lifetime price;
-- actual share of one-night users;
-- exact App Store conversion lift from MARK/replay;
-- how high the app can rank;
-- whether our final audio corpus passes the authenticity/repetition test;
-- whether serious hardware users will accept the bank mechanism;
-- whether competitors copy the wedge quickly.
+- WPPNT revenue and ads; our conversion; true 2026 keyword TAM; whether VCTK can sound like a box; whether seeding works.
 
-These are now best answered by shipping and measuring, not by another broad research run.
+These are answered by the **audio A/B**, then testers, then a seeded launch — not by more desk research.
 
 ---
 

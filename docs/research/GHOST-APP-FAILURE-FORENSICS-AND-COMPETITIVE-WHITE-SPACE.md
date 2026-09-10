@@ -1,17 +1,98 @@
 # GHOST APP FAILURE FORENSICS AND COMPETITIVE WHITE SPACE
 
 **Canonical project research source**  
-**Date:** September 2, 2026  
+**Original research date:** September 2, 2026  
+**Revision date:** September 10, 2026  
 **Market:** iPhone / U.S. App Store first, with Android/Reddit/creator evidence used only where it helps explain behavior or distribution  
 **Objective:** determine why the paranormal-app graveyard is so large, why a few products win, and whether a new focused spirit-box app can occupy a profitable position without fighting the strongest incumbent on its home turf.
 
 ---
 
-## 1. EXECUTIVE VERDICT
+## 0. SEPTEMBER 10 COMPETITIVE-FORENSICS REVISION — WPPNT / EWREGU
+
+This section supersedes any earlier wording that treats the May-2026 `Spirit Box SBX Ghost Talker` launch as clean proof that a developer with **zero prior category history** can launch a first paranormal app and reach #1 organically from metadata alone.
+
+## New verified evidence
+
+The operator behind the May-2026 app had adjacent paranormal-app history before that launch:
+
+- **Spirit Box EMF Ghost Detector** — issued **February 2, 2025**; current U.S. listing shows approximately **460 ratings**. The current seller is Boss Web SRL, but the product retains Ewregu lineage in its copyright/support history and historical developer-site references.
+- **Spirit Box EVP Ghost Detector** — Ewregu / WPPNT LTD; version history shows **1.0 on March 16, 2026** and the current U.S. listing shows **49 ratings / 4.7**.
+- **Spirit Box SBX Ghost Talker** — Ewregu / WPPNT LTD; issued **May 12, 2026**; fast update cadence through summer 2026.
+- **K-II EMF Meter - Ghost Hunting** — WPPNT LTD / Ewregu; version history shows **1.0 on July 2, 2026**.
+
+This establishes that the May app was part of an **existing and expanding paranormal-app operation**, not an isolated first attempt in the niche.
+
+## What this changes
+
+### VERIFIED FACT
+
+- The May app still reached the project-verified #1 position for generic `spirit box` with a very small visible rating base and mediocre rating quality.
+- WPPNT/Ewregu uses aggressive exact-intent/category metadata and rapidly ships adjacent paranormal products.
+- WPPNT/Ewregu had category experience before the May app.
+
+### INFERENCE
+
+- Prior category experience likely improved keyword selection, monetization decisions, product packaging, and understanding of what converts in the niche.
+- A portfolio may also create some degree of cross-discovery through Apple's developer pages or internal cross-promotion.
+
+### UNKNOWN
+
+The current research still does **not** establish:
+
+- whether WPPNT bought Apple Ads;
+- whether it ran private paid traffic;
+- whether older apps directly cross-promoted the May app in-app;
+- whether Apple featured the app;
+- the exact launch-week traffic-source mix;
+- the exact amount of traffic contributed by prior users.
+
+A web search found no obvious public creator/press/social campaign tied to the May app, but absence of indexed evidence is **not proof that no such traffic existed**.
+
+## Revised commercial interpretation
+
+Old interpretation:
+
+> A tiny unknown developer launched a new spirit-box app and organically took #1, proving a clean-slate entrant can reproduce the result.
+
+Revised interpretation:
+
+> A small operator with prior paranormal-app experience launched an aggressively exact-intent spirit-box product and took #1 with a small visible rating base. This still supports the claim that the SERP is unusually penetrable, but it **does not prove clean-slate reproducibility or metadata-only acquisition**.
+
+This weakens the precedent, but it does **not** erase the separate evidence that the `spirit box` search result can place a recent, low-rating-count app above larger incumbents.
+
+## Commercial consequence
+
+Organic search remains the **intended compounding channel**. It is **not** a metadata-only launch plan. Seed users, then climb. The cheapest remaining market checks are: audio A/B, then a seeded launch with App Analytics. If search economics stay thin after that, **KILL**.
+
+### 0.1 September 10 evening — revenue attribution and clone graveyard
+
+**VERIFIED FACT:** US iTunes Search 2026-09-10 still lists SBX Ghost Talker #1 for `spirit box` at 2.86★ / 49 ratings. Jacob Weeces (June 17, 4 ratings) is #12. SpectraBox (June 17, 0 ratings) is not in the top 15.
+
+**INFERENCE:** Exact-intent titles without existing category operation do not reproduce #1.
+
+**UNKNOWN / likely stale:** “~$9K/month RevenueCat” for this app. Third-party estimates in that band attach to **Spirit Talker (Spotted Ghosts)**, not Ewregu. Do not use $9K as TAM proof.
+
+**VERIFIED FACT:** WPPNT LTD (UK 15541411) was **dissolved 5 August 2025**. Apple still shows seller name WPPNT LTD.
+
+---
+
+### Revision sources
+
+- Apple App Store — Spirit Box EVP Ghost Detector: https://apps.apple.com/us/app/spirit-box-evp-ghost-detector/id6758265625
+- Apple App Store — Spirit Box SBX Ghost Talker: https://apps.apple.com/us/app/spirit-box-sbx-ghost-talker/id6763719251
+- Apple App Store — Spirit Box EMF Ghost Detector: https://apps.apple.com/us/app/spirit-box-emf-ghost-detector/id6741384006
+- FoxData — Spirit Box SBX Ghost Talker issue date/history: https://foxdata.com/en/app-marketing-analytics/6763719251/as/US/spirit-box-sb7-ghost-talker/
+- FoxData — Spirit Box EMF Ghost Detector issue date/history: https://foxdata.com/en/app-marketing-analytics/6741384006/as/US/
+- Apple App Store — K-II EMF Meter - Ghost Hunting: https://apps.apple.com/us/app/k-ii-emf-meter-ghost-hunting/id6775842503
+
+---
+
+# 1. EXECUTIVE VERDICT
 
 ### Final decision: **CONDITIONAL YES — but only for a narrower product than the initial feature list implies.**
 
-The commercial anomaly remains compelling: the project has already verified that a very small May-2026 entrant, **Spirit Box SBX Ghost Talker**, reached #1 for the generic `spirit box` query and appears to generate roughly $9K/month in RevenueCat-verified revenue. This pass does **not** redo that demand validation.
+The commercial anomaly remains compelling, but its interpretation is now narrower. The May-2026 **Spirit Box SBX Ghost Talker** is still API #1 for `spirit box` with a tiny, poor rating base. **It is not verified as a ~$9K/month business.** Ewregu/WPPNT had prior adjacent apps, so this is **not** clean-slate metadata proof.
 
 This pass changes the product thesis in one important way:
 
@@ -524,15 +605,24 @@ Sono X10, Sono X10 Pro, PhenVox, SBX12 and related apps show an older multi-app 
 
 ---
 
-### 7.6 WPPNT LTD / Ewregu — emerging rapid portfolio
+### 7.6 WPPNT LTD / Ewregu — **established niche operator, not clean-slate entrant**
 
-The project’s current revenue anomaly, Spirit Box SBX Ghost Talker, comes from WPPNT LTD / Ewregu. The developer now also appears around Spirit Box EVP/K-II/related products.
+The project’s current direct commercial target, **Spirit Box SBX Ghost Talker**, comes from WPPNT LTD / Ewregu.
 
-**Strength:** aggressive generic ASO and hard monetization; fast updates.
+**Verified portfolio chronology now relevant to the thesis:**
 
-**Weakness:** low rating quality on the flagship and repeated paywall/fake accusations.
+- Feb 2, 2025 — `Spirit Box EMF Ghost Detector` issued; current listing ~460 ratings, now sold by Boss Web SRL but with Ewregu lineage.
+- Mar 16, 2026 — `Spirit Box EVP Ghost Detector` v1.0; Ewregu / WPPNT LTD.
+- May 12, 2026 — `Spirit Box SBX Ghost Talker` issued; Ewregu / WPPNT LTD.
+- Jul 2, 2026 — `K-II EMF Meter - Ghost Hunting` v1.0; WPPNT LTD / Ewregu.
 
-**Lesson:** this is the competitor we can realistically attack at the **same search intent**, because its moat appears much thinner than GhostTube’s.
+**Strength:** aggressive generic/exact-intent ASO, rapid iteration, prior category knowledge, hard monetization, and an expanding portfolio.
+
+**Weakness:** low rating quality on the SBX flagship and repeated paywall/fake accusations across this style of product.
+
+**Important unknown:** we have not verified whether internal cross-promotion, Apple Ads, paid traffic, or other private acquisition contributed to the May app's launch velocity.
+
+**Revised lesson:** WPPNT remains a realistic competitor at the **same search intent**, and its small visible rating base at #1 still suggests a penetrable SERP. But its success is a weaker reproducibility precedent than previously stated because the operator already had category history and potentially reusable audience/portfolio advantages.
 
 ---
 
@@ -1035,16 +1125,18 @@ Our strategy should therefore **not** depend on copying any of those. It should 
 
 ## 17. SUCCESSFUL OUTLIERS THAT ARE NOT GHOSTTUBE
 
-### 17.1 May-2026 Spirit Box SBX Ghost Talker — the recent ASO outlier
+### 17.1 May-2026 Spirit Box SBX Ghost Talker — the recent ASO outlier, **reclassified**
 
 **Narrow job:** pocket SBX-style sweep.  
 **Search intent:** literal generic `spirit box`.  
 **Monetization:** aggressive weekly/monthly/lifetime.  
-**Distribution:** prior project work supports generic App Store search as material.  
-**Why it matters:** proves a small recent entrant can break through without building a GhostTube ecosystem.  
+**Distribution:** prior project work supports generic App Store search as material, but exact launch-source mix remains unknown.  
+**Operator context:** Ewregu/WPPNT already had adjacent paranormal-app history before the May 2026 launch.  
+**Why it matters:** proves a small recent app with a low visible rating count can break through without building a GhostTube-scale ecosystem.  
+**What it does NOT prove:** that a developer with no prior category history can reproduce the result through metadata alone.  
 **Weakness:** bad rating quality and monetization/trust complaints.
 
-This is the most replicable commercial precedent for us.
+**Revised replicability:** **MEDIUM**, not “most replicable by default.” It remains our best direct SERP precedent, but it now carries a meaningful prior-portfolio confounder.
 
 ### 17.2 Necrophonic — legacy paid instrument
 
@@ -1519,7 +1611,7 @@ https://developer.apple.com/av-foundation/
 
 ### Source-discipline notes
 
-- The project’s **~$9K/month RevenueCat figure and generic `spirit box` ranking history for the May-2026 leader** come from prior project research and are treated as established inputs because this pass was explicitly instructed not to redo generic demand validation.
+- The project’s **~$9K/month RevenueCat figure** is **withdrawn as an established input** (2026-09-10 evening). Ranking history for `spirit box` remains observational (API #1). See revalidation ledger.
 - GhostTube/Amy’s Crypt subscriber counts are third-party snapshots and are used only as scale evidence; they are not revenue estimates.
 - Spotted Ghosts’ “6.5 million downloads” figure is a developer claim and is labeled as such.
 - No revenue is attributed to GhostTube, Spirit Talker, Necrophonic or other apps without direct evidence.
@@ -1573,4 +1665,3 @@ https://developer.apple.com/av-foundation/
 > **Do target buyers prefer transparent offline synthesized/banked sweep audio, or do they only trust a spirit-box app when it uses live internet-radio fragments?**
 
 This is the cheapest high-leverage question remaining before the audio architecture is finalized.
-

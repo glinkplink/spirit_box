@@ -3,7 +3,7 @@
 **Product:** focused iPhone spirit-box instrument  
 **Research date:** September 2, 2026  
 **Decision scope:** UI, audio interaction, physical-instrument feel, haptics, recording/session workflow, trust, and App Store visual conversion.  
-**Commercial premise:** already build-authorized by the project. This pass does **not** reopen market viability or pricing economics.
+**Commercial premise:** CONDITIONAL BUILD after 2026-09-10 revalidation. This pass originally did **not** reopen market viability; positioning notes below were updated to match later evidence (women more open to paranormal belief; do not force witchy/tarot). See `docs/research/RESEARCH-REVALIDATION-2026-09-10.md`.
 
 ---
 

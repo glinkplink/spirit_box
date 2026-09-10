@@ -3,8 +3,9 @@
 **Product:** Focused iPhone spirit-box instrument  
 **Market:** U.S. App Store first  
 **Research date:** September 2, 2026  
-**Status:** Conversion strategy + creative brief + ready-to-use copy. **Not** final pixel-perfect assets.  
-**Primary objective:** Maximize the probability that a user searching `spirit box` chooses this app over the current results.
+**Revision date:** September 10, 2026 (cold-start correction)  
+**Status:** **CURRENT ASO STRATEGY** — metadata-only bootstrap is rejected. Process mechanics also in `INDIE-IOS-ASO-ZERO-AUDIENCE-LAUNCH-OPERATING-SYSTEM.md`. Evidence: `docs/research/RESEARCH-REVALIDATION-2026-09-10.md`.  
+**Primary objective:** Maximize profitable discovery. Organic search is the **intended compounding channel**, not the **cold-start engine**.
 
 ---
 
@@ -17,17 +18,88 @@
 
 The canonical product source overrides all older project documents. It locks the product to **START → LISTEN → MARK → REPLAY**, an offline original/licensed audio-fragment sweep engine, one complete 3-minute trial session, a non-renewing $1.99 Tonight Pass, a $9.99 lifetime purchase, no ads, no auto-renewing subscription, no live radio, no generated words/answers, and no SB7/P-SB7 imitation. [C1]
 
+
+# 0. SEPTEMBER 10 — ASO IS NOT METADATA
+
+This section **replaces** any earlier recommendation that a new app with no audience can rely on title/subtitle/keywords to climb `spirit box`.
+
+## INDEXING
+
+Apple indexes **title, subtitle, keywords, primary category**. Promotional text is not a ranking field. Exact-name findability often appears in hours–days (**practitioner**, not Apple SLA). Put `Spirit Box` in the app name so we are **eligible** for the money query.
+
+## RANKING
+
+Apple: text relevance **plus user behavior (downloads, ratings and reviews, and more)**. No published weights. No verified 7-day boost, screenshot-OCR ranking, or Apple Ads halo. Treat ASO-blog percentages as folklore.
+
+## CONVERSION
+
+Why a searcher taps us instead of WPPNT (2.86★ paywall) or GhostTube: first screenshot = spirit box session; shots 2–3 = MARK → replay; trust shot = offline / no generated answers; monetization shot = real free session, no weekly trap. Ratings beside the result matter.
+
+## COLD START
+
+**Required.** 2026 apps named Spirit Box with 0–16 ratings did not take #1. Import testers, then 100–500 real users (acquisition plan). This is launch work, not a marketing company.
+
+## RANK CLIMB
+
+After real users: watch App Analytics **Search** impressions/downloads (subtract Apple Ads if used). Prompt reviews only after a completed marked session (max 3 SKStoreReview prompts / 365 days). Iterate metadata **one** major variable at a time.
+
+## ITERATION
+
+Log: date, what changed, impressions, CVR, downloads, rating velocity, review themes. 7–14 days between metadata reads (**practitioner heuristic**).
+
+## SECONDARY KEYWORDS
+
+Coverage in subtitle/keyword field: ghost, talker, hunting, EVP, paranormal, box. Historical AppTweak (2026-09-02): `spirit box` vol 53 / 94.425 estimated leader installs in an **unspecified period**. Do not invent 2026 volumes. `ITC` is contaminated. Do not add EMF/SLS/radio claims the product does not fulfill.
+
+## RATINGS/REVIEWS
+
+Ask after MARK+replay success, never at first launch. Reply to 1-stars about paywall/audio with facts.
+
+## APPLE ADS
+
+Optional **measurement**: $50–150 on exact `spirit box` to read popularity/CPT and whether the page converts. Not assumed to raise organic rank.
+
+## EXTERNAL TRAFFIC
+
+Operational dependence: **bounded** investigator/micro-creator seeding at launch (days of outreach, not a channel we run forever). If 90 days of seeding+search still cannot support ~$1k/mo at measured conversion, **KILL** rather than scaling ads/creators.
+
+### Commercial thesis (corrected)
+
+> Capture high-intent search **after** we are a real result (indexed + seeded + converting). Metadata without users is how the 2026 clone graveyard looks.
+
+WPPNT proves the SERP can show a small, badly rated app at #1. It does **not** prove we can reproduce that from zero. The ~$9K/month figure is **not verified** for that app.
+
+### Revision sources
+
+- https://developer.apple.com/app-store/search/
+- https://developer.apple.com/app-store/product-page/
+- https://developer.apple.com/app-store/discoverability/
+- iTunes Search API 2026-09-10 (see research ledger)
+
+---
+
+## Historical AppTweak (2026-09-02) — keep as dated evidence only
+
+`spirit box` volume **53**, difficulty **0**, leader estimated keyword installs **94.425** in an **unspecified period**; secondaries weaker. Difficulty 0 is not a TAM. The 2026-09-10 iTunes pass is the current SERP evidence.
+
+A cheap Apple Ads popularity check can lock title tail later. **Do not block the audio A/B on it.**
+
 ---
 
 # 1. EXECUTIVE RECOMMENDATION
 
-## Final launch package
+## Current baseline launch package — **PROVISIONAL TITLE TAIL**
 
-**Title**  
-**Spirit Box: Sweep & Replay**
 
-**Subtitle**  
-**Mark Moments. Works Offline.**
+**Baseline title**  
+**Spirit Box: Sweep & Replay**  
+
+This remains a conversion-strong baseline, **not a locked final title**. The final tail after `Spirit Box` may change if secondary-keyword data proves a better ranking use of the remaining characters.
+
+**Baseline subtitle**  
+**Mark Moments. Works Offline.**  
+
+This remains a conversion-strong baseline, **not a locked final subtitle**. Search-bearing secondary terms may replace some of this language if the final keyword pass justifies it.
 
 **Icon**  
 A front-on, abstract **field-instrument display**: matte graphite housing, warm amber sweep display, one directional cue, one marker notch, and one tiny red status LED. No ghost, skull, occult symbol, fake frequency, radio branding, text, or recognizable commercial hardware silhouette.
@@ -55,7 +127,7 @@ A front-on, abstract **field-instrument display**: matte graphite housing, warm 
 **Primary ASO target**  
 `spirit box`
 
-**Proposed launch keyword field — 100 ASCII bytes**
+**Baseline keyword field — 100 ASCII bytes; provisional**
 ```text
 ghost,talker,hunting,paranormal,itc,recorder,investigation,audio,session,communication,research,tool
 ```
@@ -68,7 +140,7 @@ ghost,talker,hunting,paranormal,itc,recorder,investigation,audio,session,communi
 
 **INFERENCE:** We do not need to out-SB7 the current leader. It already owns the most literal “hardware replica” visual cue. Our conversion advantage is a more credible **instrument workflow**: spirit box → MARK → exact replay, with a better trust and purchase story.
 
-**RECOMMENDATION:** Spend the title after `Spirit Box` on the differentiating behavior (`Sweep & Replay`), not another generic paranormal term. Spend the subtitle on the two strongest complementary benefits (`Mark Moments` + `Works Offline`). This gives the search result four distinct reasons to click without repeating metadata.
+**REVISED RECOMMENDATION:** Protect `Spirit Box` in the title. Do **not** lock the remaining title/subtitle characters until the secondary-keyword pass is complete. If secondary terms remain weak, `Sweep & Replay` / `Mark Moments. Works Offline.` is a strong conversion-first baseline. If one or more secondary terms show materially better search economics, use the highest-weight visible metadata more aggressively for those terms and let screenshots carry more of the MARK/replay differentiation.
 
 ## Main commercial risk
 
@@ -120,7 +192,7 @@ Do **not** lead the listing with “no ads,” “no subscription,” or technic
 
 ---
 
-# 3. FINAL TITLE
+# 3. BASELINE TITLE CANDIDATES — **FINAL TITLE PENDING SECONDARY-KEYWORD PASS**
 
 Apple limits the app name to 30 characters. [A1][A2]
 
@@ -141,7 +213,7 @@ Apple limits the app name to 30 characters. [A1][A2]
 
 ## Top three
 
-### 1. Spirit Box: Sweep & Replay — **FINAL**
+### 1. Spirit Box: Sweep & Replay — **CONVERSION-FIRST BASELINE, NOT FINAL METADATA**
 
 **Why it could work**
 - Keeps the exact primary query at the start.
@@ -181,7 +253,7 @@ Most professional/instrument-like. It is weaker for casual users because “fiel
 
 ---
 
-# 4. FINAL SUBTITLE
+# 4. BASELINE SUBTITLE CANDIDATES — **FINAL SUBTITLE PENDING SECONDARY-KEYWORD PASS**
 
 Apple limits the subtitle to 30 characters and recommends using it to explain value in more detail rather than repeating a generic description. [A1][A2]
 
@@ -869,120 +941,216 @@ After launch, promotional text is the easiest place to rotate seasonal copy (for
 
 ---
 
-# 13. KEYWORD / ASO PLAN
+# 13. KEYWORD / ASO PLAN — REVISED SEPTEMBER 10, 2026
 
-## What Apple currently allows
+## 13.1 What Apple currently confirms
 
 **VERIFIED FACT**
+
 - App name: up to **30 characters**. [A2]
 - Subtitle: up to **30 characters**. [A2]
-- Keyword field: up to **100 bytes** in App Store Connect. [A3]
-- Promotional text: up to **170 characters** and does not affect search ranking. [A1][A3]
+- Keyword field: up to **100 bytes/characters** in App Store Connect. [A3]
+- Promotional text: up to **170 characters** and does **not** affect App Store search ranking. [A1][A3]
 - Description: up to **4,000 characters**. [A3]
-- Apple advises avoiding duplicate keyword words, plurals already represented by singulars, category names, competitor names/trademarks, and irrelevant terms. [A1]
-- Current ASO tooling/guidance treats iOS title, subtitle, and the hidden keyword field as the important keyword-indexing surfaces; repeating the same term across them wastes limited metadata space. [ASO1][ASO2]
+- Apple says search ranking uses text relevance from **title, subtitle, keywords, and primary category**, plus user behavior including **downloads, ratings, and reviews, and more**.
+- Apple advises avoiding duplicate keyword words, plurals already represented by singulars, category names, competitor names/trademarks, generic filler, and irrelevant terms.
 
-## Primary target
+### Do not overstate unverified ranking mechanics
+
+The project will **not** treat the following as confirmed direct ranking inputs merely because third-party ASO articles claim them:
+
+- screenshot OCR text;
+- D1/D7 retention;
+- crash-free rate;
+- update frequency;
+- Apple Ads spend;
+- a guaranteed paid-to-organic ranking halo.
+
+Optimize product quality and conversion anyway, but keep **VERIFIED FACT** separate from industry inference.
+
+## 13.2 Primary target — locked
 
 ### `spirit box`
 
-**Status:** validated by prior project research and locked as the launch-intent center. [C1]
+This remains the validated launch-intent center.
 
-Placement:
-- **Title — exact phrase at the beginning.**
+Prior project AppTweak data recorded approximately:
 
-Do not dilute it into a brand-only title.
+| Keyword | AppTweak Volume | Current-leader estimated keyword installs in captured period | Role |
+|---|---:|---:|---|
+| `spirit box` | **53** | **94.425** | **Primary money keyword** |
+| `ghost` | **53** | **8.42** | Broad secondary token |
+| `ghost talker` | **43** | **4.44** | Relevant secondary phrase |
+| `ghost box` | **39** | **4.44** | Strong secondary exact-intent phrase |
+| `ghost apps` | **38** | **3.72** | Broad secondary territory |
+| `ghost hunting` | **41** | **2.01** | Relevant investigation intent |
+| `ghost hunting tools` | **44** | **1.13** | Relevant but lower install contribution in captured data |
+| `paranormal` | **38** | **0.74** | Broad supporting term |
 
-## Secondary target territory
+These figures are **directional historical AppTweak outputs**, not forecasts for our app and not universal monthly search volumes.
 
-Use only terms that are both relevant and already supported by prior project research / current category presentation:
+### Placement rule
 
-- `ghost box`
-- `ghost talker`
-- `ghost hunting`
+Keep the exact phrase **`Spirit Box`** in the app name unless stronger direct evidence says otherwise.
+
+There is no verified Apple rule that the first word receives a special ranking multiplier. Keeping `Spirit Box` at the front is still preferred for search-result comprehension, truncation resistance, and exact-query recognition.
+
+## 13.3 Secondary-keyword role
+
+Secondary keywords are important, but they should not become vanity targets.
+
+Use them to:
+
+1. create combinations such as `ghost box`, `ghost talker`, and `ghost hunting`;
+2. collect lower-competition long-tail traffic;
+3. widen the organic search surface without weakening product relevance.
+
+Do **not** force low-quality terms merely to use all 100 bytes.
+
+### Current supported territory
+
+- `ghost`
+- `talker`
+- `hunting`
 - `paranormal`
 - `ITC`
-- `recorder`
+- `EVP` / recorder terms if final Sonar data supports them
 - `investigation`
-- `session`
 - `audio`
-- `communication`
-- `research`
-- `tool`
+- `session`
+- truthful differentiators such as `offline`, `sweep`, `replay`, `mark` where they have useful search value
 
 ### Important exclusion
+
 Do **not** target:
-- `SB7`, `P-SB7`, `Necrophonic`, `GhostTube`, `Spirit Talker` or other competitor trademarks;
+
+- `SB7`, `P-SB7`, `Necrophonic`, `GhostTube`, `Spirit Talker`, or other competitor trademarks;
 - `radio`, `AM`, `FM`, `frequency` because V1 does not scan radio/RF;
-- `ghost detector`, `EMF`, `SLS`, `radar` because those are not V1 functionality;
+- `ghost detector`, `EMF`, `SLS`, `radar` unless V1 actually contains those functions;
 - `AI` or `chatbot`.
 
-## Metadata placement
+## 13.4 Final title/subtitle decision — **NOT YET LOCKED**
 
-### Title
+Current baseline:
+
 ```text
 Spirit Box: Sweep & Replay
 ```
 
-Indexed/visible concepts:
-- spirit
-- box
-- sweep
-- replay
-
-### Subtitle
 ```text
 Mark Moments. Works Offline.
 ```
 
-Indexed/visible concepts:
-- mark
-- moments
-- works
-- offline
+This remains the **conversion-first control**.
 
-### Proposed launch keyword field
-Exactly 100 ASCII bytes:
+Before submission, compare it against rank-first variants derived from the final Sonar dataset. Do **not** invent the rank-first variant in advance. The secondary term must earn premium title/subtitle space with real relevance and comparative search evidence.
+
+### Decision rule
+
+- If secondary keywords remain modest relative to `spirit box`, keep more conversion language in title/subtitle.
+- If a secondary term has materially better popularity/competition geometry and matches V1 exactly, promote it into title or subtitle.
+- Never weaken or remove the primary `Spirit Box` phrase to chase a secondary.
+
+## 13.5 Hidden keyword field
+
+Current baseline field:
 
 ```text
 ghost,talker,hunting,paranormal,itc,recorder,investigation,audio,session,communication,research,tool
 ```
 
-This deliberately does **not** repeat:
-- spirit
-- box
-- sweep
-- replay
-- mark
-- moments
-- works
-- offline
+This is **not final**.
 
-It also allows combinations such as `ghost box`, `ghost talker`, `ghost hunting`, and `paranormal investigation` without storing those full multi-word phrases separately.
+After Sonar:
 
-## Description strategy
+1. remove any word promoted into title/subtitle;
+2. remove obvious filler or near-zero-value terms;
+3. avoid repeating title/subtitle words;
+4. prefer atomic tokens that form useful combinations;
+5. use the 100-byte limit efficiently, but do not keep weak terms just to reach 100.
 
-Write naturally for conversion and web/search-engine understanding; do not keyword-stuff. Current AppTweak guidance states that iOS long-description keywords are not used the way the iOS title/subtitle/keyword field are for App Store indexing. [ASO1]
+`research` and `communication` are specifically **re-evaluation candidates** because their value was not as well validated as the primary/ghost-hunting cluster.
 
-## Search-result ASO principle
+## 13.6 Bounded Sonar/free research pass
 
-The title should do **discovery** and **category recognition**.  
-The subtitle and screenshots should do **conversion**.
+This is the final pre-launch keyword-research gate.
 
-Do not optimize the title so aggressively for extra keywords that it becomes indistinguishable from the leader’s stuffed `Spirit Box SBX Ghost Talker / Radio EMF Necrometer Detector` presentation. [W1]
+Prepare the query list **before** starting the trial. Pull the data in one concentrated session and save/export the results.
 
-## Post-launch ASO measurement
+Search families:
+
+- spirit box / spiritbox variants;
+- ghost box variants;
+- ghost talker / communication variants;
+- ghost hunting / tools / investigation;
+- paranormal;
+- ITC;
+- EVP / recorder / recording;
+- offline / session / replay / mark / tag / sweep modifiers;
+- App Store autocomplete suggestions;
+- competitor metadata tokens;
+- Sonar competitor-gap suggestions.
+
+For each serious term record:
+
+- popularity;
+- difficulty;
+- ranking apps;
+- rating strength of top results;
+- exact product relevance;
+- whether it can combine with existing metadata tokens.
+
+### Kill/decision criteria
+
+- **Strong secondaries exist:** incorporate them into metadata.
+- **Secondaries weak:** keep them as combinatorial support; do not dilute primary positioning.
+- **Primary term no longer commercially attractive:** reassess the app opportunity instead of assuming paid marketing will rescue it.
+
+## 13.7 Description strategy
+
+Write naturally for conversion and web/search-engine understanding; do not keyword-stuff. The iOS long description is not treated as equivalent to title/subtitle/keyword-field indexing. [ASO1]
+
+## 13.8 Screenshot text
+
+Keep screenshot copy optimized primarily for **conversion and comprehension**.
+
+Do not add awkward keyword repetition merely because third-party sources claim screenshot OCR contributes directly to organic ranking. That claim is not strong enough to override the conversion strategy.
+
+## 13.9 Ratings/reviews
+
+Apple explicitly states that ratings and reviews contribute to App Store discoverability/search behavior.
+
+V1 should include a standard native review-request opportunity only after a genuinely positive engagement point, such as completing a session and successfully using replay/marks. Never reward, gate, or pressure a positive review.
+
+## 13.10 Apple Ads
+
+Apple Ads is **not required for launch** and should not block the project.
+
+Potential later uses:
+
+- paid acquisition if unit economics justify it;
+- additional keyword-intelligence data.
+
+Do not assume Apple Ads produces a guaranteed organic-ranking boost.
+
+## 13.11 Post-launch organic measurement
 
 Track:
+
 - rank for `spirit box`;
 - rank for important secondary terms;
 - App Store impressions;
 - product-page views;
 - installs;
 - product-page conversion;
-- rating and review themes.
+- ratings and review themes;
+- traffic source split where available.
 
-Do not interpret ranking alone as success; the prior project already learned that rank without economically meaningful traffic can be a false positive.
+The commercial test is not “did rank improve?” It is:
+
+> **Did organic search generate enough qualified installs and revenue to justify the app?**
+
+If not, do not silently redefine the product as a marketing-led business.
 
 ---
 
@@ -1270,7 +1438,7 @@ Do not alter $1.99 / $9.99 from speculation. Measure after launch.
 # 18. FINAL HANDOFF CHECKLIST
 
 ## Metadata
-- [ ] Title entered as `Spirit Box: Sweep & Replay`.
+- [ ] Final title selected after bounded secondary-keyword pass; exact phrase `Spirit Box` preserved unless materially stronger evidence says otherwise.
 - [ ] Confirm title remains ≤30 characters in App Store Connect.
 - [ ] Subtitle entered as `Mark Moments. Works Offline.`
 - [ ] Confirm subtitle remains ≤30 characters.

@@ -8,21 +8,22 @@ Before making any product or implementation decision, read:
 
 This is authoritative.
 
-Supporting documents never override canonical scope, pricing, V1 boundaries, or audio architecture.
+Supporting documents never override canonical scope, pricing, V1 boundaries, or the **current** audio recommendation.
 
 ### Document classes
 
 | Class | Path | Role |
 |-------|------|------|
-| **Authoritative** | `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` | Final product, scope, and implementation source of truth |
-| **Supporting product research** | `docs/research/` | Evidence and architecture-decision research |
-| **Production execution** | `docs/production/` | Operational production inputs (e.g. audio corpus plan) |
-| **Launch / acquisition execution** | `docs/launch/` | ASO, conversion, and first-user acquisition playbooks |
+| **Authoritative** | `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` | Final product source of truth (**CONDITIONAL BUILD** as of 2026-09-10) |
+| **Revalidation ledger** | `docs/research/RESEARCH-REVALIDATION-2026-09-10.md` | Why prior assumptions changed |
+| **Supporting product research** | `docs/research/` | Evidence |
+| **Production execution** | `docs/production/` | VCTK path current; commissioned corpus **fallback only** |
+| **Launch / acquisition execution** | `docs/launch/` | ASO + **required** seeding |
 
-Task-specific agents should read the canonical document plus the relevant execution doc for their work:
+Task-specific agents should read the canonical document plus:
 
-- **Audio-engine / corpus work:** canonical + `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` + `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md` + `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`
-- **Launch / ASO / acquisition work:** canonical + the relevant playbook under `docs/launch/`
+- **Audio:** canonical + `SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` + renderer research (do not start performer procurement)
+- **Launch / ASO:** canonical + ASO playbook + acquisition plan + indie ASO OS
 
 If any supporting document conflicts with the canonical source of truth, the canonical document wins.
 
@@ -46,19 +47,9 @@ START → LISTEN → MARK → REPLAY
 
 ## V1 audio architecture
 
-Locked architecture:
+**Current recommendation (reopenable):** offline licensed human-speech fragments (VCTK candidate) + non-semantic sweep. Intermittent shards OK. No live radio, STT, semantic answers, AI interpretation, or fake RF.
 
-offline original / explicitly licensed short audio + phoneme corpus
-+
-non-semantic sweep renderer
-
-No:
-- live radio
-- speech recognition
-- semantic response logic
-- generated ghost answers
-- AI interpretation
-- fake RF/frequency behavior
+See `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md`.
 
 ## Repository workflow
 

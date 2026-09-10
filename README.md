@@ -36,6 +36,8 @@ Spirit Box is an iOS-first product. Implementation is planned in Swift/SwiftUI. 
 
 The private audio validation harness lives in `ios/SpiritBoxAudioHarness.xcodeproj`. It is a developer tool only. See [`docs/engineering/AUDIO_HARNESS.md`](docs/engineering/AUDIO_HARNESS.md).
 
-**Audio gate status:** `PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED`
+**Canonical status (2026-09-10):** **CONDITIONAL BUILD** — not BUILD AUTHORIZED. Ledger: [`docs/research/RESEARCH-REVALIDATION-2026-09-10.md`](docs/research/RESEARCH-REVALIDATION-2026-09-10.md).
 
-The bundled VCTK Phase 1 candidate is loaded in the harness. Do not start the full product until that corpus has passed the canonical 15–20 minute human listening gate.
+**Audio gate status:** `PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — SMALLEST A/B THEN 15–20 MINUTE HUMAN GATE NOT YET PASSED`
+
+The bundled VCTK Phase 1 candidate is loaded in the harness. Do not start the full product until audio passes the gates in the canonical Section 18.

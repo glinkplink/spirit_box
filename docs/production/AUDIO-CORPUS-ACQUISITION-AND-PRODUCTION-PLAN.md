@@ -2,13 +2,19 @@
 
 **Project:** iPhone Spirit-Box Instrument  
 **Date:** September 2, 2026  
-**Status:** Revised Phase 1 corpus production plan — transition-dominant commissioned path **and** approved VCTK licensed-crop path
+**Status:** **PARTIALLY SUPERSEDED (2026-09-10)**
+
+> **Do not start Upwork / four-performer procurement.** The current Phase 1 path is the bundled VCTK 1,200-asset candidate. Commissioned recording is a **fallback only if** the small renderer A/B and human gate fail because the *source* cannot sound like interrupted speech. See `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` and `docs/research/RESEARCH-REVALIDATION-2026-09-10.md`.
+>
+> Rights templates below remain useful **if** that fallback is ever used. They are not current work.
+
+**Architecture (current):** Offline licensed human-speech fragments + non-semantic sweep. Isolated-phoneme / “strip all recognizable words” doctrine is withdrawn for the *rendered* mix.
 
 **Locked architecture:** Offline original/explicitly licensed human vocal corpus + phoneme bank + non-semantic sweep renderer
 
 > **Decision rule:** optimize for the cheapest, fastest corpus that can survive a 15–20 minute blind listening test without sounding canned, repetitive, semantically steered, or like a small clip randomizer.
 
-> **Rendered-sweep rule (September 2026):** Approve or reject corpus material based on **what survives in the rendered sweep** (cropping, filtering, scheduling, runtime transforms), not on whether upstream recordings were originally full sentences. Recognizable words in audition are defects to remove; sentence-level source provenance alone is not a blocker.
+> **Rendered-sweep rule (September 10, 2026):** Approve or reject based on the **rendered sweep**. Intermittent recognizable **fragments** are acceptable and expected. Full canned phrases, question-timed answers, and obvious clip loops are defects. Dry-asset “I can hear a dictionary word” is **not** an automatic reject.
 
 ## Approved Phase 1 corpus paths
 
