@@ -44,7 +44,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
     /// Shared live/offline default. Experimental candidate, not a proven listening improvement.
     public static let listeningTestIdentity = NamedRendererPreset(
         identifier: "listening-test",
-        version: "2026-09-10.bed-spectrum-v1"
+        version: "2026-09-10.gain-rebalance-v2"
     )
 
     /// Pass A accepted gains without bed spectral decoupling (Pass B blinded A/B baseline).
@@ -80,16 +80,11 @@ public struct SweepRendererSettings: Equatable, Sendable {
         }
     }
 
-    /// Default preset for the next 200/300 ms listening tests.
+    /// Default preset for the next 200/300 ms listening tests (Pass A gain rebalance).
     public static let listeningTest = SweepRendererSettings(
         staticGain: 0.050,
         vocalGain: 0.58,
-        outputGain: 4.15,
-        usesDecoupledBedShape: true,
-        bedHighPassHz: 200,
-        bedLowPassHz: 4_500,
-        bedWanderDepthHz: 35,
-        bedWanderPeriodSeconds: 20
+        outputGain: 4.15
     )
 
     /// Pre-rebalance gain baseline (0.10 / 0.48) for controlled fixture renders.

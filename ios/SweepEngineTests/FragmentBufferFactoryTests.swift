@@ -216,7 +216,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
         }
     }
 
-    func testDecoupledBedShapeIsDeterministicAfterReset() {
+    func testProceduralNoiseIsDeterministicAfterReset() {
         let a = ProceduralNoiseState()
         let b = ProceduralNoiseState()
         a.reset(seed: 12648430, settings: .listeningTest)

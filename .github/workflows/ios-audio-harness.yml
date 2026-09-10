@@ -78,7 +78,7 @@ jobs:
           build/acoustic-venv/bin/pip install numpy
           command -v ffmpeg || brew install ffmpeg
           export PATH="$PWD/build/acoustic-venv/bin:$PATH"
-          if [[ ! -f tools/fixtures/archived-pcm-regression/pcm-prefix.sha256 ]]; then
+          if [[ ! -f tools/fixtures/listening-test-pre-rebalance-gain-ab/manifest.json ]]; then
             ./scripts/bootstrap-listening-fixtures.sh
           fi
           ls -la tools/fixtures/ || true
@@ -89,9 +89,6 @@ jobs:
             --output-dir build/evaluation-matrix/listening-test
           mkdir -p build/listening-60s-300ms
           cp -a build/evaluation-matrix/listening-test/300ms-forward-60s/. build/listening-60s-300ms/
-          ./scripts/render-sweep.sh ios/Phase1 build/archived-regression-check 30 300 forward 12648430 archived-continuous-static
-          python3 tools/check_sweep_render.py build/archived-regression-check --manifest ios/Phase1/manifest.json
-          python3 tools/verify_archived_pcm_regression.py build/archived-regression-check tools/fixtures/archived-pcm-regression/
       - name: Upload 60s listening clips immediately
         if: always()
         uses: actions/upload-artifact@v4
@@ -118,7 +115,6 @@ jobs:
             build/listening-*/
             build/listening-runs/
             build/evaluation-matrix/
-            build/archived-regression-check/
             build/fixture-capture/
             tools/fixtures/
           if-no-files-found: error

@@ -35,7 +35,7 @@ private struct SweepBiquad {
     }
 }
 
-/// Identical 12 dB/octave edges and +3.5 dB / Q 1.75 presence for vocal glimpses.
+/// Identical 12 dB/octave edges and +3.5 dB / Q 1.75 presence for both layers.
 struct RadioSpeakerShape {
     private var high: SweepBiquad
     private var low: SweepBiquad
@@ -52,89 +52,19 @@ struct RadioSpeakerShape {
     }
 }
 
-/// Decoupled procedural bed: wider band, no presence peak, bounded deterministic wander.
-struct NoiseBedShape {
-    private let sampleRate: Double
-    private let settings: SweepRendererSettings
-    private let wanderPhaseOffset: Double
-    private let smoothingSamples: Int
-    private let maxStepHP: Double
-    private let maxStepLP: Double
-
-    private var high: SweepBiquad
-    private var low: SweepBiquad
-    private var highPassHz: Double
-    private var lowPassHz: Double
-    private var sampleIndex: UInt64 = 0
-    private var samplesSinceRetarget = 0
-
-    init(sampleRate: Double, settings: SweepRendererSettings, seed: UInt32) {
-        self.sampleRate = sampleRate
-        self.settings = settings
-        wanderPhaseOffset = Double(seed) * 1.1035
-        smoothingSamples = max(1, Int(sampleRate * 0.010))
-        let depth = max(0, settings.bedWanderDepthHz)
-        maxStepHP = depth * 2.0 / Double(smoothingSamples)
-        maxStepLP = depth * 2.8 / Double(smoothingSamples)
-        highPassHz = settings.bedHighPassHz
-        lowPassHz = settings.bedLowPassHz
-        high = SweepBiquad(hz: highPassHz, sampleRate: sampleRate, highPass: true)
-        low = SweepBiquad(hz: lowPassHz, sampleRate: sampleRate, highPass: false)
-    }
-
-    private func clamp(_ value: Double, min minValue: Double, max maxValue: Double) -> Double {
-        min(maxValue, max(minValue, value))
-    }
-
-    private func wanderTargets() -> (hp: Double, lp: Double) {
-        let period = settings.bedWanderPeriodSeconds
-        let phase = (wanderPhaseOffset + Double(sampleIndex) / sampleRate)
-            .truncatingRemainder(dividingBy: period) / period
-        let w = sin(2 * Double.pi * phase)
-        let depth = settings.bedWanderDepthHz
-        let hp = clamp(settings.bedHighPassHz + w * depth, min: 120, max: 350)
-        let lp = clamp(settings.bedLowPassHz + w * depth * 1.4, min: 3_000, max: 5_500)
-        return (hp, lp)
-    }
-
-    mutating func process(_ input: Float) -> Float {
-        let sample = Double(input.isFinite ? input : 0)
-        let targets = wanderTargets()
-        highPassHz += clamp(targets.hp - highPassHz, min: -maxStepHP, max: maxStepHP)
-        lowPassHz += clamp(targets.lp - lowPassHz, min: -maxStepLP, max: maxStepLP)
-        if samplesSinceRetarget >= smoothingSamples {
-            high = SweepBiquad(hz: highPassHz, sampleRate: sampleRate, highPass: true)
-            low = SweepBiquad(hz: lowPassHz, sampleRate: sampleRate, highPass: false)
-            samplesSinceRetarget = 0
-        }
-        samplesSinceRetarget += 1
-        sampleIndex += 1
-        return Float(low.process(high.process(sample)))
-    }
-}
-
 /// Generated on the serial scheduling queue, not a second, free-running clock.
 final class ProceduralNoiseState {
     private var seed: UInt32 = 0
-    private var settings: SweepRendererSettings = .listeningTest
-    private var radioShape = RadioSpeakerShape(sampleRate: 48_000)
-    private var bedShape: NoiseBedShape?
+    private var shape = RadioSpeakerShape(sampleRate: 48_000)
 
     func reset(seed: UInt32, sampleRate: Double = 48_000,
                settings: SweepRendererSettings = .listeningTest) {
         self.seed = seed
-        self.settings = settings
-        if settings.usesDecoupledBedShape {
-            bedShape = NoiseBedShape(sampleRate: sampleRate, settings: settings, seed: seed)
-            radioShape = RadioSpeakerShape(sampleRate: sampleRate, settings: settings)
-        } else {
-            bedShape = nil
-            radioShape = RadioSpeakerShape(sampleRate: sampleRate, settings: settings)
-        }
+        shape = RadioSpeakerShape(sampleRate: sampleRate, settings: settings)
     }
 
     func configure(sampleRate: Double, settings: SweepRendererSettings) {
-        reset(seed: seed, sampleRate: sampleRate, settings: settings)
+        shape = RadioSpeakerShape(sampleRate: sampleRate, settings: settings)
     }
 
     static func commutationFrames(sampleRate: Double) -> (quiet: Int, edge: Int) {
@@ -149,12 +79,7 @@ final class ProceduralNoiseState {
     func nextSample() -> Float {
         seed = seed &* 1_664_525 &+ 1_013_904_223
         let white = Float(seed >> 8) / Float(0x00FF_FFFF) * 2 - 1
-        if settings.usesDecoupledBedShape, var shape = bedShape {
-            let output = shape.process(white)
-            bedShape = shape
-            return output
-        }
-        return radioShape.process(white)
+        return shape.process(white)
     }
 }
 
