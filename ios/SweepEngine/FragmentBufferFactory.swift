@@ -44,13 +44,13 @@ public struct SweepRendererSettings: Equatable, Sendable {
     /// Shared live/offline default. Experimental candidate, not a proven listening improvement.
     public static let listeningTestIdentity = NamedRendererPreset(
         identifier: "listening-test",
-        version: "2026-09-10.gain-rebalance-v4"
+        version: "2026-09-10.gain-rebalance-v5"
     )
 
     /// Pass A accepted gains without bed spectral decoupling (Pass B blinded A/B baseline).
     public static let listeningTestGainRebalanceIdentity = NamedRendererPreset(
         identifier: "listening-test-gain-rebalance",
-        version: "2026-09-10.gain-rebalance-v4"
+        version: "2026-09-10.gain-rebalance-v5"
     )
 
     /// Frozen pre-rebalance listening-test gains for gain-only A/B fixture renders.
@@ -83,8 +83,8 @@ public struct SweepRendererSettings: Equatable, Sendable {
     /// Default preset for the next 200/300 ms listening tests (Pass A gain rebalance).
     public static let listeningTest = SweepRendererSettings(
         staticGain: 0.054,
-        vocalGain: 0.62,
-        outputGain: 3.95
+        vocalGain: 0.63,
+        outputGain: 4.05
     )
 
     /// Pre-rebalance gain baseline (0.10 / 0.48) for controlled fixture renders.
@@ -96,8 +96,8 @@ public struct SweepRendererSettings: Equatable, Sendable {
     /// Pass A accepted gains only; bed shape unchanged from pre-rebalance.
     public static let listeningTestGainRebalance = SweepRendererSettings(
         staticGain: 0.054,
-        vocalGain: 0.62,
-        outputGain: 3.95
+        vocalGain: 0.63,
+        outputGain: 4.05
     )
 
     /// PR #31 continuous-static / 8% density defaults, kept only so baseline clips
@@ -120,8 +120,8 @@ public struct SweepRendererSettings: Equatable, Sendable {
         vocalEventProbability: Double = 0.07,
         clusteriness: Double = 0.0,
         staticGain: Float = 0.054,
-        vocalGain: Float = 0.62,
-        outputGain: Float = 3.95,
+        vocalGain: Float = 0.63,
+        outputGain: Float = 4.05,
         minVocalExposureSeconds: Double = 0.100,
         maxVocalExposureSeconds: Double = 0.180,
         minExposureFractionOfDwell: Double = 0.40,

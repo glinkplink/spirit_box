@@ -67,10 +67,10 @@ final class VocalDensitySchedulerTests: XCTestCase {
 
     func testListeningTestMixUsesAudibleBed() {
         XCTAssertEqual(SweepRendererSettings.listeningTest.staticGain, 0.054, accuracy: 0.001)
-        XCTAssertEqual(SweepRendererSettings.listeningTest.vocalGain, 0.62, accuracy: 0.001)
-        XCTAssertEqual(SweepRendererSettings.listeningTest.outputGain, 3.95, accuracy: 0.001)
+        XCTAssertEqual(SweepRendererSettings.listeningTest.vocalGain, 0.63, accuracy: 0.001)
+        XCTAssertEqual(SweepRendererSettings.listeningTest.outputGain, 4.05, accuracy: 0.001)
         XCTAssertEqual(SweepRendererSettings.listeningTestGainRebalance.staticGain, 0.054, accuracy: 0.001)
-        XCTAssertEqual(SweepRendererSettings.listeningTestGainRebalance.vocalGain, 0.62, accuracy: 0.001)
+        XCTAssertEqual(SweepRendererSettings.listeningTestGainRebalance.vocalGain, 0.63, accuracy: 0.001)
         XCTAssertFalse(SweepRendererSettings.listeningTestGainRebalance.usesDecoupledBedShape)
         XCTAssertFalse(SweepRendererSettings.listeningTest.usesDecoupledBedShape)
         XCTAssertEqual(SweepRendererSettings.listeningTest.clusteriness, 0.0, accuracy: 0.001)
@@ -121,7 +121,7 @@ final class VocalDensitySchedulerTests: XCTestCase {
         let blob = lines.joined(separator: "\n")
         XCTAssertTrue(blob.contains("listening-test"))
         XCTAssertTrue(blob.contains(SweepRendererSettings.listeningTestIdentity.version))
-        XCTAssertEqual(SweepRendererSettings.listeningTestIdentity.version, "2026-09-10.gain-rebalance-v4")
+        XCTAssertEqual(SweepRendererSettings.listeningTestIdentity.version, "2026-09-10.gain-rebalance-v5")
         XCTAssertTrue(blob.contains("Configured vocal-event probability: 7.0%"))
         XCTAssertTrue(blob.contains("scheduler target, not measured density"))
         XCTAssertTrue(blob.contains("120.00–180.00 ms"))
