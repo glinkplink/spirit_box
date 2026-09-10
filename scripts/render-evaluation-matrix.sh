@@ -76,7 +76,6 @@ for cell in "${CELLS[@]}"; do
   IFS=: read -r RATE DIRECTION SECONDS <<<"$cell"
   CELL_DIR="$OUTPUT/${RATE}ms-${DIRECTION}-${SECONDS}s"
   rm -rf "$CELL_DIR"
-  mkdir -p "$CELL_DIR"
   echo "=== Matrix cell: ${RATE}ms ${DIRECTION} ${SECONDS}s ==="
   if ! "$ROOT/scripts/render-sweep.sh" "$CORPUS" "$CELL_DIR" "$SECONDS" "$RATE" "$DIRECTION" "$SEED" "$PRESET"; then
     echo "FAIL: render failed for $CELL_DIR" >&2
