@@ -29,14 +29,9 @@ render_and_check() {
   fi
 }
 
-echo "=== Pre-rebalance gain A/B fixture ==="
+echo "=== Pre-rebalance A0 fixture ==="
 PRE="$BUILD/pre-rebalance"
 render_and_check "$PRE" 60 300 forward "$SEED" listening-test-pre-rebalance
 "$ROOT/scripts/capture-listening-fixture.sh" --name listening-test-pre-rebalance-gain-ab --from "$PRE"
-
-echo "=== Pass A final (gain-rebalance only) fixture ==="
-PASS_A="$BUILD/pass-a-final"
-render_and_check "$PASS_A" 60 300 forward "$SEED" listening-test-gain-rebalance
-"$ROOT/scripts/capture-listening-fixture.sh" --name listening-test-pass-a-final --from "$PASS_A"
 
 echo "Fixtures captured under tools/fixtures/"

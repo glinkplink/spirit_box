@@ -4,17 +4,18 @@ Durable render bundles for mix-rebalance A/B and archived PCM regression.
 
 | Path | Role |
 |------|------|
-| `listening-test-pre-rebalance-gain-ab/` | Frozen A0 static/vocal (0.10 / 0.48) for Pass A blinded listening. **Committed.** `outputGain` on this capture is 4.05 (inherits live init default), not A0’s 3.5. |
-| `listening-test-pass-a-final/` | Pass A accepted gains without bed decoupling (Pass B blinded A/B). **Not committed** — Pass A v5 was not accepted. |
-| `archived-pcm-regression/` | 30 s `archived-continuous-static` PCM/event prefix hashes. Deferred with Pass B. |
+| `listening-test-pre-rebalance-gain-ab/` | Frozen **A0** `listening-test` at **0.10 / 0.48 / 3.5**, seed `12648430`, 60 s / 300 ms forward. Pass A is **not accepted**; this is the reverted baseline, not a Pass A final. Human listening: **NOT_RUN**. |
+| `archived-pcm-regression/` | 30 s `archived-continuous-static` PCM/event prefix hashes. Deferred with Pass B (not implemented). |
 
-Capture on macOS:
+There is **no** `listening-test-pass-a-final/` fixture. Do not add one until every Pass A gate has actually passed.
+
+Capture on macOS (A0 only):
 
 ```sh
 ./scripts/bootstrap-listening-fixtures.sh
 ```
 
-Verify archived regression:
+Verify archived regression (Pass B only; not wired):
 
 ```sh
 ./scripts/render-sweep.sh ios/Phase1 build/archived-regression-check 30 300 forward 12648430 archived-continuous-static

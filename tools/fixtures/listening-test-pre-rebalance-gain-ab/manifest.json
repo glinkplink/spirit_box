@@ -1,8 +1,8 @@
 {
   "fixture_name": "listening-test-pre-rebalance-gain-ab",
-  "generating_commit": "742e5b937d9007bd1f0a143f0f65fb2f21c284a3",
+  "generating_commit": "2e8e9f8fae3655b32d3411e984c6db41137955af",
   "source_dirty": "clean",
-  "preset_identifier": "listening-test-pre-rebalance",
+  "preset_identifier": "listening-test",
   "preset_version": "2026-09-10.sparse-exposure-v1",
   "seed": 12648430,
   "rate_ms": 300,
@@ -11,7 +11,7 @@
   "corpus_manifest_sha256": "6bb5d2221e8d2a88fc98156e90d980a008f6c626cd07d9650a3f09f004b6e92b",
   "checker_acoustics_sha256": "a7b6cec65dc914c605eb4b7af137155988d59e32495395d4f5b18163799e9b7f",
   "checker_render_sha256": "54c0ed14d410e8ef78b249aada88eda8ac19f0620bb1a55fe3619b277d8ada07",
-  "sweep_wav_sha256": "cbd4f1b41c2d7cb00f8fc72bbcb8280c21bdd2c8e430c601981df014feec02b5",
-  "ci_run_id": 34469280967,
-  "ci_head_note": "Captured on GitHub Actions macos-15 from PR merge checkout of audio/run6-iphone-prep@742e5b93; engine-diagnostics source_commit was the ephemeral merge SHA."
+  "sweep_wav_sha256": "9c9b26186567bade5ef541b368c4e287d2cd8ccda92d2bf08d79a3e45777a731",
+  "ci_run_id": 34461452369,
+  "ci_head_note": "WAV rendered on macOS-15 in run 34461452369 from audio/run6-iphone-prep@2e8e9f8f (verified A0 0.10/0.48/3.5). This Linux host cannot re-render. engine-diagnostics source_commit is the ephemeral PR merge SHA."
 }

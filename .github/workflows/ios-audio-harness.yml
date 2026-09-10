@@ -85,10 +85,15 @@ jobs:
       - name: Render evaluation matrix and primary 60s candidate
         run: |
           export PATH="$PWD/build/acoustic-venv/bin:$PATH"
+          set +e
           ./scripts/render-evaluation-matrix.sh --preset listening-test --seed 12648430 \
             --output-dir build/evaluation-matrix/listening-test
+          MATRIX_EXIT=$?
           mkdir -p build/listening-60s-300ms
-          cp -a build/evaluation-matrix/listening-test/300ms-forward-60s/. build/listening-60s-300ms/
+          if [[ -d build/evaluation-matrix/listening-test/300ms-forward-60s ]]; then
+            cp -a build/evaluation-matrix/listening-test/300ms-forward-60s/. build/listening-60s-300ms/
+          fi
+          exit "$MATRIX_EXIT"
       - name: Upload 60s listening clips immediately
         if: always()
         uses: actions/upload-artifact@v4

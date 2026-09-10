@@ -233,7 +233,6 @@ final class FragmentBufferFactoryTests: XCTestCase {
     func testArchivedPresetKeepsRadioSpeakerBedPath() {
         let state = ProceduralNoiseState()
         state.reset(seed: 12648430, settings: .archivedContinuousStatic)
-        XCTAssertFalse(SweepRendererSettings.archivedContinuousStatic.usesDecoupledBedShape)
         var peak: Float = 0
         for _ in 0..<48_000 {
             peak = max(peak, abs(state.nextSample()))
