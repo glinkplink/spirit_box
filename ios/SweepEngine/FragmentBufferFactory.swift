@@ -69,7 +69,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
 
     /// Default preset for the next 200/300 ms listening tests.
     public static let listeningTest = SweepRendererSettings(
-        staticGain: 0.0515, vocalGain: 0.90, outputGain: 4.2
+        staticGain: 0.0562, vocalGain: 0.90, outputGain: 4.2
     )
 
     /// Frozen A0 listening-test values. Do not omit fields; this is the fixture baseline.
