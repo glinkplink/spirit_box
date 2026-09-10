@@ -41,9 +41,11 @@ Rejected as shipping changes from that review:
 
 Next required gate: 15–20 minutes on physical iOS hardware with unprimed listeners (Source of Truth §18). Prefer mostly Forward at 200/300 ms; long uninterrupted Reverse is a separate reverse-semantics test, not the default endurance protocol.
 
-## Run 4 physical device review (2026-09-10)
+## Run 4 reported device notes (2026-09-10)
 
-TestFlight Build 4 (commit `4eb5a164`) review identified that the PR #28 DSP changes introduced two acoustic defects:
+**Evidence:** SUBJECTIVE / REPORTED_NOT_REPRODUCED. The Run6 ledger did not re-listen; physical-device review is not evidenced on this branch. Treat the following as reported notes attached to TestFlight Build 4 (`4eb5a164`), not as a verified listening verdict.
+
+A reported TestFlight Build 4 (`4eb5a164`) review described the PR #28 DSP changes as introducing two acoustic defects:
 1. Static noise bed was pulsing / gating due to a 10 ms ducking envelope on every slot (`ProceduralNoiseState.slotEnvelope` dropping to 0.06).
 2. Voice snippets were firing too frequently (33% probability vs reference ~5.8%) and were over-clipped to 50–75 ms, creating unnatural transient clicks/pops.
 

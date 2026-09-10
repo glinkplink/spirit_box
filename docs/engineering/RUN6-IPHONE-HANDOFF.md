@@ -33,14 +33,24 @@ Run6 is a listening experiment. Automated acoustics do not pass Section 18.
 
 Run6 needs the **current licensed VCTK bank** plus the locked `listening-test` renderer preset. No corpus replacement is justified from the recomputed files: PCM matches the bundled bank. A final-mix audition WAV is **not** an importable corpus.
 
-**Ready-to-import archive** (same manifest identity and PCM as `ios/Phase1`):
+**Identity-check archive** (same manifest identity and PCM as `ios/Phase1`; hash/compare only):
 
 - Path: `build/vctk-renderer-integration/SpiritBoxPhase1Corpus.zip`
 - Zip SHA-256: `01fff56141d148af6ef1113f946a42a243cd5ae4d1dc125971c595193c2357c6`
 - Bytes: 36592205
 - Manifest SHA-256: `6bb5d2221e8d2a88fc98156e90d980a008f6c626cd07d9650a3f09f004b6e92b`
 
-`build/vctk-production-candidate-final/SpiritBoxPhase1Corpus.zip` has the **same PCM** but a **different manifest label/hash**. Do not import that zip if the goal is the bundled identity.
+The harness picker accepts a **folder**, WAVs, and JSON. It does **not** accept ZIP files. Do not tap Upload corpus on the `.zip`.
+
+To load this bank from the archive:
+
+1. Copy the ZIP onto the iPhone (AirDrop / Files).
+2. In **Files**, unzip it.
+3. In the harness, tap **Upload corpus** and choose the expanded `SpiritBoxPhase1Corpus` folder (the folder that contains `manifest.json` and the WAV files).
+
+Or skip the archive and tap **Use bundled** when the 1,200-asset VCTK bank is already in the build.
+
+`build/vctk-production-candidate-final/SpiritBoxPhase1Corpus.zip` has the **same PCM** but a **different manifest label/hash**. Do not import that expanded folder if the goal is the bundled identity.
 
 ## How the app selects the bank and preset
 
@@ -57,18 +67,19 @@ Run6 needs the **current licensed VCTK bank** plus the locked `listening-test` r
 | Offline CLI | `scripts/render-sweep.sh` / `render-short-listening.sh --preset …` |
 | TestFlight / Release | Same code default. This branch bakes `SpiritBoxSourceCommit` / `SpiritBoxSourceDirty` into Info.plist at archive time. |
 
-For Run6 on a device that previously imported a corpus: confirm the harness label is the VCTK 1,200-asset bundle, or tap **Use bundled** / upload the zip above. Then START (forces `listening-test`).
+For Run6 on a device that previously imported a corpus: confirm the harness label is the VCTK 1,200-asset bundle, or tap **Use bundled**, or unzip the archive above in Files and choose the expanded `SpiritBoxPhase1Corpus` folder. Then START (forces `listening-test`).
 
 ## Actual-engine render (required before claiming candidate audio)
 
-Linux cannot emit AVAudioEngine WAVs. After this branch is on GitHub:
+Linux cannot emit AVAudioEngine WAVs. After this branch is on GitHub, dispatch against the **exact SHA** to prove (PR merge SHAs are not that commit):
 
 ```sh
-gh workflow run ios-audio-harness.yml --ref audio/run6-iphone-prep
-# or open the PR to main; iOS-relevant paths must be classified true
+gh workflow run ios-audio-harness.yml --ref audio/run6-iphone-prep -f source_sha=<40-character-sha>
 ```
 
-A green **skipped** `build-and-test` on Ubuntu is **not** audio validation.
+Every actual-engine render in that workflow must go through `scripts/render-sweep.sh` so `engine-diagnostics.json` records `source_commit`. Invoking `build/render-sweep/render-sweep` directly leaves `source_commit: UNKNOWN`.
+
+A green **skipped** `build-and-test` on Ubuntu is **not** audio validation. A PR-triggered render of GitHub’s merge SHA is not proof of the branch HEAD.
 
 Download artifacts from the **exact tested SHA**:
 

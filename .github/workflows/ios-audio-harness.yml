@@ -89,19 +89,19 @@ jobs:
           if-no-files-found: error
       - name: Remaining actual-engine render suite
         run: |
-          build/render-sweep/render-sweep ios/Phase1 build/listening-30s-300ms 30 300 forward 12648430
+          ./scripts/render-sweep.sh ios/Phase1 build/listening-30s-300ms 30 300 forward 12648430
           python3 tools/check_sweep_render.py build/listening-30s-300ms --compare-prefix build/listening-60s-300ms
-          build/render-sweep/render-sweep ios/Phase1 build/listening-60s-200ms 60 200 forward 12648430
+          ./scripts/render-sweep.sh ios/Phase1 build/listening-60s-200ms 60 200 forward 12648430
           python3 tools/check_sweep_render.py build/listening-60s-200ms
           for rate in 75 125; do
-            build/render-sweep/render-sweep ios/Phase1 "build/rate-${rate}" 30 "$rate" forward 12648430
+            ./scripts/render-sweep.sh ios/Phase1 "build/rate-${rate}" 30 "$rate" forward 12648430
             python3 tools/check_sweep_render.py "build/rate-${rate}"
           done
-          build/render-sweep/render-sweep ios/Phase1 build/reverse-30s 30 300 reverse 12648430
+          ./scripts/render-sweep.sh ios/Phase1 build/reverse-30s 30 300 reverse 12648430
           python3 tools/check_sweep_render.py build/reverse-30s
-          SPIRIT_BOX_LEVEL_AUDIT=1 build/render-sweep/render-sweep ios/Phase1 build/listening-2min 120 200 forward 12648430
+          SPIRIT_BOX_LEVEL_AUDIT=1 ./scripts/render-sweep.sh ios/Phase1 build/listening-2min 120 200 forward 12648430
           python3 tools/check_sweep_render.py build/listening-2min
-          build/render-sweep/render-sweep ios/Phase1 build/listening-12min 720 300 forward 1234
+          ./scripts/render-sweep.sh ios/Phase1 build/listening-12min 720 300 forward 1234
           python3 tools/check_sweep_render.py build/listening-12min
       - name: Measure loudness, true peak, spectrum and empty-slot cadence
         run: |
