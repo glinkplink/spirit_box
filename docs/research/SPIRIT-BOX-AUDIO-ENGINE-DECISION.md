@@ -3,6 +3,8 @@
 **Decision date:** September 2, 2026  
 **Status:** BUILD-GATING DECISION — choose the engine below; do not add a second engine in V1.
 
+**Document role:** This file is the stable architecture decision (Option B, legal/trust constraints, terminology, kill criterion). Current renderer tuning and perceptual experiments live in [`SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`](./SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md). Do not treat renderer research as locked architectural scope.
+
 ## Executive decision
 
 ### Recommended engine: **offline, original audio/phoneme bank with a deterministic sweep renderer**
@@ -171,15 +173,18 @@ Every embedded sound must have an explicit commercial right for a paid mobile ap
 
 If A is revisited, stop before engineering and obtain counsel/provider documentation covering stream access, rebroadcast/transmission, catalog rights, territories, attribution, recordings, and service terms. Existing radio apps do not establish that the same integration is permitted for us.
 
-## First prototype and the only pre-build test that matters
+## Current implementation status — September 2026
 
-### Prototype first
+The architecture decision above remains unchanged. The current Phase-1 candidate uses a 1,200-asset VCTK-derived licensed speech corpus. Earlier prototype corpus sizes and isolated-phoneme recommendations are superseded. Current renderer/perceptual findings and tuning experiments are maintained in [`SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`](./SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md). Production audio remains gated on human listening and the 15–20 minute endurance test.
+
+## Pre-build validation — the only test that still matters
+
+### Audio harness
 
 Build a private iPhone audio harness, not the app UI:
 
 - one continuous noise bed;
-- 3–4 original voice/register families;
-- 80–150 short source fragments initially;
+- the Phase-1 licensed speech corpus (currently 1,200 VCTK-derived assets; corpus and renderer tuning details in renderer research);
 - Sweep Rate: 75 ms, 125 ms, 200 ms, 300 ms;
 - Forward/Reverse;
 - a basic waveform/level view and local 2-minute capture;
@@ -195,8 +200,8 @@ Do not solve that by adding word generation, question timing, AI interpretation,
 
 ## Go / no-go sequence
 
-1. **GO:** commission/license a small clean corpus and build the audio harness.
-2. **GO only if prototype passes:** implement Start → Listen → Mark → Replay with the trust language above.
+1. **GO:** build the audio harness with the Phase-1 licensed corpus (see current implementation status above).
+2. **GO only if the harness passes the kill criterion:** implement Start → Listen → Mark → Replay with the trust language above.
 3. **NO:** do not add AI, transcripts, SLS, live radio, or a broad paranormal-tool suite to rescue the product.
 4. **Before App Store submission:** verify every sound’s license and test every shown control against its actual audio effect; include the exact engine explanation in review notes.
 

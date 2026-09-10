@@ -60,7 +60,7 @@ It does **not** pass the canonical audio gate.
 
 Audio gate status:
 
-`NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
+`PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED`
 
 The canonical 15–20 minute listening test must use the actual realistic Phase 1 human corpus. Dev fixtures cannot pass that gate.
 

@@ -14,9 +14,9 @@
 
 | Path | Status | Doc |
 |---|---|---|
-| **VCTK six-speaker licensed microclips** | **Approved** Phase 1 candidate; potentially production-viable after human gate | `docs/production/VCTK-PHASE1-CANDIDATE.md` |
-| **Four commissioned performers (transition-dominant)** | Valid alternative / successor if VCTK fails gate | This document, Sections 1–2 |
-| Recording 105 pilot | Interim bundled bank for harness testing | `ios/Phase1/` |
+| **VCTK six-speaker licensed microclips** | **Approved primary** Phase 1 candidate; bundled in `ios/Phase1/`; potentially production-viable after human gate | `docs/production/VCTK-PHASE1-CANDIDATE.md` |
+| **Four commissioned performers (transition-dominant)** | Valid fallback / successor if VCTK fails gate | This document, Sections 1–2 |
+| Recording 105 pilot | Superseded interim pilot; historical reference only | `build/recording-105/` |
 
 Both approved paths share the same product kill criterion: 15–20 minute physical-device listening gate per `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` Section 18.
 
@@ -28,11 +28,13 @@ Both approved paths share the same product kill criterion: 15–20 minute physic
 
 ## Recommendation
 
-First run the no-spend **Phase 0 A/B/C corpus gate** in Section 2. If the transition-dominant source wins, **commission four original human performers directly for Phase 1**, preferably through four separate fixed-price Upwork contracts, and require a project-specific performer release/rider in addition to marketplace terms. Record 40 raw takes per performer, retain **30 accepted source assets per performer**, and build a **120-asset prototype bank**.
+**Primary path (September 2026):** Use the approved **VCTK 0.92** licensed-crop pipeline in `docs/production/VCTK-PHASE1-CANDIDATE.md` — **1,200** distinct microclips from six speakers, bundled for harness and renderer work. Run the canonical 15–20 minute human listening gate on the **rendered sweep** before treating any corpus as production-ready. Current renderer/perceptual hypotheses and tuning experiments live in `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`.
 
-Do **not** scrape public-domain speech, use radio clips, or use AI voices for the prototype. **Exception (approved):** the **VCTK 0.92** licensed-crop pipeline documented in `docs/production/VCTK-PHASE1-CANDIDATE.md` — CC BY 4.0, full provenance, recognition review, and attribution required. Other generic speech corpora remain disallowed without explicit product-owner approval.
+Do **not** scrape public-domain speech, use radio clips, or use AI voices for the prototype. **Exception (approved):** the VCTK pipeline above — CC BY 4.0, full provenance, recognition review, and attribution required. Other generic speech corpora remain disallowed without explicit product-owner approval.
 
-The Phase 1 corpus should contain:
+**Fallback path — commissioned transition-dominant bank:** If VCTK fails the listening gate, run the no-spend **Phase 0 A/B/C corpus gate** in Section 2. If the transition-dominant source wins, **commission four original human performers directly for Phase 1**, preferably through four separate fixed-price Upwork contracts, and require a project-specific performer release/rider in addition to marketplace terms. Record 40 raw takes per performer, retain **30 accepted source assets per performer**, and build a **120-asset prototype bank**.
+
+The commissioned Phase 1 corpus should contain:
 
 - **76 coarticulated transition assets** — short CV/VC/limited-cluster mouth motions built mainly around neutral vowels, designed to preserve human articulation without forming a vocabulary;
 - **12 vowel-core assets** — short, sustained, non-word vowel texture;
@@ -58,11 +60,11 @@ The 120 count refers to **genuinely distinct human recordings**, not pitch-shift
 
 ## Procurement hierarchy
 
-1. **Recommended:** Upwork, four fixed-price human performers, custom release attached to the contract.
-2. **Cheapest if immediately available:** self + friends/local adults through one decent recording setup, using the exact same signed release.
-3. **Fast fallback:** Fiverr custom offers, only after written confirmation of exact app-embedding/transformation rights.
-4. **Premium fallback:** Voices or Voice123 if remote-home-studio quality is repeatedly poor.
-5. **Approved licensed crop:** VCTK 0.92 per `docs/production/VCTK-PHASE1-CANDIDATE.md`.
+1. **Primary (approved):** VCTK 0.92 per `docs/production/VCTK-PHASE1-CANDIDATE.md`.
+2. **Recommended commissioned fallback:** Upwork, four fixed-price human performers, custom release attached to the contract.
+3. **Cheapest if immediately available:** self + friends/local adults through one decent recording setup, using the exact same signed release.
+4. **Fast fallback:** Fiverr custom offers, only after written confirmation of exact app-embedding/transformation rights.
+5. **Premium fallback:** Voices or Voice123 if remote-home-studio quality is repeatedly poor.
 6. **Do not use without written confirmation:** other stock speech corpora, Common Voice-derived fragments, stock SFX whose license limits redistribution when sound itself is core output.
 
 ---
@@ -841,7 +843,10 @@ Any row with unclear app embedding, derivative rights, performer consent or sour
 
 ## Phase 1
 
-**120 accepted human source assets.** This is intentionally inside the canonical 80–150 range and gives a clean 30-assets-per-performer target.
+| Path | Target size | Notes |
+|---|---|---|
+| **VCTK licensed crop (primary)** | **1,200** distinct microclips | See `docs/production/VCTK-PHASE1-CANDIDATE.md` |
+| **Commissioned transition-dominant (fallback)** | **120** accepted human source assets | 4 performers × 30; early 80–150 fragment guidance is superseded |
 
 ## Production recommendation if Phase 1 passes
 

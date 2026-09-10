@@ -10,7 +10,8 @@
 Supporting evidence documents:
 - `docs/research/GHOST-HUNTER-UI-AUDIENCE-DEEP-DIVE.md`
 - `docs/research/GHOST-APP-FAILURE-FORENSICS-AND-COMPETITIVE-WHITE-SPACE.md`
-- `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md`
+- `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` — stable architecture decision (Option B, legal/trust, terminology)
+- `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md` — current renderer tuning and perceptual experiments (evolving; not locked scope)
 
 Do not reopen broad market research, competitor research, UI research, pricing research, or audio-architecture research before building unless materially new evidence appears.
 
@@ -301,6 +302,8 @@ Do not sample:
 - copyrighted material without explicit app-distribution rights.
 
 Maintain an internal source-rights ledger for every audio asset.
+
+**Current Phase-1 candidate (September 2026):** a **1,200-asset VCTK-derived licensed speech corpus** (see `docs/production/VCTK-PHASE1-CANDIDATE.md`). Earlier isolated-phoneme-heavy prototype mixes and small-corpus size targets are superseded. Renderer/perceptual tuning experiments live in `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`.
 
 ## 6.2 Scheduler behavior
 
@@ -1206,19 +1209,20 @@ Monitor competitors after launch, not through another pre-build research maratho
 
 ---
 
-# 18. THE ONLY REMAINING PRE-BUILD GATE: AUDIO HARNESS
+# 18. THE REMAINING AUDIO GATE: HUMAN LISTENING
 
-Broad research is finished.
+Broad research is finished. The private audio harness exists (`docs/engineering/AUDIO_HARNESS.md`).
 
-The first engineering task is **not** the full app.
+The current Phase-1 candidate uses a **1,200-asset VCTK-derived licensed speech corpus** (`docs/production/VCTK-PHASE1-CANDIDATE.md`). Earlier prototype corpus sizes (3–4 voice families, 80–150 fragments) and isolated-phoneme recommendations are superseded. Current renderer/perceptual findings and tuning experiments are maintained in `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`.
 
-It is a private audio harness.
+**Production audio remains gated on human listening and the 15–20 minute endurance test below.**
 
-## 18.1 Build this first
+## 18.1 Harness requirements
+
+The harness exercises:
 
 - one continuous noise/static bed;
-- 3–4 original voice/register families;
-- initial 80–150 short fragments;
+- the Phase-1 licensed speech corpus (currently 1,200 VCTK-derived assets; corpus and renderer tuning details in renderer research);
 - 75 / 125 / 200 / 300 ms sweep rates;
 - Forward / Reverse;
 - simple play/stop;

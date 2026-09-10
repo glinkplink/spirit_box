@@ -21,7 +21,7 @@ Supporting documents never override canonical scope, pricing, V1 boundaries, or 
 
 Task-specific agents should read the canonical document plus the relevant execution doc for their work:
 
-- **Audio-engine / corpus work:** canonical + `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` + `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`
+- **Audio-engine / corpus work:** canonical + `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` + `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md` + `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`
 - **Launch / ASO / acquisition work:** canonical + the relevant playbook under `docs/launch/`
 
 If any supporting document conflicts with the canonical source of truth, the canonical document wins.

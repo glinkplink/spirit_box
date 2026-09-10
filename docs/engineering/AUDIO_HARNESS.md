@@ -1,8 +1,10 @@
 # Audio harness
 
-Private developer tool for validating the locked offline, non-semantic sweep architecture **before** building the customer-facing app.
+Private developer tool for validating the locked offline, non-semantic sweep architecture **before** shipping the customer-facing app.
 
 This is not the product UI.
+
+**Related docs:** corpus spec and build — `docs/production/VCTK-PHASE1-CANDIDATE.md`; renderer/perceptual tuning — `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`; stable architecture decision — `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md`.
 
 ## Purpose
 
@@ -55,7 +57,9 @@ Do **not** rescue failure with AI, generated answers/words, question detection, 
 
 ## Audio gate status
 
-`NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
+`PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED`
+
+The harness and bundled Phase 1 bank exist. Automated renders and diagnostic bundles are available. **Human listening** over 15–20 minutes on a physical device remains the product gate.
 
 ## Project / target structure
 
@@ -66,7 +70,7 @@ Do **not** rescue failure with AI, generated answers/words, question detection, 
 | `ios/AudioHarness/` | Thin SwiftUI developer UI + view model |
 | `ios/SweepEngineTests/` | Deterministic unit tests |
 | `ios/DevFixtures/` | Synthetic DEV / TEST ONLY audio |
-| `ios/Phase1/` | Empty drop-in folder for a bundled Phase 1 corpus |
+| `ios/Phase1/` | Bundled Phase 1 candidate (currently **1,200** VCTK-derived assets; see `docs/production/VCTK-PHASE1-CANDIDATE.md`) |
 
 The engine is independent of the harness views so it can later be reused by the real app.
 
@@ -112,6 +116,8 @@ If nothing is found, the harness starts with **zero assets**. START still runs t
 }
 ```
 
+VCTK and other licensed crops may use different manifest fields. See `docs/production/VCTK-PHASE1-CANDIDATE.md`. The commissioned-performer schema above remains valid for the fallback path in `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`.
+
 `relative_path`, `filename`, or `final_filename` may locate the WAV (path is relative to the corpus root).
 
 Supported metadata includes the Phase 1 production fields. Optional fields may be omitted. The rights ledger is **not** implemented here.
@@ -120,14 +126,19 @@ Supported metadata includes the Phase 1 production fields. Optional fields may b
 
 ## How to add the Phase 1 corpus
 
-1. Produce accepted assets per `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`.
-2. Write `manifest.json` using the fields above.
-3. Either:
+**Primary path:** build or import the VCTK candidate per `docs/production/VCTK-PHASE1-CANDIDATE.md` (bundled under `ios/Phase1/` on current branches).
+
+**Commissioned fallback:** produce accepted assets per `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`.
+
+Then:
+
+1. Write or verify `manifest.json` using the fields above (or the VCTK schema).
+2. Either:
    - in the harness, tap **Upload corpus** and pick the folder (or `manifest.json` + WAVs), or
    - copy `manifest.json` + WAVs into the simulator/device `Documents/SpiritBoxPhase1Corpus/` folder (no rebuild), or
    - copy them into `ios/Phase1/` and rebuild.
-4. Launch the harness. Confirm the corpus label is **not** “DEV fixtures”.
-5. Only then run the 15–20 minute listening gate.
+3. Launch the harness. Confirm the corpus label is **not** “DEV fixtures”.
+4. Only then run the 15–20 minute listening gate.
 
 Do not download random voice samples. Do not treat DevFixtures as Phase 1.
 
@@ -162,7 +173,7 @@ Loader precedence: Documents Phase 1 uploaded for the current bundled identity �
 
 Audio gate status remains:
 
-`NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
+`PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED`
 
 
 ## Anti-repeat scheduling
@@ -266,7 +277,7 @@ Automated summaries are diagnostic (coverage, repetition distances, family distr
 
 Project gate status remains:
 
-`NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
+`PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED`
 
 ### How to produce and retrieve a bundle
 
@@ -330,7 +341,7 @@ Tests cover scheduler behavior, rates, FWD/REV order, corpus edge cases, capture
 
 They do **not** decide whether the product sounds believable. The canonical 15–20 minute listening gate remains:
 
-`NOT YET RUN — WAITING FOR PHASE 1 CORPUS`
+`PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED`
 
 ## How to run the harness
 
