@@ -2,13 +2,13 @@
 
 **Status:** APPROVED Phase 1 candidate — potentially production-viable after human audio gate  
 **Decision date:** September 9, 2026  
-**Authority:** Product owner approval supersedes the generic “no stock speech corpora” caution for this dataset.
+**Revalidation:** September 10, 2026 — do not treat recognizable fragments in the **rendered sweep** as automatic defects. Canned phrases and semantic selection remain forbidden.
 
 ## What matters
 
 Spirit Box approves or rejects corpus material based on **what survives in the rendered sweep**, not on whether upstream recordings were originally full sentences.
 
-For VCTK, each asset is a **200–240 ms interior crop** from one mic1 utterance, with DC removal, band limiting, bounded gain, and fades. Runtime sweep behavior (additional cropping, filtering, speed jitter, reverse, scheduling, noise bed) further breaks lexical context. **Recognizable words in the dry audition are a defect to remove; absence of sentence-level source intent is not a blocker.**
+For VCTK, each asset is a **200–240 ms interior crop** from one mic1 utterance, with DC removal, band limiting, bounded gain, and fades. Runtime sweep behavior further breaks lexical context. **Do not run a semantic selector.** Hearing a shard of a word in the mix is compatible with a physical box; assembling answers is not.
 
 ## Corpus spec
 

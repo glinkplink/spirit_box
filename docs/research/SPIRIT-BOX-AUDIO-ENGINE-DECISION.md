@@ -1,26 +1,53 @@
-# Spirit-Box Audio Engine — Final Architecture Decision
+# Spirit-Box Audio Engine — Architecture Decision
 
 **Decision date:** September 2, 2026  
-**Status:** BUILD-GATING DECISION — choose the engine below; do not add a second engine in V1.
+**Reopened:** September 10, 2026  
+**Status:** CURRENT RECOMMENDATION — **not permanently locked**. Canonical: CONDITIONAL BUILD.
 
-**Document role:** This file is the stable architecture decision (Option B, legal/trust constraints, terminology, kill criterion). Current renderer tuning and perceptual experiments live in [`SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`](./SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md). Do not treat renderer research as locked architectural scope.
+**Document role:** Architecture, legal/trust, terminology, kill criterion. Renderer experiments: `SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md`. Evidence: `RESEARCH-REVALIDATION-2026-09-10.md`.
 
 ## Executive decision
 
-### Recommended engine: **offline, original audio/phoneme bank with a deterministic sweep renderer**
+### Recommended V1: **C/G — large licensed human-speech corpus, fragmented at runtime, non-semantic sweep**
 
-This is **Option B**, but implemented narrowly and honestly:
+Keep the existing **VCTK 1,200-asset** candidate. Change how it is **played**:
 
-- an on-device bank of original/licensed short vocal fragments, non-verbal consonant/vowel units, reverse fragments, filtered noise, and radio texture;
-- a non-semantic scheduler that continuously scans those fragments at the selected rate and direction;
-- no full scripted phrases, speech recognition, prompt-response logic, question analysis, sensor-triggered “answers,” or generated text;
-- local recording, MARK timestamps, and replay.
+- continuous static bed;
+- sparse vocal occupancy (aim for a small fraction of elapsed time, not a chatter engine);
+- **100–250 ms** interior windows from real speech so coarticulation and **accidental word shards** can appear;
+- sweep rate = dwell cadence; forward/reverse = bank traversal (do not require reversed waveforms);
+- **no** question timing, STT, generated answers, or phrase vocabulary.
 
-Do **not** build live-radio sweeping in V1. Its authentic-radio story is genuine, but the commercial benefit is unproven while the rights, stream reliability, regional availability, network, support, and review risk are material.
+**Why it should sound better:** Physical P-SB7 audio is interrupted radio speech in noise, not isolated phonemes and not a phrase bot. Users complain about both **canned repeats** and **nothing intelligible**. GhostTube VOX works commercially because the source is real speech (with broadcast accidents). We cannot use live radio in V1.
 
-Do **not** build fully procedural/synthetic audio in V1. It is clean technically and legally, but it has the weakest “voice source” story and is already a differentiated product position of SpectraBox—not the reliable way to make a focused, old-school-feeling instrument.
+**Why users might prefer us vs WPPNT:** disclosed mechanism, no weekly wall, MARK/replay, less “random phrase loop” if scheduling is honest.
 
-This is a decision about commercial fit and product durability, not proof that any mechanism enables paranormal communication. The app must never claim that it does.
+**Legal:** VCTK CC BY 4.0 with attribution is already the Phase 1 path. Do not chop YouTube/radio. Stock libraries need **app embedding + modification** in writing.
+
+**Build time:** days of renderer A/B, not a new corpus project.
+
+**Maintenance:** none after ship (offline).
+
+**Trust:** say it is an on-device speech-fragment sweep, not AM/FM.
+
+**ASO:** do not put `radio` / `AM` / `FM` in metadata.
+
+### Fallback
+
+Rights-cleared **talk/radio-texture beds** (licensed for app use) mixed the same way — only if VCTK fails the listening test for *source*, not scheduling. Commissioned performers are the next fallback. Live internet radio is **not** V1 (Apple 5.2.3 + offline + royalties).
+
+### Smallest disproof experiment
+
+On device, 60–90s, unprimed listeners, vs a public P-SB7 clip **as reference only** (do not ship it):
+
+1. Current `listening-test` preset  
+2. Same VCTK bank, **longer** 150–250 ms windows, **lower** vocal occupancy  
+
+Ask: “Which sounds more like a spirit box?” If (2) loses, the problem is source/character, not density — then consider fallback. If (2) wins, run the 15–20 min gate before product UI.
+
+Do **not** procure four performers until this test fails.
+
+---
 
 ## What the evidence says
 

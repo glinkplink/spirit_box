@@ -1,12 +1,57 @@
 # GHOST-SPIRIT-BOX-FIRST-USERS-ACQUISITION-PLAN
 
-**Research date:** September 2, 2026  
-**Scope:** First 20–50 high-quality TestFlight testers; first 100–500 launch users; early advocates for a focused iPhone spirit-box instrument.  
-**Evidence labels:** **VERIFIED FACT** = supported by current primary/current public source; **INFERENCE** = reasoned interpretation; **UNKNOWN** = not reliably public and should not be guessed.
+**Original research date:** September 2, 2026  
+**Revision date:** September 10, 2026  
+**Status:** **REQUIRED LAUNCH WORK** — not an optional supplement. Organic search is the compounding channel after users exist.  
+**Evidence:** `docs/research/RESEARCH-REVALIDATION-2026-09-10.md`
 
 ---
 
-# 1. EXECUTIVE VERDICT
+# 0. EXECUTABLE FUNNEL (USE THIS, NOT THE OLD “OPTIONAL LAUNCH” THESIS)
+
+The September 10 morning revision said external traffic was optional. **That is withdrawn.** 2026 Spirit Box title-clones with almost no ratings did not rank. WPPNT is not a clean-slate template.
+
+## Job 1 — Testers (20–50)
+
+**Objective:** Kill bad audio/UI before launch.
+
+| Order | Who | Where | Why | Tester vs customer | Free vs paid | Effort | Success | Failure tells us |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Hardware-owning investigators | Email/IG/site of teams already named in prior plan (Old Spirits, Virginia Paranormal, Boston PI, CLASS-A) | Highest authenticity bar | **Tester** | Free TestFlight | 4–8 hours outreach | ≥8 complete a session + written “sounds like a box? Y/N” | Audio is the gate; do not launch |
+| 2 | HauntGears / gear reviewers | hauntgears.com contact | They already review apps vs hardware | Tester (maybe later review) | Free | 1–2 hours | 1 serious written critique | We are invisible to serious users |
+| 3 | r/GhostHunting (mod permission) | Reddit — **not** r/Paranormal or r/Ghosts | Existing app-discussion precedent | Tester | Free | 2 hours + wait | 5–10 signups | Community will not seed us |
+| 4 | Meetup organizers (Boston / Charlotte lists already in this file) | Meetup message | Local sessions need a pocket box | Tester | Free | 2–3 hours | 3–5 testers | Offline groups ignore apps |
+| 5 | TestFlight friends/family who like ghost content | Direct | Volume only after 1–4 | Tester | Free | 1 hour | Device coverage | Useless as product signal |
+
+**Prohibited / low value:** Product Hunt, “build in public” on X, r/Paranormal, r/Ghosts, paid influencer blasts, Discord spam, TestFlight directories of random indie hunters.
+
+## Job 2 — First 100–500 launch users
+
+**Objective:** Create the behavior signal Apple actually names (downloads, ratings) and learn conversion.
+
+| Order | Channel | Why | Customer? | Paid? | Effort | Success | Failure |
+|---|---|---|---|---|---|---|---|
+| 1 | Convert willing testers + their teams | Highest trust | Mix | Free | Low | 20–80 installs | Testers won’t share |
+| 2 | 5–8 micro-creators who **already review spirit boxes/apps** (Old Spirits, Virginia Paranormal, WhatThe? Paranormal, Phantom Voices ITC, Elite Paranormal — private test first, public video only if they like it) | GhostTube grew from a creator-operator; we need **app-in-session** videos, not 500k-view ghost stories | Yes if they post | Unpaid first; $0–$200 product/gift max | 1 week | 1–3 videos + measurable link taps | Creators ignore or videos don’t convert — **do not scale** |
+| 3 | One rule-compliant r/GhostHunting launch post | Cheap exact-intent eyeballs | Yes | Free | 2 hours | tens of installs | Mods remove; stop |
+| 4 | Optional Apple Ads $50–150 on `spirit box` | **Measure** CPT/CVR, not “buy rank” | Yes | Paid | 2 hours setup | Know if page converts at all | High CPT / zero CVR = listing or demand problem |
+| 5 | Halloween week only if audio already passed | Seasonal spike | Yes | Free posts | Low | Extra installs | Treat as spike, not run-rate |
+
+**Not long-term channels:** Reddit, Meetups, one-off creator videos. **Repeatable:** App Store search after rank exists; maybe 1–2 trusted reviewers per year.
+
+Pitch (testers): *“I need people who use a physical spirit box to compare an iPhone sweep. I’m not claiming it contacts anyone. I need to know if it sounds like a box or like a novelty app.”*
+
+---
+
+# 1. WHAT THE REST OF THIS FILE IS
+
+Sections below remain useful as the **contact database and community rules**. Ignore any sentence that says creator/community traffic is optional for the commercial thesis.
+
+---
+
+# 1b. ARCHIVED NARRATIVE (contact lists still valid; “optional launch traffic” is not)
+
+The following “executive verdict” predates the cold-start correction. Use **Section 0** for what to do. Keep the named teams/creators.
 
 ## Verdict
 
@@ -22,13 +67,13 @@ That is an advantage for beta recruitment if the product is framed correctly. Cu
 
 Current evidence also falsifies one easy positioning story. A tiny iPhone competitor launched June 17, 2026 — **Spirit Box: Ghost EMF Detector** — already advertises a premium instrument panel, EVP recording, session replay, no ads, no subscription, local privacy, and a one-time $7.99 Pro unlock. Its current U.S. listing shows only four ratings, so it does **not** prove traction, but it means “serious-looking + no subscription + replay” is not an uncontested gap. [Current App Store page](https://apps.apple.com/us/app/spirit-box-ghost-emf-detector/id6778856362).
 
-### Highest-leverage acquisition sequence
+### Highest-leverage **tester-validation** sequence
 
 1. **Recruit 12–15 adversarial field testers directly** from hardware-owning creators/teams.
 2. **Recruit 8–10 more target users** through moderator/organizer-approved communities.
 3. Add **3–5 technical/control testers** only for iPhone/audio/haptic/device coverage.
 4. Do not seek creator coverage yet. First ask creators for **private testing**, then invite public content only from creators who genuinely find the product useful/interesting.
-5. At launch, concentrate on **App Store exact-intent search + creator test/comparison videos + a small number of rule-compliant community launch posts**.
+5. At launch, **seeded users + App Store exact-intent search**. Creator videos and community posts are **required at small scale** (Section 0), then optional.
 
 ## TOP 5 TESTER SOURCES
 
@@ -54,7 +99,7 @@ Current evidence also falsifies one easy positioning story. A tiny iPhone compet
 4. **Boston Paranormal Investigators Meetup**
 5. **The Charlotte Ghost Trackers Meetup Group**
 
-## TOP 5 LAUNCH CHANNELS
+## OPTIONAL LAUNCH-SUPPORT CHANNELS — **NOT REQUIRED BY THE BASE CASE**
 
 1. **App Store exact-intent search:** `spirit box`, `ghost box`, `EVP`, `EVP recorder`, `ghost hunting tools` — exact search volumes/rankability remain **UNKNOWN** until ASO tooling is checked; current listings prove the terminology is used, not the traffic volume.
 2. **Micro/mid creator equipment/app tests** — “app vs physical box,” “does this feel like real field gear?”, “one investigation using only iPhone + recorder workflow.”
@@ -69,7 +114,7 @@ Sources: [r/GhostHunting](https://www.reddit.com/r/GhostHunting/), [r/Paranormal
 
 **VERIFIED FACT:** The market contains both established paid apps and high-rating free/freemium tools, including Necrophonic, GhostTube VOX, Ghost Hunting Tools, Spirit Talker, Ghost Radar, and multiple recent “spirit box / EVP” entrants.  
 **INFERENCE:** App Store search likely matters because exact equipment terms are repeatedly used in titles/subtitles, but that is **not** proof of meaningful search volume or rankability.  
-**UNKNOWN:** Whether the canonical launch architecture — free download, one complete 3-minute trial session, **$1.99 Tonight Pass (24 hours, non-renewing)**, and **$9.99 Lifetime** — converts better than a simple lifetime-only purchase. A previously considered **$4.99 / 7-day** tier was removed from V1; beta users receiving free access cannot validate any paywall conversion.
+**UNKNOWN:** Whether the proposed 24-hour / 7-day / lifetime price architecture converts better than a simple lifetime purchase. Beta users receiving free access cannot validate that.
 
 ---
 
@@ -350,25 +395,32 @@ A current r/alphaandbetausers discussion also points to a predictable failure mo
 
 # 9. FIRST-PAYING-USER CHANNELS
 
-## 9.1 App Store search — potentially important, not yet quantified
+## 9.1 App Store search — **PRIMARY COMMERCIAL ACQUISITION CHANNEL**
 
-Current iOS listings repeatedly use exact equipment phrases in titles/subtitles:
+The September 2 AppTweak work moved this from “unquantified” to **validated enough to remain the base-case acquisition thesis**.
 
-- `Spirit Box`
-- `Ghost Box`
-- `EVP`
-- `EVP Recorder`
-- `Ghost Hunting Tools`
-- `Ghost Detector`
+Prior project data recorded `spirit box` at approximately **Volume 53 / Difficulty 0**, with the current leader receiving an estimated **94.425 keyword-attributed installs** from the query in the captured period and measurable traffic reaching apps below #1.
 
-**VERIFIED FACT:** these are current listing terms.  
-**UNKNOWN:** search volume, difficulty, rank-to-download economics, and whether a new app can reach top positions. Do not translate title density into demand.
+Current relevant semantic territory includes:
 
-### Launch metadata hypothesis to test with ASO data later
+- `spirit box` — primary money keyword;
+- `ghost box`;
+- `ghost talker`;
+- `ghost hunting`;
+- `ghost hunting tools`;
+- `paranormal`;
+- `ITC`;
+- `EVP` / recorder territory where the final secondary-keyword pass shows useful economics.
 
-The product’s strongest semantic wedge appears to be **Spirit Box + EVP Recorder / session replay**, not generic `paranormal` or `ghost detector`. Generic “ghost detector” results include entertainment/prank-style products and are likely less qualified.
+### Final pre-launch check
 
-## 9.2 Creator content — strongest non-ASO launch lever
+Run the bounded Sonar/free-tool secondary-keyword pass described in the revised ASO playbook. The purpose is to optimize title/subtitle/keyword coverage and confirm that the organic search surface has not materially deteriorated.
+
+**Do not require external launch traffic simply because organic ranking is uncertain.** Uncertainty is the commercial risk being tested.
+
+## 9.2 Creator content — **small required seed, then stop**
+
+Follow Section 0 Job 2 (5–8 micro-creators, unpaid first). Do not build a content business.
 
 Natural formats already exist:
 
@@ -381,7 +433,7 @@ Natural formats already exist:
 
 Do **not** script efficacy claims or ask creators to produce a positive outcome. The value is the test itself.
 
-## 9.3 Community launch — only where rules allow it
+## 9.3 Community launch — **optional only**, and only where rules allow it
 
 The best launch post is a **product-design story + evidence of what changed because investigators criticized it**, not a generic download request.
 
@@ -494,7 +546,7 @@ Do **not** build an in-app feedback system yet. Do not create a giant research p
 7. **Haptics:** useful / distracting / unnoticed. Which events should trigger haptics, if any?
 8. **Would you use this during an actual investigation?** If no, what is the **single biggest blocker**?
 9. **What app or physical device would you use instead, and why?**
-10. **Ignoring any tester free access, which launch option best matches what you would personally consider?** Wouldn’t pay / $1.99 Tonight Pass (24 hours) / $9.99 Lifetime / other. *This is stated preference, not conversion proof.*
+10. **Ignoring any tester free access, which launch option best matches what you would personally consider?** Wouldn’t pay / $1.99 day / $4.99 week / $9.99 lifetime / other. *This is stated preference, not conversion proof.*
 
 ### One forced ranking after question 10
 
@@ -575,13 +627,17 @@ Hardcore investigators can help create a credible instrument that casual paying 
 
 ## 8. App Store organic acquisition may be worse than it looks
 
-Many current apps use the same exact generic phrases. That proves semantic demand language, not search volume or new-app rankability.
+This remains the major commercial risk.
 
-**Kill criterion for ASO-first launch assumption:** if AppTweak/current ASO data later shows generic terms have poor volume or are dominated by entrenched apps with no meaningful small-app traffic, creator/community seeding becomes mandatory rather than optional.
+September 2 AppTweak work did establish meaningful `spirit box` demand and traffic below #1, but the September 10 WPPNT follow-up introduced a new confounder: the May-2026 leader came from an operator with prior adjacent paranormal-app history.
+
+**Kill criterion for the ASO-first business thesis:** if the final Sonar/current-SERP pass shows that `spirit box` and its useful secondary cluster no longer offer economically meaningful, plausibly reachable organic traffic, **reassess or kill the opportunity**.
+
+If organic search stays useless **after** the Section 0 seed, **KILL**. Do not convert that failure into a full-time marketing company.
 
 ## 9. The rental-style pricing could create distrust
 
-The canonical **$1.99 Tonight Pass (24 hours, non-renewing)** may map nicely to one-night investigations or Halloween use, but serious hobbyists may still read any time-limited access as arbitrary friction next to **$9.99 Lifetime** competitors. A previously considered **$4.99 / 7-day** tier was removed from V1 for this reason.
+$1.99 for 24 hours and $4.99 for 7 days may map nicely to one-night investigations or Halloween use, but serious hobbyists may read time-limited access as arbitrary friction next to $9.99 lifetime competitors.
 
 **Cheapest test:** show the same working product with two paywall treatments to existing app users after they have completed a session; ask what they would choose and why. Do not build complicated billing logic until the reaction is known.
 
