@@ -66,7 +66,7 @@ final class VocalDensitySchedulerTests: XCTestCase {
     }
 
     func testListeningTestMixUsesAudibleBed() {
-        XCTAssertEqual(SweepRendererSettings.listeningTest.staticGain, 0.060, accuracy: 0.001)
+        XCTAssertEqual(SweepRendererSettings.listeningTest.staticGain, 0.0515, accuracy: 0.001)
         XCTAssertEqual(SweepRendererSettings.listeningTest.vocalGain, 0.90, accuracy: 0.001)
         XCTAssertEqual(SweepRendererSettings.listeningTest.outputGain, 4.2, accuracy: 0.001)
         XCTAssertEqual(SweepRendererSettings.listeningTestPreRebalance.staticGain, 0.10, accuracy: 0.001)
@@ -141,7 +141,7 @@ final class VocalDensitySchedulerTests: XCTestCase {
         let blob = lines.joined(separator: "\n")
         XCTAssertTrue(blob.contains("listening-test"))
         XCTAssertTrue(blob.contains(SweepRendererSettings.listeningTestIdentity.version))
-        XCTAssertEqual(SweepRendererSettings.listeningTestIdentity.version, "2026-09-10.owner-review-mix-v1")
+        XCTAssertEqual(SweepRendererSettings.listeningTestIdentity.version, "2026-09-10.owner-review-mix-v2")
         XCTAssertTrue(blob.contains("Configured vocal-event probability: 7.0%"))
         XCTAssertTrue(blob.contains("scheduler target, not measured density"))
         XCTAssertTrue(blob.contains("120.00–180.00 ms"))

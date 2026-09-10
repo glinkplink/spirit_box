@@ -21,16 +21,16 @@ Owner reported: “just multiple gibberish voices that sounded like they were fa
 
 The source path crops native-rate PCM; it does not accelerate or pitch-shift speech. No speed bug was found. The fast-forward impression remains a perceptual concern to re-test.
 
-Under the renewed request to fix the audio, one further **gain-only** candidate is prepared, separately from the rejected/exhausted original Pass A experiment:
+Under the renewed request to fix the audio, a focused **gain-only** correction is prepared, separately from the rejected/exhausted original Pass A experiment:
 
-| Setting | Frozen A0 | Owner-review mix v1 |
+| Setting | Frozen A0 | Owner-review mix v2 |
 |---|---:|---:|
-| staticGain | 0.10 | 0.060 |
+| staticGain | 0.10 | 0.0515 |
 | vocalGain | 0.48 | 0.90 |
 | outputGain | 3.5 | 4.2 |
-| Preset version | sparse-exposure-v1 | owner-review-mix-v1 |
+| Preset version | sparse-exposure-v1 | owner-review-mix-v2 |
 
-The pre-limiter static amplitude falls from 0.35 to 0.252 (about 2.85 dB). Vocal/static gain ratio rises from 4.8 to 15. These are gain calculations, not measured loudness or perceptual approval. Actual-engine matrix and primary contrast must pass before delivery as a technically validated candidate.
+The pre-limiter static amplitude falls from 0.35 to 0.2163 (about 4.18 dB). Vocal/static gain ratio rises from 4.8 to approximately 17.48. These are gain calculations, not measured loudness or perceptual approval. Actual-engine matrix and primary contrast must pass before delivery as a technically validated candidate.
 
 No corpus, rate, exposure, density, cooldown, reverse-PCM, fade, limiter, or bed-spectrum changes. Pass B remains deferred. Frozen A0 remains available and must reproduce its committed PCM/events. Candidate events and all non-gain settings must match A0. CI also renders a 20-minute endurance sample and checks same-seed 30s/60s PCM prefixes.
 
@@ -38,4 +38,6 @@ No corpus, rate, exposure, density, cooldown, reverse-PCM, fade, limiter, or bed
 
 **NOT READY TO SHIP.** Section 18 requires unprimed physical-iPhone listening for 15–20 minutes across speaker/headphones, rates and directions. Automated renders cannot establish whether the fast-forward impression, recognizable words, repeat motifs or unnatural static are resolved. No TestFlight upload or merge is part of this review.
 
-Validation results and artifact paths are recorded below after the exact-head CI run.
+The first owner-review render at `2c94e2f8` (CI `34498423460`) passed all five matrix cells at −20.83 LUFS primary, but failed the separate contrast gate at 7.10 dB. Frozen A0 PCM and events reproduced exactly. Raising vocal input did not produce the expected contrast because the existing peak limiter bounds the output. The measured correction for v2 holds vocal/output gains fixed and reduces staticGain from 0.060 to 0.0515 (a further 1.33 dB bed reduction). No limiter threshold is changed. V2 must clear the same gates; the failed v1 remains historical evidence.
+
+Final CI and playable artifacts are identified in the task delivery. Physical listening remains NOT_RUN.
