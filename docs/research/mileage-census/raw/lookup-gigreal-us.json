@@ -1,0 +1,31 @@
+{
+  "trackName": "GigReal Driver Mileage Tracker",
+  "trackId": 6739734620,
+  "sellerName": "GIGREAL APP LLC",
+  "artistName": "GIGREAL APP LLC",
+  "artistId": 1786788505,
+  "averageUserRating": 4.64797,
+  "userRatingCount": 321,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2025-01-28T08:00:00Z",
+  "currentVersionReleaseDate": "2026-08-17T12:48:58Z",
+  "version": "2.4.0",
+  "primaryGenreName": "Finance",
+  "genres": [
+    "Finance",
+    "Business"
+  ],
+  "sellerUrl": "https://www.gigrealapp.com/",
+  "trackViewUrl": "https://apps.apple.com/us/app/gigreal-driver-mileage-tracker/id6739734620?uo=4",
+  "trackCensoredName": "GigReal Driver Mileage Tracker",
+  "description": "WHAT YOU GET\n\n\u2192 See your real $/hour before you accept a trip\n\u2192 Track business miles for tax deductions\n\u2192 Track up to $725 in potential deductions per 1,000 business miles\n\u2192 Scan receipts \u2014 snap, save, deduct\n\u2192 See earnings, miles, hours, and expenses in one dashboard\n\u2192 Export IRS-ready mileage and tax reports\n\n\u2014 \u2014 \u2014\n\nWHY DRIVERS SWITCH TO GIGREAL\n\nMost mileage trackers only show what already happened.\n\nGigReal helps you understand what you actually keep, which trips are worth your time, and how your miles, expenses, and earnings affect your real take-home pay.\n\nBuilt by drivers, for drivers. No spreadsheets. No guessing.\n\nWorks great for rideshare, delivery, and gig drivers using platforms like Uber, Lyft, DoorDash, Instacart, Grubhub, and more.\n\n\u2014 \u2014 \u2014\n\nSubscription Required: Some features (including Mileage Tracking, Earnings Management, Expense Tracking, etc.) are available with an in-app subscription. A monthly or yearly plan is required after the free trial.",
+  "releaseNotes": "Connected Gig Accounts\nLink supported gig apps and keep recent earnings updated automatically in one place.\n\nDaily & Weekly Recaps\nGet clear, complete summaries after your connected accounts finish updating.\n\nClearer Expenses & Reports\nExplore a redesigned monthly expense report, improved category visuals, and more consistent totals.\n\nImproved Trip Identifier\nSmarter setup, clearer feedback, and better tools for reviewing missed offers.\n\nHelp & Support\nA new support center keeps conversations, responses, resources, and service updates together.\n\nAs always, we\u2019ve made additional reliability, localization, and accessibility improvements throughout GigReal.",
+  "languageCodesISO2A": [
+    "EN",
+    "PT",
+    "ES"
+  ],
+  "fileSizeBytes": "383966208",
+  "bundleId": "GigRealApp.GigReal"
+}

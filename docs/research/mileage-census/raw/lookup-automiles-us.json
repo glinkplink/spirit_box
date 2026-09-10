@@ -1,0 +1,29 @@
+{
+  "trackName": "AutoMiles: Mileage Tracker",
+  "trackId": 6757247618,
+  "sellerName": "DNNR Tech",
+  "artistName": "DNNR Tech",
+  "artistId": 1668952055,
+  "averageUserRating": 5,
+  "userRatingCount": 5,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2026-01-14T08:00:00Z",
+  "currentVersionReleaseDate": "2026-08-31T16:45:31Z",
+  "version": "1.2.11",
+  "primaryGenreName": "Finance",
+  "genres": [
+    "Finance",
+    "Business"
+  ],
+  "sellerUrl": "https://dnnr.us",
+  "trackViewUrl": "https://apps.apple.com/us/app/automiles-mileage-tracker/id6757247618?uo=4",
+  "trackCensoredName": "AutoMiles: Mileage Tracker",
+  "description": "Free. Unlimited. Automatic. AutoMiles logs and sorts every drive for you \u2014 with no 40-drive monthly cap, no subscription, and no paywall.\n\nMost mileage trackers stop you at around 40 automatic drives a month, then ask for $60 or more a year. AutoMiles is different: unlimited automatic trips, free.\n\nNew \u2014 fewer ways to miss a drive\nAutoMiles now spots the start of a drive from the low-power location it keeps while your car is parked, so a drive that begins after the app has been closed for a while is less likely to be missed.\n\nEasier on your battery\nA mileage tracker is parked far more of the day than it is driving, so AutoMiles now eases off the GPS while your car is sitting still and switches to full accuracy only once you are actually moving. Your drives are recorded exactly as before \u2014 the app simply stops working so hard in between.\n\nA deduction that follows the real IRS rate\n2026 is a split year: the IRS standard mileage rate is 72.5 cents through 30 June and 76 cents from 1 July. AutoMiles prices every business mile against the rate that was in force on the day you drove it, so the second half of the year is not quietly under-counted. Your dashboard leads with the number that matters \u2014 your estimated deduction \u2014 for this month or the whole tax year.\n\nDriving abroad or filing elsewhere? Settings has a tax region picker \u2014 United States, United Kingdom, Australia, Canada, or your own custom rate and currency \u2014 and the app detects your region on first run.\n\nFree and unlimit",
+  "releaseNotes": "Walks are no longer mistaken for drives. Recording now starts only on real driving signals: a vehicle reading must come with driving speed, one stray GPS speed spike is ignored, and walking away from your parked car no longer begins a new trip.\n\nAlso fixed: a background-tracking crash on Android 12+ that could stop drive detection until the app was reopened, and the Android notification could claim a drive was being recorded while AutoMiles was only watching.",
+  "languageCodesISO2A": [
+    "EN"
+  ],
+  "fileSizeBytes": "72927232",
+  "bundleId": "tech.dnnr.triptracker"
+}

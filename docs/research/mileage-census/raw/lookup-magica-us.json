@@ -1,0 +1,40 @@
+{
+  "trackName": "Mileage Tracker - Magica Car",
+  "trackId": 1341304115,
+  "sellerName": "Dimitri Giani",
+  "artistName": "Dimitri Giani",
+  "artistId": 288361596,
+  "averageUserRating": 3.89474,
+  "userRatingCount": 19,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2018-08-22T06:53:54Z",
+  "currentVersionReleaseDate": "2026-09-05T20:26:31Z",
+  "version": "6.7.3",
+  "primaryGenreName": "Navigation",
+  "genres": [
+    "Navigation",
+    "Finance"
+  ],
+  "sellerUrl": "https://www.magica-app.com",
+  "trackViewUrl": "https://apps.apple.com/us/app/mileage-tracker-magica-car/id1341304115?uo=4",
+  "trackCensoredName": "Mileage Tracker - Magica Car",
+  "description": "Magica \u2014 Automatic Mileage Tracker & Complete Car Companion. It records every drive on its own, looks after your whole vehicle, and keeps 100% of your data on your iPhone.\n\nMagica turns your iPhone into a mileage tracker that also handles the rest of your car: fuel and EV charging, maintenance, deadlines, costs. One app, not three \u2014 and everything stays on your device.\n\nRECORDS EVERY DRIVE ON ITS OWN\nForget manual logs. Magica detects your drives automatically and records distance, route, cost, tolls and more. Classify each trip with a single swipe \u2014 Work, Personal, or your own categories.\n- Automatic detection via motion and Bluetooth \u2014 no constant GPS drain\n- Auto Switch: Magica recognizes which vehicle you're driving\n- Merge split trips back into one clean route\n- CarPlay, voice actions and Shortcuts to log on the go\n- Instant PDF & CSV export\n\nTURN MILES INTO IRS DEDUCTIONS\nEvery business mile is money back. Magica separates business from personal automatically and builds IRS-compliant mileage logs your accountant can use for Schedule C, 1099 or reimbursements \u2014 based on the current IRS standard mileage rate.\n- IRS-ready reports, exportable as PDF or CSV\n- Custom categories with deductible percentages\n- Cost-per-mile and expense totals always up to date\n\nMANAGES YOUR WHOLE VEHICLE\nBeyond mileage, Magica is a full car companion.\n- Fuel and EV charging log with automatic consumption and cost\n- Worldwide charging-station map\n- Maintenance history and reminders for insurance,",
+  "releaseNotes": "New update for Magica Mileage Tracker. \nThank you all for believing in Magica! It is thanks to you that it is growing so much! We have reached version 6.7.2.\n\nIn this version:\n# New PDF Export with fields customization.\n# Now you can delete all the temporary files to free space\n# You can attach documents to a trip\n# A brand new sync feature to automatically sync data form devices\n# Added a new quick classify feature for trips\n\nIn previous versions:\n# New Swipe to classify behaviout in trips listing.\n# New Trips listing UI, now more intuitive.\n# Added API and MCP server! Now you can manage data on your favourite CRM or Artificial Intelligence!\n# Redesigned CarPlay interface, now more useful and complete.\n# Map trips, now you can view all the trips in a single map\n# Now you can export trips ",
+  "languageCodesISO2A": [
+    "CA",
+    "DA",
+    "NL",
+    "EN",
+    "FI",
+    "FR",
+    "DE",
+    "EL",
+    "IT",
+    "PT",
+    "ES",
+    "SV"
+  ],
+  "fileSizeBytes": "122707968",
+  "bundleId": "com.applications.dimix.magica"
+}

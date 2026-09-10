@@ -1,0 +1,39 @@
+{
+  "trackName": "Mileage Tracker - Driver Notes",
+  "trackId": 6754842476,
+  "sellerName": "Dimitri Giani",
+  "artistName": "Dimitri Giani",
+  "artistId": 288361596,
+  "averageUserRating": 5,
+  "userRatingCount": 1,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2025-11-13T08:00:00Z",
+  "currentVersionReleaseDate": "2026-07-04T07:31:55Z",
+  "version": "1.4",
+  "primaryGenreName": "Finance",
+  "genres": [
+    "Finance",
+    "Navigation"
+  ],
+  "sellerUrl": "https://gestisciauto.it/mileage-tracker.php",
+  "trackViewUrl": "https://apps.apple.com/us/app/mileage-tracker-driver-notes/id6754842476?uo=4",
+  "trackCensoredName": "Mileage Tracker - Driver Notes",
+  "description": "Your Data Stays Yours. Track Miles Without Ever Losing Your Privacy.Tired of apps that send your location data to the cloud? Mileage Tracker is the only mileage log designed for those who take privacy seriously. All data stays stored exclusively on your iPhone. Zero servers. Zero cloud. Zero compromises.\n\nTOTAL PRIVACY. TOTAL CONTROL.\n\nUnlike other mileage tracking apps, we don't register accounts, require logins, or ever sync your data. Your business is yours, your trips are yours, your data is yours.\n\nAUTOMATIC GPS TRACKING THAT ALWAYS WORKS\n- Automatic trip detection\n- Works completely offline (100% secure data)\n- Classify trips with a swipe: business or personal\n- Auto-classify recurring trips\n- Add notes, purposes, and custom categories\n- Track unlimited mileage every day\n\nIRS-COMPLIANT REPORTS IN ONE TAP\nGenerate tax-ready reports for your accountant or the IRS in seconds.Every report includes:\n\nDistance traveled for each trip\n- Date, time, and duration\n- Starting and ending address\n- Business/personal classification\n- Notes and destinations\n- Automatic tax deduction calculation\n\nPerfect for freelancers, consultants, real estate agents, sales reps, small business owners, and anyone who uses their car for work.\n\nSIMPLE. POWERFUL. PRIVATE.\n- Clean and intuitive interface\n- Optimized for battery savings\n- Multi-vehicle support\n- Save frequent destinations\n- Download financial reports\n\nWHY CHOOSE MILEAGE TRACKER?\nWhile other apps send your geolocation data to external serve",
+  "releaseNotes": "In this new version of Mileage Tracker you find:\n\n- Added new export data feature.\n- Fixed a bug with translations and Unit change.\n- Added Live Activity!\n- Fixes minor bugs.\n\nThanks for your feedback!",
+  "languageCodesISO2A": [
+    "DA",
+    "NL",
+    "EN",
+    "FI",
+    "FR",
+    "DE",
+    "EL",
+    "IT",
+    "PT",
+    "ES",
+    "SV"
+  ],
+  "fileSizeBytes": "13029376",
+  "bundleId": "com.applications.dimix.miletracker"
+}

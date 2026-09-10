@@ -1,0 +1,52 @@
+[
+  {
+    "id": "13562438554",
+    "title": "Une application tr\u00e8s compl\u00e8te et bon  march\u00e9 avec une ergonomie un peu touffue.",
+    "content": "Tr\u00e8s bonne application malgr\u00e9 une pr\u00e9sentation et une organisation des donn\u00e9es assez brouillonne. Il faut du temps pour en saisir toutes les fonctionnalit\u00e9s. Quant au prix, il est fort raisonnable dans le cadre d\u2019un achat unique, surtout en cas d\u2019offre promotionnelle.",
+    "rating": 5,
+    "author": "Audite omnes",
+    "updated": "2025-12-27T13:52:41-07:00",
+    "version": "6.1.6",
+    "cc": "fr"
+  },
+  {
+    "id": "12842330916",
+    "title": "Bien",
+    "content": "Je le mets en automatique et il m\u2019enregistre tout les voyages. \n\nIl pourrait \u00eatre programm\u00e9 un p\u00e9riode ou les voyages\nSont enregistr\u00e9s par exemple du lundi au vendredi soir. \n\nL\u2019export des donn\u00e9es pourrait se faire directement sous Excel. \nL\u2019export sous CSV, c\u2019est toujours un peu laborieux.",
+    "rating": 4,
+    "author": "Vince2528",
+    "updated": "2025-07-02T00:10:55-07:00",
+    "version": "5.4.7",
+    "cc": "fr"
+  },
+  {
+    "id": "9025300293",
+    "title": "En attendant l ouverture",
+    "content": "Malheureusement , l appli ne veut pas s ouvrir.",
+    "rating": 1,
+    "author": "ReaverRa\u00een",
+    "updated": "2022-08-27T22:17:44-07:00",
+    "version": "2.3.9",
+    "cc": "fr"
+  },
+  {
+    "id": "8436213517",
+    "title": "Encore quelques probl\u00e8mes",
+    "content": "A fonctionn\u00e9 au d\u00e9but mais a loup\u00e9 quelques trajets. Puis c\u2019est revenu. Puis plus aucun trajet depuis 3 jours. J\u2019ai arr\u00eat\u00e9 mon abonnement mensuel.",
+    "rating": 1,
+    "author": "Patendrick",
+    "updated": "2022-03-09T00:39:55-07:00",
+    "version": "2.2.2",
+    "cc": "fr"
+  },
+  {
+    "id": "8320369506",
+    "title": "Tr\u00e8s bonne application",
+    "content": "Une superbe application pour suivre vos trajets et vos kilom\u00e8tres. Consomme peu de batterie \u00e0 premi\u00e8re vue, d\u00e9tecte tr\u00e8s bien le d\u00e9part des voyages !\n\nPeu encore s\u2019am\u00e9liorer mais les d\u00e9veloppeurs sont tr\u00e8s r\u00e9actifs \ud83d\udc4d",
+    "rating": 5,
+    "author": "Headoverz",
+    "updated": "2022-02-04T21:34:04-07:00",
+    "version": "2.1",
+    "cc": "fr"
+  }
+]
