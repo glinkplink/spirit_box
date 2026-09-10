@@ -77,10 +77,12 @@ render_one() {
   if [[ "$SKIP_ACOUSTICS" -eq 0 ]]; then
     if python3 -c 'import numpy' 2>/dev/null && command -v ffmpeg >/dev/null; then
       if ! python3 "$ROOT/tools/check_sweep_acoustics.py" "$out"; then
-        echo "WARN: acoustic checks failed for $out (reduced probability does not guarantee -18 LUFS)." >&2
+        echo "FAIL: acoustic checks failed for $out." >&2
+        return 1
       fi
     else
-      echo "WARN: skipping acoustics for $out (need numpy and ffmpeg)." >&2
+      echo "FAIL: acoustic checks require numpy and ffmpeg; use --skip-acoustics only for explicit diagnostic renders." >&2
+      return 1
     fi
   fi
   echo "WAV: $out/sweep.wav"

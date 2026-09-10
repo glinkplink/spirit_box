@@ -38,7 +38,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
     /// Shared live/offline default. Experimental candidate, not a proven listening improvement.
     public static let listeningTestIdentity = NamedRendererPreset(
         identifier: "listening-test",
-        version: "2026-09-10.sparse-exposure-v1"
+        version: "2026-09-10.owner-review-mix-v1"
     )
 
     /// Frozen A0 snapshot for fixture renders. Every field is set explicitly
@@ -68,7 +68,9 @@ public struct SweepRendererSettings: Equatable, Sendable {
     }
 
     /// Default preset for the next 200/300 ms listening tests.
-    public static let listeningTest = SweepRendererSettings()
+    public static let listeningTest = SweepRendererSettings(
+        staticGain: 0.060, vocalGain: 0.90, outputGain: 4.2
+    )
 
     /// Frozen A0 listening-test values. Do not omit fields; this is the fixture baseline.
     public static let listeningTestPreRebalance = SweepRendererSettings(

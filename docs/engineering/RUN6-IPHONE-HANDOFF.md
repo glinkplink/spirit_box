@@ -1,5 +1,7 @@
 # Run6 iPhone handoff
 
+**Current review:** see [PR32_AUDIO_REVIEW.md](PR32_AUDIO_REVIEW.md) for the owner-review mix and current validation. Preset values below describe the earlier Run6 preparation.
+
 **Status of this document:** preparation record. It is not a listening verdict and does not override `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md`.
 
 Keep these statuses separate. Do not collapse them.

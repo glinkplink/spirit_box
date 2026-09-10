@@ -1,4 +1,6 @@
-# Pass A gain rebalance — closeout report
+# Pass A gain rebalance — historical closeout report
+
+The closeout below records `cad20349`. The later owner-requested correction is tracked in [PR32_AUDIO_REVIEW.md](PR32_AUDIO_REVIEW.md); this is no longer the live-preset description.
 
 **Status:** **NOT ACCEPTED.** Not ship-ready. Section 18 has not advanced. No human listening and no iPhone gate has passed.
 

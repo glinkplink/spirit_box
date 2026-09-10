@@ -3,7 +3,7 @@ import AVFoundation
 
 // Audit the actual buffer factory over every bundled source, both directions
 // and all dwell rates. This is a level measurement, not a listening verdict.
-func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
+func auditLevels(assets: [SourceAsset], root: URL, output: URL, settings: SweepRendererSettings) throws {
     let format = AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1)!
     func rms(_ buffer: AVAudioPCMBuffer, offset: Int = 0, count: Int) -> Double {
         let samples = buffer.floatChannelData![0]
@@ -29,9 +29,9 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
         ["asset_id": $0.id, "rms_dbfs": $0.dbfs] as [String: Any]
     }
     let noise = ProceduralNoiseState()
-    noise.reset(seed: 12648430)
+    noise.reset(seed: 12648430, settings: settings)
     let noiseRMS = sqrt((0..<48000).reduce(0.0) { sum, _ in
-        let x = Double(noise.nextSample() * SweepTuning.staticGain)
+        let x = Double(noise.nextSample() * settings.staticGain)
         return sum + x * x
     } / 48000)
     var maximumPeak = 0.0
@@ -42,21 +42,21 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
             let source = try FragmentBufferFactory.loadConvertedSource(fileURL: root.appendingPathComponent(asset.relativePath), outputFormat: format)
             // Extremes and midpoint cover the entire bounded runtime gain range.
             for jitter in [0.0, 0.5, 1.0] {
-                let crop = FragmentBufferFactory.crop(source, asset: asset, sweepRate: rate, startJitterFraction: jitter)
+                let crop = FragmentBufferFactory.crop(source, asset: asset, sweepRate: rate, startJitterFraction: jitter, settings: settings)
                 let count = Int(crop.frameLength)
                 let inputLevel = rms(crop, offset: 0, count: count)
                 var pair: [Double] = []
                 for direction in SweepDirection.allCases {
                     let buffer = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
-                        sweepRate: rate, direction: direction, startJitterFraction: jitter)
+                        sweepRate: rate, direction: direction, startJitterFraction: jitter, settings: settings)
                     let level = rms(buffer, offset: quietFrames, count: count)
                     pair.append(db(level))
-                    levels.append(db(level * Double(SweepTuning.vocalGain * SweepTuning.outputGain)))
+                    levels.append(db(level * Double(settings.vocalGain * settings.outputGain)))
                     changes.append(db(level / max(inputLevel, 1e-12)))
-                    balances.append(db(level * Double(SweepTuning.vocalGain) / noiseRMS))
+                    balances.append(db(level * Double(settings.vocalGain) / noiseRMS))
                     for i in 0..<Int(buffer.frameLength) {
                         let sample = Double(buffer.floatChannelData![0][i])
-                        guard sample.isFinite, abs(sample) <= Double(SweepTuning.vocalPeakLimit) + 0.00001 else {
+                        guard sample.isFinite, abs(sample) <= Double(settings.vocalPeakLimit) + 0.00001 else {
                             throw NSError(domain: "level-audit: invalid vocal peak", code: 1)
                         }
                         maximumPeak = max(maximumPeak, abs(sample))
@@ -117,7 +117,7 @@ do {
     let start = Date()
     try engine.renderFinalMix(to: URL(fileURLWithPath: args[2], isDirectory: true), seconds: seconds, seed: seed)
     if ProcessInfo.processInfo.environment["SPIRIT_BOX_LEVEL_AUDIT"] == "1" {
-        try auditLevels(assets: manifest.assets, root: root, output: URL(fileURLWithPath: args[2]))
+        try auditLevels(assets: manifest.assets, root: root, output: URL(fileURLWithPath: args[2]), settings: settings)
     }
     let preset = engine.currentRendererSettings.namedPreset
     print("Rendered \(seconds)s of actual engine mix in \(Date().timeIntervalSince(start))s → \(args[2])/sweep.wav")

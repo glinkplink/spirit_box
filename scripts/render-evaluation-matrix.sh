@@ -51,6 +51,10 @@ if [[ -z "$OUTPUT" ]]; then
   STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
   OUTPUT="$ROOT/build/evaluation-matrix/${STAMP}-${PRESET}"
 fi
+if [[ -e "$OUTPUT" ]]; then
+  echo "FAIL: refusing to overwrite matrix evidence: $OUTPUT" >&2
+  exit 1
+fi
 mkdir -p "$OUTPUT"
 
 "$ROOT/scripts/render-sweep.sh" --build-only
@@ -73,15 +77,19 @@ PY
 
 FAILED=0
 for cell in "${CELLS[@]}"; do
-  IFS=: read -r RATE DIRECTION SECONDS <<<"$cell"
-  CELL_DIR="$OUTPUT/${RATE}ms-${DIRECTION}-${SECONDS}s"
-  rm -rf "$CELL_DIR"
-  echo "=== Matrix cell: ${RATE}ms ${DIRECTION} ${SECONDS}s ==="
-  if ! "$ROOT/scripts/render-sweep.sh" "$CORPUS" "$CELL_DIR" "$SECONDS" "$RATE" "$DIRECTION" "$SEED" "$PRESET"; then
+  IFS=: read -r RATE DIRECTION DURATION_SECONDS <<<"$cell"
+  CELL_DIR="$OUTPUT/${RATE}ms-${DIRECTION}-${DURATION_SECONDS}s"
+  echo "=== Matrix cell: ${RATE}ms ${DIRECTION} ${DURATION_SECONDS}s ==="
+  if ! "$ROOT/scripts/render-sweep.sh" "$CORPUS" "$CELL_DIR" "$DURATION_SECONDS" "$RATE" "$DIRECTION" "$SEED" "$PRESET"; then
     echo "FAIL: render failed for $CELL_DIR" >&2
     FAILED=1
-    continue
+    RENDER=FAIL
+  else
+    RENDER=PASS
   fi
+  TECH=NOT_RUN
+  ACOUSTIC=NOT_RUN
+  if [[ "$RENDER" == PASS ]]; then
   TECH=PASS
   ACOUSTIC=PASS
   if ! python3 "$ROOT/tools/check_sweep_render.py" "$CELL_DIR" --manifest "$CORPUS/manifest.json"; then
@@ -92,10 +100,11 @@ for cell in "${CELLS[@]}"; do
     ACOUSTIC=FAIL
     FAILED=1
   fi
-  python3 - "$SUMMARY" "$cell" "$CELL_DIR" "$TECH" "$ACOUSTIC" <<'PY'
+  fi
+  python3 - "$SUMMARY" "$cell" "$CELL_DIR" "$TECH" "$ACOUSTIC" "$RENDER" <<'PY'
 import json, sys
 from pathlib import Path
-summary_path, cell, cell_dir, tech, acoustic = sys.argv[1:6]
+summary_path, cell, cell_dir, tech, acoustic, render = sys.argv[1:7]
 summary = json.loads(Path(summary_path).read_text())
 acoustic_report = {}
 acoustic_path = Path(cell_dir) / "acoustic-checks.json"
@@ -103,6 +112,7 @@ if acoustic_path.is_file():
     acoustic_report = json.loads(acoustic_path.read_text())
 summary["cells"][cell] = {
     "directory": cell_dir,
+    "render": render,
     "technical_checks": tech,
     "acoustic_checks": acoustic,
     "vocal_slot_minus_noise_slot_db": acoustic_report.get("vocal_slot_minus_noise_slot_db"),

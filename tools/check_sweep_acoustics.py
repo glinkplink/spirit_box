@@ -21,6 +21,7 @@ timeline will mis-align if only engine render time is stored.
 """
 import argparse
 import json
+import math
 from pathlib import Path
 import subprocess
 import wave
@@ -50,8 +51,8 @@ def parse_loudness_range_lu(ffmpeg_stderr: str) -> float:
     if value is None:
         raise ValueError('ffmpeg loudnorm JSON missing input_lra')
     parsed = float(value)
-    if not (parsed == parsed):  # NaN
-        raise ValueError(f'input_lra is not numeric: {value!r}')
+    if isinstance(value, bool) or not math.isfinite(parsed) or parsed < 0:
+        raise ValueError(f'input_lra must be finite and non-negative: {value!r}')
     return parsed
 
 

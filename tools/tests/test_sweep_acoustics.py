@@ -31,6 +31,11 @@ class LoudnessRangeParsingTests(unittest.TestCase):
         )
         self.assertAlmostEqual(parse_loudness_range_lu(stderr), 1.75)
 
+    def test_rejects_invalid_lra(self):
+        for value in (None, True, 'NaN', 'inf', '-inf', '-1', 'garbage'):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                parse_loudness_range_lu(json.dumps({'input_lra': value}))
+
     def test_missing_input_lra_raises(self):
         stderr = '{"input_i" : "-18.2", "input_tp" : "-2.3"}\n'
         with self.assertRaises(ValueError):

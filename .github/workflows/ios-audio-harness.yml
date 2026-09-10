@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.inputs.source_sha || github.sha }}
+          ref: ${{ github.event.inputs.source_sha || github.event.pull_request.head.sha || github.sha }}
 
       - name: Classify changed files
         id: classify
@@ -43,7 +43,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.source_sha || github.sha }}
+          ref: ${{ github.event.inputs.source_sha || github.event.pull_request.head.sha || github.sha }}
 
       - name: Skip full iOS CI (no iOS-relevant changes)
         if: needs.classify-changes.outputs.ios_relevant != 'true'
@@ -71,7 +71,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.source_sha || github.sha }}
+          ref: ${{ github.event.inputs.source_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Bootstrap committed fixtures when absent
         run: |
           python3 -m venv build/acoustic-venv
@@ -103,14 +103,21 @@ jobs:
             build/listening-runs/
             build/listening-60s-300ms/
           if-no-files-found: error
+      - name: Verify frozen A0 PCM and gain-only candidate event sequence
+        run: |
+          SPIRIT_BOX_LEVEL_AUDIT=1 ./scripts/render-sweep.sh ios/Phase1 build/listening-a0-reference 60 300 forward 12648430 listening-test-pre-rebalance
+          python3 tools/check_sweep_render.py build/listening-a0-reference \
+            --compare-prefix tools/fixtures/listening-test-pre-rebalance-gain-ab
+          cmp build/listening-60s-300ms/events.jsonl build/listening-a0-reference/events.jsonl
+          python3 tools/verify_mix_candidate.py build/listening-60s-300ms build/listening-a0-reference
       - name: Remaining actual-engine render suite
         run: |
           ./scripts/render-sweep.sh ios/Phase1 build/listening-30s-300ms 30 300 forward 12648430
           python3 tools/check_sweep_render.py build/listening-30s-300ms --compare-prefix build/listening-60s-300ms
-          SPIRIT_BOX_LEVEL_AUDIT=1 ./scripts/render-sweep.sh ios/Phase1 build/listening-2min 120 200 forward 12648430
+          ./scripts/render-sweep.sh ios/Phase1 build/listening-2min 120 200 forward 12648430
           python3 tools/check_sweep_render.py build/listening-2min
-          ./scripts/render-sweep.sh ios/Phase1 build/listening-12min 720 300 forward 1234
-          python3 tools/check_sweep_render.py build/listening-12min
+          ./scripts/render-sweep.sh ios/Phase1 build/listening-20min 1200 300 forward 1234
+          python3 tools/check_sweep_render.py build/listening-20min
       - name: Upload real rendered mix and source traces
         if: always()
         uses: actions/upload-artifact@v4
