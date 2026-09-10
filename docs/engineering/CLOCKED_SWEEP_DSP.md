@@ -115,4 +115,3 @@ In TestFlight Build 4 (commit `4eb5a164`), listening review identified two sever
 3. **Natural human vocal glimpses**: Scaled exposure window to 80–220 ms (50–80% of dwell duration; 150–220 ms at 300 ms rate, 100–160 ms at 200 ms rate) with smooth raised-cosine (Hanning) windowing to eliminate truncation clicks.
 4. **Natural reverse sweep scan**: Traverses source assets in reverse corpus sequence while playing forward speech snippets.
 5. **Acoustic validation**: `tools/check_sweep_acoustics.py` updated to verify `continuous_bed` (envelope spread < 12.0 dB) alongside loudness (-18.6 LUFS) and peak headroom (-7.5 dBTP).
-

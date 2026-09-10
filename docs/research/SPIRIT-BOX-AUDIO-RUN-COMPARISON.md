@@ -1,7 +1,9 @@
 # Spirit Box audio run comparison
 
-**Status:** forensic ledger — measurements and attributions, not a shipping verdict  
-**Date:** 2026-09-10  
+**Status:** forensic ledger — measurements and attributions, not a shipping verdict
+
+**Date:** 2026-09-10
+
 **Role:** Supporting research record. Does not override `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md`. Experimental renderer values are not canonical product requirements and are not proof of P-SB7 equivalence.
 
 Fact labels used below:

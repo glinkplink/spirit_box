@@ -33,5 +33,10 @@ jobs:
       - name: Run corpus intake unit tests
         run: PYTHONPATH=. python3 -m unittest discover -s tools/corpus_intake/tests -v
 
+      - name: Install numpy for review-tool tests
+        run: |
+          python3 -m venv build/tooling-venv
+          build/tooling-venv/bin/pip install numpy
+
       - name: Run VCTK provenance integration tests
-        run: python3 -m unittest discover -s tools/tests -v
+        run: build/tooling-venv/bin/python -m unittest discover -s tools/tests -v
