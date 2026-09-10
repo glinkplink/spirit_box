@@ -152,7 +152,7 @@ final class EngineOutputCaptureTests: XCTestCase {
         engine.stopAudioGateRun()
     }
 
-    func testProvenanceUsesUnknownWhenGitAndBundleMetadataAreMissing() {
+    func testProvenanceUsesUnknownWhenGitAndBundleMetadataAreMissing() throws {
         let payload = CaptureProvenance.makePayload(
             runID: "run",
             timestamp: Date(timeIntervalSince1970: 1),
@@ -173,6 +173,18 @@ final class EngineOutputCaptureTests: XCTestCase {
         XCTAssertEqual(settings["vocal_event_probability"] as? Double, 0.07)
         XCTAssertEqual(CaptureProvenance.unknown, "UNKNOWN")
         XCTAssertFalse((payload["source_commit"] as? String)?.hasPrefix("engine-output-capture-") == true)
+        let start = try XCTUnwrap(payload["scheduler_starting_state"] as? [String: Any])
+        XCTAssertEqual((start["seed"] as? NSNumber)?.uint64Value, 1_264_8430)
+        XCTAssertEqual(start["history_reset_on_engine_start"] as? Bool, true)
+    }
+
+    func testResolvedRevisionPrefersEnvThenBundleAndSkipsUnexpandedSettings() {
+        XCTAssertEqual(CaptureProvenance.resolvedField("abc", "def"), "abc")
+        XCTAssertEqual(
+            CaptureProvenance.resolvedField(nil, "", "UNKNOWN", "$(SPIRIT_BOX_SOURCE_COMMIT)", "deadbeef"),
+            "deadbeef"
+        )
+        XCTAssertEqual(CaptureProvenance.resolvedField(nil, "UNKNOWN", "$(X)"), CaptureProvenance.unknown)
     }
 
     func testControlChangesRecordRateAndDirectionTransitionsOnly() {
@@ -189,6 +201,34 @@ final class EngineOutputCaptureTests: XCTestCase {
         XCTAssertEqual(changes[0]["sweep_rate_ms"] as? Int, 200)
         XCTAssertEqual(changes[0]["direction"] as? String, "REV")
         XCTAssertEqual(changes[0]["capture_time_seconds"] as? Double, 0.4)
+    }
+
+    func testProvenanceRecordsUnderrunAndCaptureFormatExtras() throws {
+        let payload = CaptureProvenance.makePayload(
+            runID: "run",
+            timestamp: Date(timeIntervalSince1970: 1),
+            settings: .listeningTest,
+            seed: 0xC0FFEE,
+            corpus: .empty,
+            sampleRate: 48_000,
+            durationSeconds: 120,
+            sweepRate: .ms300,
+            direction: .forward,
+            eventTimestampBasis: "capture_time_seconds_when_present",
+            extraEngine: [
+                "scheduling_underrun_count": 2,
+                "capture_wav": [
+                    "channel_count": 2,
+                    "pcm_bit_depth": 16,
+                    "container": "wav",
+                ],
+            ]
+        )
+        XCTAssertEqual(payload["scheduling_underrun_count"] as? Int, 2)
+        let wav = try XCTUnwrap(payload["capture_wav"] as? [String: Any])
+        XCTAssertEqual(wav["channel_count"] as? Int, 2)
+        XCTAssertEqual(wav["pcm_bit_depth"] as? Int, 16)
+        XCTAssertEqual(payload["duration_seconds"] as? Int, 120)
     }
 
     private func makeBuffer(frames: AVAudioFrameCount, fill: Float) throws -> AVAudioPCMBuffer {

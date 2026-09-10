@@ -45,6 +45,16 @@ The checker requires **WAV-aligned** slot timestamps. It prefers `capture_time_s
 
 This is a full-dwell RMS ratio. It is not a listening score. It is not automatically the same as a model’s “vocal emergence” figure.
 
+### Vocal exposure fraction of elapsed time
+
+`sum(emitted_frame_count) / (WAV duration × sample rate)`. This is **not** slot occupancy. Run5 is 33.3% slots but only **7.81%** of elapsed samples are vocal PCM.
+
+### Full-mix loudness / LRA
+
+ffmpeg 7.0.2 `loudnorm=I=-17:TP=-1:LRA=11:print_format=json` `input_i` / `input_tp` / `input_lra`.
+
+**Channel treatment:** original live captures are 48 kHz 16-bit **stereo**. BS.1770 stereo integrated loudness of a dual-mono mix is ~3 LU higher than the mean-downmix used by the mono checker. Report **both**. Do not treat reference-file LUFS as an app gain target. Low LRA does not prove compressor causation.
+
 ### Sample peak vs true peak
 
 A sample limiter ceiling (here −2.5 dBFS) does not prove a true-peak ceiling or the absence of underruns. True peak requires a reconstruction meter (ffmpeg `loudnorm` `input_tp` in the checker).
@@ -53,15 +63,19 @@ A sample limiter ceiling (here −2.5 dBFS) does not prove a true-peak ceiling o
 
 ## Comparison table
 
-| Run | Path | Duration | Rate / dir | Vocal / slots | Density | Events/min | Exposure min/med/max | Integrated LUFS | Sample peak | True peak | Noise spread | Vocal emergence | Preset / build |
+| Run | Path | Duration | Rate / dir | Vocal / slots | Density | Events/min | Exposure min/med/max | Integrated LUFS (stereo original) | Sample peak | True peak | Noise spread | Vocal emergence | Preset / build |
 |---|---|---:|---|---:|---:|---:|---|---:|---:|---:|---:|---:|---|
-| Run3 | `recordings/Run3/` | 120 s **RECOMPUTED** | mixed 75/125/200/300; FWD+REV **RECOMPUTED** | 209 / 812 **RECOMPUTED** | 25.7389% **RECOMPUTED** | 104.5 **RECOMPUTED** | 40 / 54 / 83 ms (40.0 / 54.625 / 83.896 ms from frames) **RECOMPUTED** | −23.98 **REPORTED_NOT_REPRODUCED** | −2.50 dBFS **RECOMPUTED** | −2.35 dBTP **REPORTED_NOT_REPRODUCED** | 6.65 dB **REPORTED_NOT_REPRODUCED** | +15.27 dB **REPORTED_NOT_REPRODUCED** | UNKNOWN |
-| Run4 | `recordings/Run4/` | 120 s **RECOMPUTED** | 300 ms FWD only **RECOMPUTED** | 60 / 400 **RECOMPUTED** | 15.0000% **RECOMPUTED** | 30.0 **RECOMPUTED** | 60 / 60 / 60 ms (2880 frames) **RECOMPUTED** | −18.76 **REPORTED_NOT_REPRODUCED** | −2.50 dBFS **RECOMPUTED** | −2.30 dBTP **REPORTED_NOT_REPRODUCED** | 27.57 dB **REPORTED_NOT_REPRODUCED** | +0.01 dB **REPORTED_NOT_REPRODUCED** | UNKNOWN |
-| Run5 | `recordings/Run5/` | 120 s **RECOMPUTED** | 300 ms FWD only **RECOMPUTED** | 133 / 399 **RECOMPUTED** | 33.3333% **RECOMPUTED** | 66.5 **RECOMPUTED** | 66 / 70 / 74 ms (66.0625 / 70.375 / 74.9375 ms from frames) **RECOMPUTED** | −15.37 **REPORTED_NOT_REPRODUCED** | −2.50 dBFS **RECOMPUTED** | −2.36 dBTP **REPORTED_NOT_REPRODUCED** | 3.56 dB **REPORTED_NOT_REPRODUCED** | +1.81 dB **REPORTED_NOT_REPRODUCED** | UNKNOWN |
-| Candidate 60 s 300 ms FWD | not rendered on this Linux host | — | 300 ms FWD intended | — | — | — | 120–180 ms configured long-source range **RECOMPUTED** from code | — | — | — | — | — | `listening-test` / `2026-09-10.sparse-exposure-v1` (this branch). Artifact: UNKNOWN until macOS/CI render |
+| Run3 | `recordings/Run3/` | 120 s **RECOMPUTED** | mixed 75/125/200/300; FWD+REV **RECOMPUTED** | 209 / 812 **RECOMPUTED** | 25.7389% **RECOMPUTED** | 104.5 **RECOMPUTED** | 40 / 54 / 83 ms (40.0 / 54.625 / 83.896 ms from frames) **RECOMPUTED** | −23.98 **RECOMPUTED** (downmix −26.99; LRA 6.5) | −2.50 dBFS **RECOMPUTED** | −2.35 dBTP **RECOMPUTED** | 6.65 dB **RECOMPUTED** (mean-downmix, WAV-aligned) | +15.27 dB **RECOMPUTED** | UNKNOWN |
+| Run4 | `recordings/Run4/` | 120 s **RECOMPUTED** | 300 ms FWD only **RECOMPUTED** | 60 / 400 **RECOMPUTED** | 15.0000% **RECOMPUTED** | 30.0 **RECOMPUTED** | 60 / 60 / 60 ms (2880 frames) **RECOMPUTED** | −18.76 **RECOMPUTED** (downmix −21.77; LRA 1.4) | −2.50 dBFS **RECOMPUTED** | −2.30 dBTP **RECOMPUTED** | UNKNOWN (engine timeline starts at 136.96 s; no `capture_time_seconds`) | UNKNOWN | UNKNOWN |
+| Run5 | `recordings/Run5/` | 120 s **RECOMPUTED** | 300 ms FWD only **RECOMPUTED** | 133 / 399 **RECOMPUTED** | 33.3333% **RECOMPUTED** | 66.5 **RECOMPUTED** | 66 / 70 / 74 ms (66.0625 / 70.375 / 74.9375 ms from frames) **RECOMPUTED** | −15.37 **RECOMPUTED** (downmix −18.38; LRA 0.7) | −2.50 dBFS **RECOMPUTED** | −2.36 dBTP **RECOMPUTED** | 3.56 dB **RECOMPUTED** (mean-downmix, WAV-aligned) | +1.81 dB **RECOMPUTED** | UNKNOWN |
+| Candidate 60 s 300 ms FWD | not rendered on this Linux host | — | 300 ms FWD intended | — | — | — | 120–180 ms configured long-source range **RECOMPUTED** from code | — | — | — | — | — | `listening-test` / `2026-09-10.sparse-exposure-v1`. Artifact: UNKNOWN until macOS/CI render of this PR SHA |
 | Matched baseline 60 s | not rendered on this Linux host | — | same seed/rate/duration intended | — | — | — | 150–220 ms archived PR #31 range **RECOMPUTED** from frozen preset | — | — | — | — | — | `archived-continuous-static` / `2026-09-10.pr31`. Do not treat Run4/Run5 as this baseline |
 
-Subjective model scores 5.0 / 3.5 / 6.5 for Run3 / Run4 / Run5 are **SUBJECTIVE** only. They are not objective measurements. Reference “10/10” is **not** a calibrated benchmark.
+Run5 **vocal exposure fraction of elapsed time** is **7.81% RECOMPUTED** (449728 emitted frames / 5_760_000). That is not 33% audible vocal time. Run4 is 3.00%. Run3 mixed-rate is 9.79%.
+
+Subjective model scores 5.0 / 3.5 / 6.5 for Run3 / Run4 / Run5 are **SUBJECTIVE** only. They are not objective measurements. Reference “10/10” is **not** a calibrated benchmark. This revision did **not** listen to the files.
+
+Independent recompute commands, tool versions, and derivatives: `tools/recompute_audio_review.py` → gitignored `build/run6-review-recompute/` (originals untouched).
 
 ---
 
@@ -213,7 +227,7 @@ A supplied model reported:
 | Noise spread | 6.65 dB | 27.57 dB | 3.56 dB |
 | Vocal emergence | +15.27 dB | +0.01 dB | +1.81 dB |
 
-Scores: **SUBJECTIVE**. Spread/emergence: **REPORTED_NOT_REPRODUCED** with the checker definitions above (stereo live WAVs; Run4 timestamps not WAV-relative; model method undocumented here).
+Scores: **SUBJECTIVE**. Run3/Run5 spread and emergence are now **RECOMPUTED** on a **mean-downmix** with WAV-aligned `render_time_seconds`. Run4 spread/emergence remain **UNKNOWN** (timestamps not WAV-relative). The earlier 27.57 dB / +0.01 dB Run4 figures stay **REPORTED_NOT_REPRODUCED**.
 
 ---
 
@@ -221,9 +235,11 @@ Scores: **SUBJECTIVE**. Spread/emergence: **REPORTED_NOT_REPRODUCED** with the c
 
 | Run | Hypothesis | Change tested | Result | Next |
 |---|---|---|---|---|
-| Run3 | Clocked DSP + 0.33-class occupancy, mixed rates | PR #28-era live smoke | Intermittent vocals (25.7%), mixed FWD/REV; settings not in bundle | Do not use mixed-rate LUFS as a gain table |
-| Run4 | Post-Run3 listening on a 300 ms FWD capture | UNKNOWN build | 15% / 60 ms; engine time offset ~137 s | Do not treat as PR #31 8%/150–220 ms without settings |
-| Run5 | Same as current main / 8% preset | **Not established** | 33.3% / 66–75 ms; **settings provenance missing** | UNRESOLVED historical cause; lock preset + write provenance |
-| Candidate | 7% + 100–180 ms exposure bounds, continuous static unchanged | this branch shared preset | WAV not produced on Linux | macOS 60 s 300 ms FWD vs archived baseline, then unprimed device listen |
+| Run3 | Clocked DSP + 0.33-class occupancy, mixed rates | PR #28-era live smoke | Intermittent vocals (25.7% slots, 9.79% elapsed exposure), mixed FWD/REV; settings not in bundle | Do not use mixed-rate LUFS as a gain table |
+| Run4 | Post-Run3 listening on a 300 ms FWD capture | UNKNOWN build | 15% slots / 3.00% elapsed exposure / 60 ms; engine time offset ~137 s | Do not treat as PR #31 8%/150–220 ms without settings |
+| Run5 | Same as current main / 8% preset | **Not established** | 33.3% slots / **7.81% elapsed exposure** / 66–75 ms / LRA 0.7; **settings provenance missing** | UNRESOLVED historical cause; do not invent a reset/stepper cause |
+| Candidate | 7% + 100–180 ms exposure bounds, continuous static unchanged | shared `listening-test` preset | WAV not produced on Linux | GitHub-hosted macOS 60 s 300 ms FWD vs archived baseline, then unprimed device listen |
+
+Concrete Audio DSP & Renderer Fixes (speaker-roulette relaxation, 18 ms fades, gain table, lookahead limiter retune, reverse-PCM change) remain **proposed experiments**, not implemented here. Reverse already uses forward PCM with reverse traversal. The existing limiter already uses 2 ms preview and 40 ms release; inspect actual-engine output before adding latency.
 
 Canonical endurance gate remains 15–20 minutes on physical hardware with unprimed listeners. Audio-model review does not pass that gate.

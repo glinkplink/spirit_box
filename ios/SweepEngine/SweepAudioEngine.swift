@@ -38,6 +38,9 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private var maximumSlotPreparationSeconds = 0.0
     private var captureAnchorRenderSeconds: Double?
     private var captureAnchorSource = CaptureProvenance.unknown
+    private var schedulingUnderrunCount = 0
+    private var captureChannelCount: Int?
+    private var captureSampleRate: Double?
 
     private var running = false
     private var sweepRate: SweepRate = .default
@@ -264,6 +267,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         noiseState.reset(seed: UInt32(truncatingIfNeeded: seed),
                          sampleRate: graphFormat?.sampleRate ?? 48_000, settings: rendererSettings)
         eventLog.reset()
+        schedulingUnderrunCount = 0
     }
 
     private func preloadSourcesLocked() throws {
@@ -308,6 +312,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         let ahead = AVAudioFramePosition(format.sampleRate * rendererSettings.scheduleAheadSeconds)
         if nextSlotFrame < currentFrame {
             // Never enqueue a burst of stale fragments after a scheduling stall.
+            schedulingUnderrunCount += 1
             notifyRuntime("Sweep scheduling underrun at frame \(currentFrame); output gap.")
             nextSlotFrame = currentFrame + ahead
         }
@@ -598,6 +603,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
         try captureWriteQueue.sync {
             try captureWriter.start(url: wavURL, format: mixFormat, durationSeconds: durationSeconds)
         }
+        captureChannelCount = Int(mixFormat.channelCount)
+        captureSampleRate = mixFormat.sampleRate
         captureTickCounter = 0
         captureGeneration += 1
         captureActive = true
@@ -930,6 +937,16 @@ public final class SweepAudioEngine: @unchecked Sendable {
                 "vocal_gain": Double(rendererSettings.vocalGain),
                 "min_vocal_exposure_seconds": rendererSettings.minVocalExposureSeconds,
                 "max_vocal_exposure_seconds": rendererSettings.maxVocalExposureSeconds,
+                "scheduling_underrun_count": schedulingUnderrunCount,
+                "capture_wav": [
+                    "sample_rate": captureSampleRate.map { $0 as Any } ?? graphFormat.map { $0.sampleRate as Any } ?? CaptureProvenance.unknown,
+                    "channel_count": captureChannelCount.map { $0 as Any } ?? graphFormat.map { Int($0.channelCount) as Any } ?? CaptureProvenance.unknown,
+                    "pcm_bit_depth": 16,
+                    "pcm_is_float": false,
+                    "container": "wav",
+                    "engine_graph_channel_count": graphFormat.map { Int($0.channelCount) as Any } ?? CaptureProvenance.unknown,
+                    "note": "Capture uses mainMixerNode.outputFormat. Device routes can be stereo even when the player graph is mono 48 kHz.",
+                ] as [String: Any],
             ]
         )
         payload["renderer_settings"] = rendererSettings.jsonObject()

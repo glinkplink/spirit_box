@@ -78,10 +78,28 @@ public enum EngineOutputCaptureLocator {
 enum CaptureProvenance {
     static let unknown = "UNKNOWN"
 
-    static func sourceRevision() -> (commit: String, dirty: String) {
-        let env = ProcessInfo.processInfo.environment
-        let commit = nonEmpty(env["SPIRIT_BOX_SOURCE_COMMIT"]) ?? unknown
-        let dirty = nonEmpty(env["SPIRIT_BOX_SOURCE_DIRTY"]) ?? unknown
+    /// First non-empty real value wins. Unexpanded `$(SETTING)` and explicit UNKNOWN are skipped.
+    static func resolvedField(_ candidates: String?...) -> String {
+        for value in candidates {
+            guard let cleaned = nonEmpty(value), cleaned != unknown else { continue }
+            if cleaned.hasPrefix("$(") && cleaned.hasSuffix(")") { continue }
+            return cleaned
+        }
+        return unknown
+    }
+
+    static func sourceRevision(
+        env: [String: String] = ProcessInfo.processInfo.environment,
+        bundle: Bundle = .main
+    ) -> (commit: String, dirty: String) {
+        let commit = resolvedField(
+            env["SPIRIT_BOX_SOURCE_COMMIT"],
+            bundle.object(forInfoDictionaryKey: "SpiritBoxSourceCommit") as? String
+        )
+        let dirty = resolvedField(
+            env["SPIRIT_BOX_SOURCE_DIRTY"],
+            bundle.object(forInfoDictionaryKey: "SpiritBoxSourceDirty") as? String
+        )
         return (commit, dirty)
     }
 
@@ -148,6 +166,12 @@ enum CaptureProvenance {
         payload["sample_rate"] = sampleRate.map { $0 as Any } ?? unknown
         payload["duration_seconds"] = durationSeconds.map { $0 as Any } ?? unknown
         payload["capture_anchor_render_seconds"] = captureAnchorRenderSeconds.map { $0 as Any } ?? unknown
+        payload["scheduler_starting_state"] = [
+            "seed": seed.map { NSNumber(value: $0) as Any } ?? unknown,
+            "recent_exclusion_window": settings.recentExclusionWindow,
+            "history_reset_on_engine_start": true,
+            "density_reseeded_from_seed": true,
+        ] as [String: Any]
         for (key, value) in extraEngine {
             payload[key] = value
         }

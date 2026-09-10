@@ -12,6 +12,17 @@ if [[ -z "${HEAD_SHA}" ]]; then
   exit 1
 fi
 
+if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+  echo "=== Classification ==="
+  echo "workflow_dispatch always requests actual-engine validation."
+  echo "ios_relevant=true"
+  echo "A skipped iOS-relevance job is not audio validation; this path does not skip."
+  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    echo "ios_relevant=true" >> "${GITHUB_OUTPUT}"
+  fi
+  exit 0
+fi
+
 resolve_changed_files() {
   if [[ "${EVENT_NAME}" == "pull_request" ]]; then
     if [[ -z "${BASE_SHA}" ]]; then

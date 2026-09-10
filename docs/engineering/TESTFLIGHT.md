@@ -25,20 +25,29 @@ The Xcode target/scheme may still be named `SpiritBoxAudioHarness`. Display name
 
 ## Running a build
 
-1. Merge the desired code to `main`.
+1. Push the desired commit to GitHub (a reviewable PR is enough; merging is a separate approval).
 2. Copy the **exact full 40-character** commit SHA to test (`git rev-parse HEAD` on that commit).
 3. Open the GitHub repo → **Actions**.
 4. Select **Internal TestFlight**.
 5. Click **Run workflow**.
-6. Paste `source_sha` (full SHA only).
-7. Start the run.
-8. Wait until archive / sign / upload succeeds (green workflow).
-9. Wait for **Apple processing** (this is extra time after GitHub is green).
-10. Open [App Store Connect](https://appstoreconnect.apple.com) → Spirit Box → TestFlight.
-11. Confirm the build appears under **Internal Testing**.
-12. Add/confirm yourself as an internal tester if needed.
-13. Open **TestFlight** on the iPhone.
-14. Install or update Spirit Box / Audio Harness.
+6. Choose the branch that contains that SHA (or `main` only after it is merged).
+7. Paste `source_sha` (full SHA only). It must match the app commit you intend to install.
+8. Start the run.
+9. Wait until archive / sign / upload succeeds (green workflow).
+10. Wait for **Apple processing** (this is extra time after GitHub is green).
+11. Open [App Store Connect](https://appstoreconnect.apple.com) → Spirit Box → TestFlight.
+12. Confirm the build appears under **Internal Testing**.
+13. Add/confirm yourself as an internal tester if needed.
+14. Open **TestFlight** on the iPhone.
+15. Install or update Spirit Box / Audio Harness.
+
+CLI equivalent after the SHA is on GitHub. `--ref` selects **which workflow file** runs. `source_sha` selects **which tree is archived**. Use the same SHA/branch for both when the workflow itself changed:
+
+```sh
+gh workflow run testflight.yml --ref <branch-that-contains-the-sha> -f source_sha=<40-character-sha>
+```
+
+Do not dispatch an older `main` workflow against a newer SHA if that SHA introduced archive-time Info.plist injection. Do not treat upload as listening.
 
 GitHub Actions success means **upload succeeded**. It does **not** mean Apple has finished processing. Processing can take several more minutes.
 

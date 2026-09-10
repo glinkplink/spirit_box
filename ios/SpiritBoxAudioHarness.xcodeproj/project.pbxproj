@@ -446,6 +446,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = AudioHarness/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Audio Harness";
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
@@ -456,6 +457,8 @@
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				SPIRIT_BOX_SOURCE_COMMIT = UNKNOWN;
+				SPIRIT_BOX_SOURCE_DIRTY = UNKNOWN;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -482,6 +485,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = AudioHarness/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Audio Harness";
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
@@ -492,6 +496,8 @@
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				SPIRIT_BOX_SOURCE_COMMIT = UNKNOWN;
+				SPIRIT_BOX_SOURCE_DIRTY = UNKNOWN;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
