@@ -139,6 +139,7 @@ enum FragmentBufferFactory {
         applyRadioShape(cropped, variation: startJitterFraction, settings: settings)
         let oriented = direction == .reverse ? reverse(cropped) : cropped
         applyFades(oriented, fadeSeconds: settings.fadeSeconds)
+        balanceVocalLevel(oriented, settings: settings)
         // One dwell-sized vocal slot: glimpse plus zeros. The independent noise
         // bed continues; never stretch, loop, or overlap a second speaker.
         let dwellFrames = Int(convertedSource.format.sampleRate * sweepRate.timeInterval)
@@ -372,6 +373,34 @@ enum FragmentBufferFactory {
                 samples[index] *= gain
                 samples[count - 1 - index] *= gain
             }
+        }
+    }
+
+    /// The actual full-corpus audit measured the shaped bed at ~0.025 RMS
+    /// with staticGain 0.10. A 0.105 RMS glimpse at vocalGain 0.48 is ~6 dB
+    /// above that bed. Bound lift to 12 dB: near-silent source windows remain
+    /// quiet rather than having their recording floor aggressively amplified.
+    /// Work on the faded glimpse, never on its dwell-sized zero padding.
+    static func balanceVocalLevel(
+        _ buffer: AVAudioPCMBuffer,
+        settings: SweepRendererSettings = .listeningTest
+    ) {
+        guard let channels = buffer.floatChannelData, buffer.frameLength > 0 else { return }
+        let count = Int(buffer.frameLength)
+        for channel in 0..<Int(buffer.format.channelCount) {
+            let samples = channels[channel]
+            var sum = 0.0
+            var peak: Float = 0
+            for i in 0..<count {
+                let sample = samples[i].isFinite ? samples[i] : 0
+                samples[i] = sample
+                sum += Double(sample) * Double(sample)
+                peak = max(peak, abs(sample))
+            }
+            let rms = sqrt(sum / Double(count))
+            guard rms > 0, peak > 0 else { continue }
+            let gain = min(Float(0.105 / rms), 4, settings.vocalPeakLimit / peak)
+            for i in 0..<count { samples[i] *= gain }
         }
     }
 

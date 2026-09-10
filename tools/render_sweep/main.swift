@@ -66,6 +66,10 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
                 reverseDifferences.append(difference)
             }
         }
+        let medianBalance = distribution(balances)["median"]!
+        guard (4.0...8.0).contains(medianBalance) else {
+            throw NSError(domain: "level-audit: median voice/static balance \(medianBalance) dB outside +4...+8 dB at \(rate.milliseconds) ms", code: 1)
+        }
         reports[String(rate.milliseconds)] = ["pre_limiter_active_vocal_rms_dbfs": distribution(levels),
             "runtime_level_change_db": distribution(changes),
             "reverse_absolute_rms_difference_db": distribution(reverseDifferences),

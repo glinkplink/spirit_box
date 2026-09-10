@@ -22,25 +22,27 @@ rendering of the actual app engine. Python previews used different DSP/schedulin
 Implemented in the existing engine and controls, with no product UI redesign:
 
 - `ios/Phase1/`: the verified 1,200 VCTK candidate windows, unchanged PCM, original
-  license/attribution, per-window provenance and runtime manifest. The earlier
-  bundle is retained in Git history and locally at
-  `build/recording-105-bundle-before-vctk-renderer/`.
+license/attribution, per-window provenance and runtime manifest. The earlier
+bundle is retained in Git history and locally at
+`build/recording-105-bundle-before-vctk-renderer/`.
 - `SourceAsset.swift`: optional utterance ID, source file and original start/count
-  in 48 kHz frames. Existing non-VCTK manifests remain decodable.
+in 48 kHz frames. Existing non-VCTK manifests remain decodable.
 - `SweepScheduler.swift`: seeded source ring, direction-aware bounded traversal,
-  strict VCTK history constraints, bounded rolling history and speaker reuse counts.
+strict VCTK history constraints, bounded rolling history and speaker reuse counts.
 - `FragmentBufferFactory.swift`: centralized tuning, high/low-pass shaping, bounded
-  gain, whole-window peak attenuation, fades, and dwell-sized zero-padded vocal slots.
+gain, whole-window peak attenuation, fades, and dwell-sized zero-padded vocal slots.
 - `SweepAudioEngine.swift`: predecoded sources, sample-time scheduling, short
-  lookahead, shared live/offline render graph, frame-accurate diagnostic offsets,
-  startup failure cleanup, asynchronous capture progress that never waits for disk
-  on the scheduling queue, and explicit failure on capture-writer overrun.
+lookahead, shared live/offline render graph, frame-accurate diagnostic offsets,
+startup failure cleanup, asynchronous capture progress that never waits for disk
+on the scheduling queue, and explicit failure on capture-writer overrun.
 - `ProceduralNoiseSource.swift`: reproducible reset for offline QA.
 - `SweepEventLog.swift`: source provenance, speaker reuse distance, source-relative
-  runtime crop/count, and scheduled sample-clock timestamp.
+runtime crop/count, and scheduled sample-clock timestamp.
 - Harness view/model: 30/60-second and 5-minute final-mix capture buttons alongside
-  existing 2/20-minute captures. These are developer capture durations, not audio modes.
+existing 2/20-minute captures. These are developer capture durations, not audio modes.
 - Preparation/integration scripts, macOS CLI, CI render artifacts and regression tests.
+
+
 
 ## Runtime loading and provenance
 
@@ -112,20 +114,22 @@ Actual device cold-start latency and deadline behavior still require measurement
 `SweepRendererSettings.listeningTest` in `FragmentBufferFactory.swift` is the
 single default tuning location (also editable in the harness):
 
-| Setting | Value |
-|---|---|
-| Vocal event probability | 0.33 |
-| Gap/cluster stickiness | 0.45 |
-| Procedural static gain | 0.032 |
-| Vocal player gain | 0.88 |
-| Final mixer gain | 0.82 |
-| Vocal exposure | 50–130 ms, 22–48% of dwell |
-| High-pass / low-pass | 280 / 4200 Hz, first-order stages, slight per-glimpse variation |
-| Boundary fades | 8 ms each, no vocal overlap |
-| Per-window gain variation | ±8% |
-| Processed vocal peak ceiling | 0.65, whole-window attenuation |
-| Scheduler lookahead | 40 ms |
-| Anti-repeat window | 8 (plus VCTK cooldowns) |
+
+| Setting                      | Value                                                           |
+| ---------------------------- | --------------------------------------------------------------- |
+| Vocal event probability      | 0.33                                                            |
+| Gap/cluster stickiness       | 0.45                                                            |
+| Procedural static gain       | 0.032                                                           |
+| Vocal player gain            | 0.88                                                            |
+| Final mixer gain             | 0.82                                                            |
+| Vocal exposure               | 50–130 ms, 22–48% of dwell                                      |
+| High-pass / low-pass         | 280 / 4200 Hz, first-order stages, slight per-glimpse variation |
+| Boundary fades               | 8 ms each, no vocal overlap                                     |
+| Per-window gain variation    | ±8%                                                             |
+| Processed vocal peak ceiling | 0.65, whole-window attenuation                                  |
+| Scheduler lookahead          | 40 ms                                                           |
+| Anti-repeat window           | 8 (plus VCTK cooldowns)                                         |
+
 
 The existing procedural filtered white/brown noise and sparse crackle continue
 whether or not a vocal is scheduled. No stored static loop, reverb, echo, stacked
@@ -191,7 +195,6 @@ live underruns, cold-start latency, control-change smoothness and device stop/ro
 behavior. Start with the 30–60-second actual mix, tune, then listen for 2–5 minutes;
 only later perform the 15–20-minute physical-device endurance evaluation.
 
-
 ## Additional quality audit: coverage regression
 
 At PR commit `4679981a`, iOS run `34376192646` confirmed **85/480** unique assets
@@ -238,34 +241,33 @@ variation is deferred until listening to the corrected actual-engine output show
 it is needed. Customer-facing controls and terminology are unchanged. Technical
 level measurements do not establish perceived loudness or a human audio-gate PASS.
 
-
 ## Measured audit results
 
 Actual-engine artifact from run `34378088508`, code `8906b045` (before moving
 ring-cache construction into preload):
 
 - 12-minute / 300 ms / seed 1234: 2,400 events, **1,200/1,200 assets**, 398–402
-  events per speaker, minimum repeat distance 175. Two-minute / 200 ms: 600/600
-  distinct events. The fixed-seed 30/60-second PCM and trace prefixes match.
+events per speaker, minimum repeat distance 175. Two-minute / 200 ms: 600/600
+distinct events. The fixed-seed 30/60-second PCM and trace prefixes match.
 - Preload: 0.087–0.514 seconds on the macOS CI host; maximum measured slot
-  preparation 5.31 ms across the render matrix, against 40 ms live lookahead.
-  These are offline host measurements, not an iPhone deadline guarantee.
+preparation 5.31 ms across the render matrix, against 40 ms live lookahead.
+These are offline host measurements, not an iPhone deadline guarantee.
 - Rendered peak at most 0.464 full scale. Exhaustive processed-source peak 0.642;
-  conservative mix bound 0.543. No clipping in these measurements.
+conservative mix bound 0.543. No clipping in these measurements.
 - At 200 ms, active vocal RMS p05/median/p95 was -30.78/-26.57/-24.27 dBFS;
-  voice/static ratio p05/p95 was +7.15/+13.65 dB. At 75 ms these ranges widen:
-  -41.98/-27.68/-22.65 dBFS and -4.05/+15.27 dB voice/static. Shorter crops can
-  expose low-energy source regions, so consistent perceived level is **not proven**.
+voice/static ratio p05/p95 was +7.15/+13.65 dB. At 75 ms these ranges widen:
+-41.98/-27.68/-22.65 dBFS and -4.05/+15.27 dB voice/static. Shorter crops can
+expose low-energy source regions, so consistent perceived level is **not proven**.
 - Maximum paired Forward/Reverse RMS difference was 1.361 dB at 75 ms and
-  0.309 dB at 200 ms (p95 0.255 and 0.070 dB respectively). The automated level
-  audit now rejects a direction-only energy change of 3 dB or more.
+0.309 dB at 200 ms (p95 0.255 and 0.070 dB respectively). The automated level
+audit now rejects a direction-only energy change of 3 dB or more.
 - Independent raw WAV measurement found one source below -40 dBFS:
-  `vctk_0849_p227`, RMS -55.28 dBFS. Raw corpus p05/median/p95 was
-  -23.67/-20.28/-20.01 dBFS. The quiet outlier predates the runtime chain;
-  runtime should not amplify it into apparent speech. The audit artifact now
-  lists the ten quietest sources. Review the outlier and 75 ms voice/static
-  balance during human listening; no corpus replacement or second normalization
-  stage was introduced in this scheduler repair.
+`vctk_0849_p227`, RMS -55.28 dBFS. Raw corpus p05/median/p95 was
+-23.67/-20.28/-20.01 dBFS. The quiet outlier predates the runtime chain;
+runtime should not amplify it into apparent speech. The audit artifact now
+lists the ten quietest sources. Review the outlier and 75 ms voice/static
+balance during human listening; no corpus replacement or second normalization
+stage was introduced in this scheduler repair.
 
 The automated coverage, headroom and repeatability results do not clear the human
 physical-device audio gate. No human listening was performed by this audit.

@@ -256,4 +256,28 @@ final class FragmentBufferFactoryTests: XCTestCase {
         }
     }
 
+    func testVocalBalanceTargetsGlimpseRMSWithBoundedLiftAndPeak() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1))
+        let count = 4800
+        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(count)))
+        buffer.frameLength = AVAudioFrameCount(count)
+        let data = try XCTUnwrap(buffer.floatChannelData)[0]
+        for amplitude in [Float(0), 0.0001, 0.06, 2] {
+            for i in 0..<count { data[i] = amplitude * Float(sin(Double(i) * 2 * Double.pi / 48)) }
+            FragmentBufferFactory.balanceVocalLevel(buffer)
+            let rms = sqrt((0..<count).reduce(0.0) { $0 + Double(data[$1]) * Double(data[$1]) } / Double(count))
+            if amplitude == 0 { XCTAssertEqual(rms, 0) }
+            else if amplitude < 0.001 {
+                XCTAssertLessThanOrEqual(rms, Double(amplitude) * 4, "Do not amplify near silence without bound")
+            } else {
+                XCTAssertEqual(rms, 0.105, accuracy: 0.00001)
+            }
+            XCTAssertTrue((0..<count).allSatisfy { abs(data[$0]) <= SweepTuning.vocalPeakLimit })
+        }
+        data.initialize(repeating: 0, count: count)
+        data[2400] = 0.5
+        FragmentBufferFactory.balanceVocalLevel(buffer)
+        XCTAssertLessThanOrEqual(abs(data[2400]), SweepTuning.vocalPeakLimit)
+    }
+
 }

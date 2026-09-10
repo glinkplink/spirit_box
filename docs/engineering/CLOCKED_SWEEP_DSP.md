@@ -49,6 +49,36 @@ checks -18 to -16 LUFS, <= -1 dBTP, <5% energy below 250 Hz, >35% at 1–3.5 kHz
 >15 dB empty-slot envelope range and correlation at the dwell lag. Existing CI
 also compares PCM/event prefixes, other rates, reverse and longer sessions.
 
-Initial local status: Python tool tests pass; Linux cannot execute Swift/Xcode
-or actual engine rendering. macOS results and human listening remain pending.
-No 10/10 rating, release approval or physical-device gate is inferred from code.
+## Validation status after macOS run 34426367231
+
+The real AVAudioEngine outputs at commit `82774222` passed scheduling,
+30/60-second seeded PCM/event prefix identity, all four rates, reverse,
+and the 12-minute diversity test. The 60-second acoustic measurements were:
+
+| Metric | 300 ms | 200 ms |
+|---|---:|---:|
+| Integrated LUFS | -17.51 | -17.58 |
+| True peak dBTP | -9.01 | -9.01 |
+| Energy below 250 Hz | 0.251% | 0.226% |
+| Energy 1–3.5 kHz | 68.76% | 68.30% |
+| Empty-slot p90–p10 RMS range | 24.51 dB | 24.54 dB |
+| Dwell-lag correlation | 0.859 | 0.860 |
+
+Samples are copied to `build/test-60s-300ms/` and `build/test-60s-200ms/`,
+with commit/run provenance. They are actual engine output, not Python previews.
+
+**Remaining correction, local and uncommitted:** the full-corpus level audit
+found median pre-limiter voice/static ratios of -4.47 dB at 200 ms and -3.36 dB
+at 300 ms despite the requested gain defaults. The factory now balances faded
+vocal glimpses toward 0.105 RMS, with maximum 4x lift and the existing 0.65 peak
+limit. This targets roughly +6 dB against the measured 0.025 RMS bed; near-silent
+windows remain quiet. A new regression covers target RMS, bounded lift and
+transient ceilings, and the CLI audit requires median SNR within +4…+8 dB.
+
+This final correction is NOT in the CI samples above and needs fresh macOS
+compilation, unit tests, PCM identity, level-audit and acoustic measurements.
+
+No 10/10 rating, release approval or physical-device listening gate is inferred
+from these technical results. Live-device versus offline PCM identity has not
+been independently captured and compared; only their shared slot path and
+seeded offline prefix identity have been established.
