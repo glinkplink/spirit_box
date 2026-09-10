@@ -38,6 +38,14 @@ final class HarnessViewModel: ObservableObject {
     @Published var filesLocationInstruction = ""
     @Published var documentsDebugPath = ""
 
+    var rendererDiagnosticLines: [String] {
+        rendererSettings.harnessDiagnosticLines(
+            sweepRate: sweepRate,
+            sampleRate: 48_000,
+            buildLines: CaptureProvenance.harnessBuildLines()
+        )
+    }
+
     let audioGateStatus = AudioGateStatus.phase1CandidateBundledHumanGateNotYetPassed
 
     private let engine = SweepAudioEngine()
@@ -155,6 +163,8 @@ final class HarnessViewModel: ObservableObject {
 
     func start() {
         do {
+            engine.setRendererSettings(.listeningTest)
+            rendererSettings = engine.currentRendererSettings
             try engine.start()
             isRunning = true
             lastMessage = corpusCount == 0
@@ -179,19 +189,6 @@ final class HarnessViewModel: ObservableObject {
     func applyDirection(_ direction: SweepDirection) {
         self.direction = direction
         engine.setDirection(direction)
-    }
-
-    func applyRendererSettings() {
-        engine.setRendererSettings(rendererSettings)
-        rendererSettings = engine.currentRendererSettings
-    }
-
-    func resetListeningTestDefaults() {
-        rendererSettings = .listeningTest
-        applySweepRate(.ms300)
-        applyDirection(.forward)
-        applyRendererSettings()
-        lastMessage = "Listening-test defaults: 300 ms FWD, 33% vocal, lowered static."
     }
 
     func startTwoMinuteCapture() {

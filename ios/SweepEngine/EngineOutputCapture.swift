@@ -60,6 +60,10 @@ public enum EngineOutputCaptureLocator {
         }
     }
 
+    public static func makeDiagnosticsURL(forCaptureURL url: URL) -> URL {
+        url.deletingPathExtension().appendingPathExtension("engine-diagnostics.json")
+    }
+
     private static let timestampFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -67,6 +71,134 @@ public enum EngineOutputCaptureLocator {
         formatter.dateFormat = "yyyyMMdd-HHmmss"
         return formatter
     }()
+}
+
+/// Artifact metadata for live captures and offline renders. Built off the
+/// real-time audio callback. Missing historical fields are explicit UNKNOWN.
+enum CaptureProvenance {
+    static let unknown = "UNKNOWN"
+
+    static func sourceRevision() -> (commit: String, dirty: String) {
+        let env = ProcessInfo.processInfo.environment
+        let commit = nonEmpty(env["SPIRIT_BOX_SOURCE_COMMIT"]) ?? unknown
+        let dirty = nonEmpty(env["SPIRIT_BOX_SOURCE_DIRTY"]) ?? unknown
+        return (commit, dirty)
+    }
+
+    static func appVersion() -> (version: String, build: String) {
+        let bundle = Bundle.main
+        let version = nonEmpty(bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? unknown
+        let build = nonEmpty(bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? unknown
+        return (version, build)
+    }
+
+    static func harnessBuildLines() -> [String] {
+        let app = appVersion()
+        let source = sourceRevision()
+        return [
+            "App version: \(app.version)  build: \(app.build)",
+            "Source revision: \(source.commit)  dirty: \(source.dirty)",
+        ]
+    }
+
+    static func makePayload(
+        runID: String,
+        timestamp: Date,
+        settings: SweepRendererSettings,
+        seed: UInt64?,
+        corpus: LoadedCorpus,
+        sampleRate: Double?,
+        durationSeconds: Int?,
+        sweepRate: SweepRate,
+        direction: SweepDirection,
+        controlChanges: [[String: Any]] = [],
+        captureAnchorRenderSeconds: Double? = nil,
+        captureAnchorSource: String = unknown,
+        eventTimestampBasis: String,
+        extraEngine: [String: Any] = [:]
+    ) -> [String: Any] {
+        let app = appVersion()
+        let source = sourceRevision()
+        let manifest: String
+        if let root = corpus.rootURL, let hash = CorpusLoader.manifestIdentity(at: root) {
+            manifest = hash
+        } else {
+            manifest = unknown
+        }
+        var payload: [String: Any] = [
+            "run_id": runID,
+            "timestamp": AudioGateRunISO.string(from: timestamp),
+            "app_version": app.version,
+            "build_number": app.build,
+            "source_commit": source.commit,
+            "source_dirty": source.dirty,
+            "seed": seed.map { NSNumber(value: $0) as Any } ?? unknown,
+            "corpus_source": describeCorpusSource(corpus.source),
+            "corpus_label": corpus.label,
+            "corpus_asset_count": corpus.assetCount,
+            "corpus_manifest_sha256": manifest,
+            "is_dev_fixtures": corpus.isDevFixture,
+            "sweep_rate_ms": sweepRate.milliseconds,
+            "direction": direction.debugLabel,
+            "event_timestamp_basis": eventTimestampBasis,
+            "capture_anchor_source": captureAnchorSource,
+            "control_changes": controlChanges,
+            "renderer_settings": settings.jsonObject(),
+        ]
+        payload["sample_rate"] = sampleRate.map { $0 as Any } ?? unknown
+        payload["duration_seconds"] = durationSeconds.map { $0 as Any } ?? unknown
+        payload["capture_anchor_render_seconds"] = captureAnchorRenderSeconds.map { $0 as Any } ?? unknown
+        for (key, value) in extraEngine {
+            payload[key] = value
+        }
+        return payload
+    }
+
+    static func controlChanges(from events: [SweepEvent]) -> [[String: Any]] {
+        var changes: [[String: Any]] = []
+        var lastRate: Int?
+        var lastDirection: String?
+        for event in events {
+            let rate = event.sweepRate.milliseconds
+            let direction = event.direction.debugLabel
+            if lastRate == nil {
+                lastRate = rate
+                lastDirection = direction
+                continue
+            }
+            if rate != lastRate || direction != lastDirection {
+                var row: [String: Any] = [
+                    "sweep_rate_ms": rate,
+                    "direction": direction,
+                ]
+                row["render_time_seconds"] = event.renderTimeSeconds.map { $0 as Any } ?? NSNull()
+                row["capture_time_seconds"] = event.captureTimeSeconds.map { $0 as Any } ?? NSNull()
+                changes.append(row)
+                lastRate = rate
+                lastDirection = direction
+            }
+        }
+        return changes
+    }
+
+    static func write(_ payload: [String: Any], to url: URL) throws {
+        let data = try JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys, .prettyPrinted])
+        try data.write(to: url, options: .atomic)
+    }
+
+    private static func nonEmpty(_ value: String?) -> String? {
+        let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private static func describeCorpusSource(_ source: CorpusSource) -> String {
+        switch source {
+        case .documentsPhase1: return "Documents/SpiritBoxPhase1Corpus"
+        case .bundlePhase1: return "Bundle/Phase1"
+        case .bundleDevFixtures: return "Bundle/DevFixtures"
+        case .empty: return "none"
+        }
+    }
 }
 
 final class EngineOutputCaptureWriter {

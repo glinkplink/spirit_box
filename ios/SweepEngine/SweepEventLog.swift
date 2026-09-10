@@ -25,6 +25,10 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
     public var containsVocal: Bool = true
     public var sourceOffsetMs: Int? = nil
     public var exposedDurationMs: Int? = nil
+    /// Seconds from capture WAV start. Nil when no capture is active.
+    /// Live captures can start after the engine timeline; acoustics must use this
+    /// rather than `renderTimeSeconds` when it is present.
+    public var captureTimeSeconds: Double? = nil
 
     public init(
         id: UUID = UUID(),
@@ -142,6 +146,7 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
         if let eventsSincePreviousUse { payload["events_since_previous_use"] = eventsSincePreviousUse }
         if let sourceOffsetMs { payload["source_offset_ms"] = sourceOffsetMs }
         if let exposedDurationMs { payload["exposed_duration_ms"] = exposedDurationMs }
+        if let captureTimeSeconds { payload["capture_time_seconds"] = captureTimeSeconds }
         guard let data = try? JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys]),
               let line = String(data: data, encoding: .utf8)
         else {

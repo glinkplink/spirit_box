@@ -89,8 +89,9 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
 
 // Compile with the app's SweepEngine sources. No parallel DSP implementation.
 let args = CommandLine.arguments
-if args.count < 4 || args.count > 7 {
-    fputs("Usage: render-sweep CORPUS OUTPUT_DIRECTORY SECONDS [75|125|200|300] [forward|reverse] [SEED]\n", stderr)
+if args.count < 4 || args.count > 8 {
+    fputs("Usage: render-sweep CORPUS OUTPUT_DIRECTORY SECONDS [75|125|200|300] [forward|reverse] [SEED] [PRESET]\n", stderr)
+    fputs("PRESET: listening-test (default) | archived-continuous-static\n", stderr)
     exit(2)
 }
 do {
@@ -102,10 +103,15 @@ do {
           let seed = UInt64(args.count > 6 ? args[6] : "12648430") else {
         throw NSError(domain: "render-sweep: invalid arguments", code: 2)
     }
+    let presetName = args.count > 7 ? args[7] : SweepRendererSettings.listeningTestIdentity.identifier
+    guard let settings = SweepRendererSettings.preset(identifier: presetName) else {
+        throw NSError(domain: "render-sweep: unknown preset \(presetName)", code: 2)
+    }
     let engine = SweepAudioEngine()
     engine.load(LoadedCorpus(assets: manifest.assets, skippedMalformedCount: 0,
                              source: .bundlePhase1, label: manifest.label ?? "QA corpus",
                              isDevFixture: false, rootURL: root))
+    engine.setRendererSettings(settings)
     engine.setSweepRate(rate)
     engine.setDirection(direction)
     let start = Date()
@@ -113,7 +119,9 @@ do {
     if ProcessInfo.processInfo.environment["SPIRIT_BOX_LEVEL_AUDIT"] == "1" {
         try auditLevels(assets: manifest.assets, root: root, output: URL(fileURLWithPath: args[2]))
     }
+    let preset = engine.currentRendererSettings.namedPreset
     print("Rendered \(seconds)s of actual engine mix in \(Date().timeIntervalSince(start))s → \(args[2])/sweep.wav")
+    print("Preset \(preset.identifier) \(preset.version) seed \(seed) \(rate.milliseconds)ms \(direction.rawValue)")
 } catch {
     fputs("Render failed: \(error)\n", stderr)
     exit(1)

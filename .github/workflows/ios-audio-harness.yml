@@ -61,10 +61,23 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Render the actual app engine (listening tests first)
+      - name: Render 60s 300ms candidate and matched baseline first
         run: |
-          ./scripts/render-sweep.sh ios/Phase1 build/listening-60s-300ms 60 300 forward 12648430
+          ./scripts/render-short-listening.sh --preset listening-test --rate 300 --seconds 60 --also-baseline --skip-acoustics
+          mkdir -p build/listening-60s-300ms
+          cp -a "$(cat build/listening-runs/latest-candidate.txt)"/. build/listening-60s-300ms/
           python3 tools/check_sweep_render.py build/listening-60s-300ms
+      - name: Upload 60s listening clips immediately
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: listening-60s-first
+          path: |
+            build/listening-runs/
+            build/listening-60s-300ms/
+          if-no-files-found: error
+      - name: Remaining actual-engine render suite
+        run: |
           build/render-sweep/render-sweep ios/Phase1 build/listening-30s-300ms 30 300 forward 12648430
           python3 tools/check_sweep_render.py build/listening-30s-300ms --compare-prefix build/listening-60s-300ms
           build/render-sweep/render-sweep ios/Phase1 build/listening-60s-200ms 60 200 forward 12648430
@@ -86,6 +99,9 @@ jobs:
           command -v ffmpeg || brew install ffmpeg
           build/acoustic-venv/bin/python tools/check_sweep_acoustics.py build/listening-60s-300ms
           build/acoustic-venv/bin/python tools/check_sweep_acoustics.py build/listening-60s-200ms
+          if [[ -f build/listening-runs/latest-baseline.txt ]]; then
+            build/acoustic-venv/bin/python tools/check_sweep_acoustics.py "$(cat build/listening-runs/latest-baseline.txt)" || true
+          fi
       - name: Upload real rendered mix and source traces
         if: always()
         uses: actions/upload-artifact@v4
@@ -93,6 +109,7 @@ jobs:
           name: actual-engine-listening-samples
           path: |
             build/listening-*/
+            build/listening-runs/
             build/rate-*/
             build/reverse-*/
           if-no-files-found: error

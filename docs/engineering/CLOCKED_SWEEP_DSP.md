@@ -15,9 +15,16 @@ covered by the pre-device PCM identity claim. An underrun is explicitly reported
 as an output gap, never described as uninterrupted static.
 
 Defaults: static 0.10, voice 0.48, master 3.5, clusteriness 0.0. Vocal runs stop
-at two slots, including custom density 1. Exposure is at most 85 ms by default
-(90 ms hard limit), with a 75 ms hard limit at the 300 ms detent. Shortening a
-window cannot guarantee that no listener will recognize a word.
+at two slots, including custom density 1. Current shared listening-test exposure
+is 100–180 ms absolute and 40–65% of dwell, never longer than the dwell; a 75 ms
+rate remains 63.75 ms. Those values are experimental (see
+`docs/research/SPIRIT-BOX-AUDIO-RUN-COMPARISON.md`). Shortening a window cannot
+guarantee that no listener will recognize a word.
+
+The 10 ms commutation duck described below is historical for the first clocked-DSP
+pass. Continuous-static remediation sets `slotEnvelope` to 1.0 so the noise bed is
+not periodically gated. Do not treat the following envelope paragraph as the
+current live default.
 
 Both layers use identical 500 Hz high-pass and 3600 Hz low-pass Butterworth
 biquads and a 2350 Hz, +3.5 dB, Q 1.75 presence filter. Noise filter state persists

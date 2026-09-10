@@ -112,19 +112,21 @@ Actual device cold-start latency and deadline behavior still require measurement
 ## Current internal tuning
 
 `SweepRendererSettings.listeningTest` in `FragmentBufferFactory.swift` is the
-single default tuning location (also editable in the harness):
+single default tuning location for the harness and the offline renderer.
+The harness no longer exposes interactive steppers for these values.
 
 
 | Setting                      | Value                                                           |
 | ---------------------------- | --------------------------------------------------------------- |
-| Vocal event probability      | 0.33                                                            |
-| Gap/cluster stickiness       | 0.00                                                            |
+| Named preset                 | `listening-test` / `2026-09-10.sparse-exposure-v1` (experimental candidate) |
+| Vocal event probability      | 0.07 (scheduler target, not measured density)                   |
+| Gap/cluster stickiness       | 0.00 (no extra cluster bias; two-vocal-run cap remains)         |
 | Procedural static gain       | 0.10                                                            |
 | Vocal player gain            | 0.48                                                            |
-| Output gain                  | 3.50 (with -2.5 dBFS sample limiter)                            |
-| Vocal exposure               | 50–85 ms (75 ms hard limit at 300 ms), 22–48% of dwell           |
+| Output gain                  | 3.50 (with −2.5 dBFS sample limiter)                            |
+| Vocal exposure               | 100–180 ms absolute, 40–65% of dwell, never longer than dwell; 75 ms rate stays 63.75 ms |
 | High-pass / low-pass         | 500 / 3600 Hz 2-pole Butterworth, +3.5 dB @ 2350 Hz presence    |
-| Boundary fades               | 8 ms each, no vocal overlap                                     |
+| Boundary fades               | 15 ms each, no vocal overlap                                    |
 | Per-window gain variation    | ±8%                                                             |
 | Processed vocal peak ceiling | 0.65, whole-window attenuation                                  |
 | Scheduler lookahead          | 40 ms                                                           |

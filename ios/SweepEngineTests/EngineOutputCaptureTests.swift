@@ -152,6 +152,45 @@ final class EngineOutputCaptureTests: XCTestCase {
         engine.stopAudioGateRun()
     }
 
+    func testProvenanceUsesUnknownWhenGitAndBundleMetadataAreMissing() {
+        let payload = CaptureProvenance.makePayload(
+            runID: "run",
+            timestamp: Date(timeIntervalSince1970: 1),
+            settings: .listeningTest,
+            seed: 1_264_8430,
+            corpus: .empty,
+            sampleRate: 48_000,
+            durationSeconds: 60,
+            sweepRate: .ms300,
+            direction: .forward,
+            eventTimestampBasis: "capture_relative_equals_engine_render_time"
+        )
+        XCTAssertEqual(payload["run_id"] as? String, "run")
+        XCTAssertEqual((payload["seed"] as? NSNumber)?.uint64Value, 1_264_8430)
+        XCTAssertEqual(payload["corpus_manifest_sha256"] as? String, CaptureProvenance.unknown)
+        let settings = try XCTUnwrap(payload["renderer_settings"] as? [String: Any])
+        XCTAssertEqual(settings["preset_identifier"] as? String, "listening-test")
+        XCTAssertEqual(settings["vocal_event_probability"] as? Double, 0.07)
+        XCTAssertEqual(CaptureProvenance.unknown, "UNKNOWN")
+        XCTAssertFalse((payload["source_commit"] as? String)?.hasPrefix("engine-output-capture-") == true)
+    }
+
+    func testControlChangesRecordRateAndDirectionTransitionsOnly() {
+        let first = SweepEvent.noiseOnlySlot(
+            rate: .ms300, direction: .forward, timestamp: Date(timeIntervalSince1970: 0)
+        )
+        var second = SweepEvent.noiseOnlySlot(
+            rate: .ms200, direction: .reverse, timestamp: Date(timeIntervalSince1970: 1)
+        )
+        second.renderTimeSeconds = 1.2
+        second.captureTimeSeconds = 0.4
+        let changes = CaptureProvenance.controlChanges(from: [first, second])
+        XCTAssertEqual(changes.count, 1)
+        XCTAssertEqual(changes[0]["sweep_rate_ms"] as? Int, 200)
+        XCTAssertEqual(changes[0]["direction"] as? String, "REV")
+        XCTAssertEqual(changes[0]["capture_time_seconds"] as? Double, 0.4)
+    }
+
     private func makeBuffer(frames: AVAudioFrameCount, fill: Float) throws -> AVAudioPCMBuffer {
         let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
         let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames))

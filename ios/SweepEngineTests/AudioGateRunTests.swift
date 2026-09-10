@@ -340,6 +340,36 @@ final class AudioGateRunTests: XCTestCase {
         XCTAssertThrowsError(try AudioGateRunBundleWriter.writeSummaries(summary, location: location))
     }
 
+    func testSummaryJSONKeepsHistoricalKeysWhenProvenanceIsAdded() throws {
+        let location = try AudioGateRunLocator.createUniqueRunDirectory(in: scratchDirectory, shortID: "eeeeeeee")
+        let summary = AudioGateRunSummary.make(
+            runID: location.runID,
+            startedAt: Date(timeIntervalSince1970: 50),
+            endedAt: Date(timeIntervalSince1970: 80),
+            requestedDurationSeconds: 120,
+            capturedDurationSeconds: 30,
+            completion: .stoppedEarly,
+            failureMessage: nil,
+            corpus: .empty,
+            startingSweepRate: .ms300,
+            startingDirection: .forward,
+            events: []
+        )
+        let provenance: [String: Any] = [
+            "source_commit": CaptureProvenance.unknown,
+            "renderer_settings": SweepRendererSettings.listeningTest.jsonObject(),
+        ]
+        try AudioGateRunBundleWriter.writeSummaries(summary, location: location, provenance: provenance)
+        let object = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: Data(contentsOf: location.summaryJSONURL)) as? [String: Any]
+        )
+        XCTAssertEqual(object["run_id"] as? String, location.runID)
+        XCTAssertEqual(object["vocal_event_count"] as? Int, 0)
+        XCTAssertEqual((object["provenance"] as? [String: Any])?["source_commit"] as? String, "UNKNOWN")
+        let without = summary.jsonObject()
+        XCTAssertNil(without["provenance"])
+    }
+
     func testWriterCanTargetARunDirectoryWAVPath() throws {
         let location = try AudioGateRunLocator.createUniqueRunDirectory(in: scratchDirectory, shortID: "dddddddd")
         XCTAssertEqual(location.wavURL.deletingLastPathComponent().path, location.directoryURL.path)

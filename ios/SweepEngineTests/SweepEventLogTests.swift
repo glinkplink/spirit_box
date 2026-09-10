@@ -45,6 +45,18 @@ final class SweepEventLogTests: XCTestCase {
         let payload = try? JSONSerialization.jsonObject(with: Data(event.diagnosticJSONLine().utf8)) as? [String: Any]
         XCTAssertEqual(payload?["contains_vocal"] as? Bool, false)
         XCTAssertEqual(payload?["sweep_rate_ms"] as? Int, 300)
+        XCTAssertNil(payload?["capture_time_seconds"])
+    }
+
+    func testCaptureRelativeTimestampIsExportedWhenPresent() {
+        var event = SweepEvent.noiseOnlySlot(
+            rate: .ms300, direction: .forward, timestamp: Date(timeIntervalSince1970: 1)
+        )
+        event.renderTimeSeconds = 136.9
+        event.captureTimeSeconds = 0.3
+        let payload = try? JSONSerialization.jsonObject(with: Data(event.diagnosticJSONLine().utf8)) as? [String: Any]
+        XCTAssertEqual(payload?["render_time_seconds"] as? Double, 136.9)
+        XCTAssertEqual(payload?["capture_time_seconds"] as? Double, 0.3)
     }
 
     func testCaptureLocatorUsesDiagnosticEngineMixName() {

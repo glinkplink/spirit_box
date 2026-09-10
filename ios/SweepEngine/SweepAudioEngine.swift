@@ -29,12 +29,15 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private var convertedBufferCache: [String: AVAudioPCMBuffer] = [:]
     private var captureEventFileHandle: FileHandle?
     private var jitterSeed: UInt64 = 0xC0FFEE
+    private var sessionSeed: UInt64 = 0xC0FFEE
     private var nextSlotFrame: AVAudioFramePosition = 0
     private var renderStartedAt = Date()
     private var offlineRendering = false
     private var preloadSeconds = 0.0
     private var decodedBytes = 0
     private var maximumSlotPreparationSeconds = 0.0
+    private var captureAnchorRenderSeconds: Double?
+    private var captureAnchorSource = CaptureProvenance.unknown
 
     private var running = false
     private var sweepRate: SweepRate = .default
@@ -257,6 +260,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
                                    configuration: rendererSettings.schedulerConfiguration, seed: seed)
         density = VocalDensityScheduler(settings: rendererSettings, seed: seed)
         jitterSeed = seed
+        sessionSeed = seed
         noiseState.reset(seed: UInt32(truncatingIfNeeded: seed),
                          sampleRate: graphFormat?.sampleRate ?? 48_000, settings: rendererSettings)
         eventLog.reset()
@@ -399,6 +403,11 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private func emitSlotEventLocked(_ event: SweepEvent, renderTimeSeconds: Double) {
         var event = event
         event.renderTimeSeconds = renderTimeSeconds
+        if captureActive, let anchor = captureAnchorRenderSeconds {
+            event.captureTimeSeconds = renderTimeSeconds - anchor
+        } else if offlineRendering {
+            event.captureTimeSeconds = renderTimeSeconds
+        }
         eventLog.append(event)
         appendCaptureEventLocked(event)
         if !offlineRendering {
@@ -432,6 +441,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
             try preloadSourcesLocked()
             nextSlotFrame = 0
             renderStartedAt = Date(timeIntervalSince1970: 0)
+            captureAnchorRenderSeconds = 0
+            captureAnchorSource = "offline_zero"
             eventLog.reset()
             try engine.enableManualRenderingMode(.offline, format: format, maximumFrameCount: 512)
             let writer = EngineOutputCaptureWriter()
@@ -473,24 +484,18 @@ public final class SweepAudioEngine: @unchecked Sendable {
                 .filter { ($0.renderTimeSeconds ?? 0) < Double(seconds) }
                 .map { $0.diagnosticJSONLine() }.joined(separator: "\n")
             try (lines + "\n").write(to: directory.appendingPathComponent("events.jsonl"), atomically: true, encoding: .utf8)
-            let diagnostics: [String: Any] = [
-                "available_assets": corpus.assets.filter { $0.isEligible(for: direction) }.count,
-                "decoded_source_count": convertedBufferCache.count,
-                "decoded_pcm_bytes": decodedBytes,
-                "preload_seconds": preloadSeconds,
-                "maximum_slot_preparation_seconds": maximumSlotPreparationSeconds,
-                "schedule_ahead_seconds": rendererSettings.scheduleAheadSeconds,
-                "vocal_event_probability": rendererSettings.vocalEventProbability,
-                "clusteriness": rendererSettings.clusteriness,
-                "static_gain": Double(rendererSettings.staticGain),
-                "output_gain": Double(rendererSettings.outputGain),
-                "limiter_sample_ceiling": Double(SweepMasterLimiter.sampleCeiling),
-                "vocal_gain": Double(rendererSettings.vocalGain),
-                "min_vocal_exposure_seconds": rendererSettings.minVocalExposureSeconds,
-                "max_vocal_exposure_seconds": rendererSettings.maxVocalExposureSeconds
-            ]
-            try JSONSerialization.data(withJSONObject: diagnostics, options: [.sortedKeys, .prettyPrinted])
-                .write(to: directory.appendingPathComponent("engine-diagnostics.json"))
+            let events = eventLog.allChronological().filter { ($0.renderTimeSeconds ?? 0) < Double(seconds) }
+            try CaptureProvenance.write(
+                engineDiagnosticsPayload(
+                    runID: directory.lastPathComponent,
+                    timestamp: Date(),
+                    durationSeconds: seconds,
+                    sampleRate: format.sampleRate,
+                    eventTimestampBasis: "capture_relative_equals_engine_render_time",
+                    controlChanges: CaptureProvenance.controlChanges(from: events)
+                ),
+                to: directory.appendingPathComponent("engine-diagnostics.json")
+            )
         }
     }
 
@@ -596,6 +601,16 @@ public final class SweepAudioEngine: @unchecked Sendable {
         captureTickCounter = 0
         captureGeneration += 1
         captureActive = true
+        if let time = fragmentPlayer.lastRenderTime, time.isSampleTimeValid, mixFormat.sampleRate > 0 {
+            captureAnchorRenderSeconds = Double(time.sampleTime) / mixFormat.sampleRate
+            captureAnchorSource = "player_last_render_time"
+        } else if mixFormat.sampleRate > 0 {
+            captureAnchorRenderSeconds = Double(nextSlotFrame) / mixFormat.sampleRate
+            captureAnchorSource = "next_slot_frame_lookahead"
+        } else {
+            captureAnchorRenderSeconds = nil
+            captureAnchorSource = CaptureProvenance.unknown
+        }
 
         do {
             try openCaptureEventFileLocked(at: eventsURL)
@@ -690,6 +705,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         audioGateRun = nil
         if run == nil, let url = stopped.url {
             writeFullEventLogSnapshotLocked(nextTo: url)
+            writeLiveCaptureDiagnosticsLocked(wavURL: url, capturedSeconds: stopped.seconds)
         }
         if captureTapInstalled {
             engine.mainMixerNode.removeTap(onBus: 0)
@@ -752,7 +768,23 @@ public final class SweepAudioEngine: @unchecked Sendable {
         )
 
         do {
-            try AudioGateRunBundleWriter.writeSummaries(summary, location: run.location)
+            let provenance = engineDiagnosticsPayload(
+                runID: run.location.runID,
+                timestamp: run.startedAt,
+                durationSeconds: capturedSeconds,
+                sampleRate: graphFormat?.sampleRate,
+                eventTimestampBasis: "capture_time_seconds_when_present",
+                controlChanges: CaptureProvenance.controlChanges(from: run.events)
+            )
+            try AudioGateRunBundleWriter.writeSummaries(
+                summary,
+                location: run.location,
+                provenance: provenance
+            )
+            try CaptureProvenance.write(
+                provenance,
+                to: run.location.directoryURL.appendingPathComponent("engine-diagnostics.json")
+            )
         } catch {
             reportingParts.append("summary write: \(error.localizedDescription)")
             completion = AudioGateRunCompletionResolver.resolve(
@@ -843,6 +875,65 @@ public final class SweepAudioEngine: @unchecked Sendable {
         let snapshotURL = captureURL.deletingPathExtension().appendingPathExtension("eventlog.jsonl")
         let lines = eventLog.allChronological().map { $0.diagnosticJSONLine() }.joined(separator: "\n")
         try? (lines + (lines.isEmpty ? "" : "\n")).write(to: snapshotURL, atomically: true, encoding: .utf8)
+    }
+
+    private func writeLiveCaptureDiagnosticsLocked(wavURL: URL, capturedSeconds: Int) {
+        let events = eventLog.allChronological()
+        let payload = engineDiagnosticsPayload(
+            runID: wavURL.deletingPathExtension().lastPathComponent,
+            timestamp: Date(),
+            durationSeconds: capturedSeconds,
+            sampleRate: graphFormat?.sampleRate,
+            eventTimestampBasis: "capture_time_seconds_when_present",
+            controlChanges: CaptureProvenance.controlChanges(from: events)
+        )
+        try? CaptureProvenance.write(
+            payload,
+            to: EngineOutputCaptureLocator.makeDiagnosticsURL(forCaptureURL: wavURL)
+        )
+    }
+
+    private func engineDiagnosticsPayload(
+        runID: String,
+        timestamp: Date,
+        durationSeconds: Int?,
+        sampleRate: Double?,
+        eventTimestampBasis: String,
+        controlChanges: [[String: Any]]
+    ) -> [String: Any] {
+        var payload = CaptureProvenance.makePayload(
+            runID: runID,
+            timestamp: timestamp,
+            settings: rendererSettings,
+            seed: sessionSeed,
+            corpus: corpus,
+            sampleRate: sampleRate,
+            durationSeconds: durationSeconds,
+            sweepRate: sweepRate,
+            direction: direction,
+            controlChanges: controlChanges,
+            captureAnchorRenderSeconds: captureAnchorRenderSeconds,
+            captureAnchorSource: captureAnchorSource,
+            eventTimestampBasis: eventTimestampBasis,
+            extraEngine: [
+                "available_assets": corpus.assets.filter { $0.isEligible(for: direction) }.count,
+                "decoded_source_count": convertedBufferCache.count,
+                "decoded_pcm_bytes": decodedBytes,
+                "preload_seconds": preloadSeconds,
+                "maximum_slot_preparation_seconds": maximumSlotPreparationSeconds,
+                "schedule_ahead_seconds": rendererSettings.scheduleAheadSeconds,
+                "vocal_event_probability": rendererSettings.vocalEventProbability,
+                "clusteriness": rendererSettings.clusteriness,
+                "static_gain": Double(rendererSettings.staticGain),
+                "output_gain": Double(rendererSettings.outputGain),
+                "limiter_sample_ceiling": Double(SweepMasterLimiter.sampleCeiling),
+                "vocal_gain": Double(rendererSettings.vocalGain),
+                "min_vocal_exposure_seconds": rendererSettings.minVocalExposureSeconds,
+                "max_vocal_exposure_seconds": rendererSettings.maxVocalExposureSeconds,
+            ]
+        )
+        payload["renderer_settings"] = rendererSettings.jsonObject()
+        return payload
     }
 
     private func closeCaptureEventFileLocked() {
