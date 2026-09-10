@@ -39,6 +39,19 @@ Rejected as shipping changes from that review:
 
 Next required gate: 15–20 minutes on physical iOS hardware with unprimed listeners (Source of Truth §18). Prefer mostly Forward at 200/300 ms; long uninterrupted Reverse is a separate reverse-semantics test, not the default endurance protocol.
 
+## Run 4 physical device review (2026-09-10)
+
+TestFlight Build 4 (commit `4eb5a164`) review identified that the PR #28 DSP changes introduced two acoustic defects:
+1. Static noise bed was pulsing / gating due to a 10 ms ducking envelope on every slot (`ProceduralNoiseState.slotEnvelope` dropping to 0.06).
+2. Voice snippets were firing too frequently (33% probability vs reference ~5.8%) and were over-clipped to 50–75 ms, creating unnatural transient clicks/pops.
+
+Remediations applied on branch `fix/continuous-static-natural-speech`:
+- Removed per-slot noise bed ducking; static noise bed is now 100% continuous without periodic modulation.
+- Calibrated vocal probability to ~8% (from 33%), matching the measured reference audio baseline.
+- Extended vocal exposure to 80–220 ms (50–80% of dwell) with smooth raised-cosine windowing, allowing natural human speech transitions to be heard without clicks.
+- Forward speech orientation during reverse sweep (reverse corpus sequence traversal without waveform reversal).
+
+
 1. What competitor research actually supports
 
 VERIFIED FACT

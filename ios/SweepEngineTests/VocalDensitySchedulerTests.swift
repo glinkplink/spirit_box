@@ -28,11 +28,11 @@ final class VocalDensitySchedulerTests: XCTestCase {
             }
         }
         let density = Double(vocals) / Double(slots)
-        XCTAssertGreaterThan(density, 0.25)
-        XCTAssertLessThan(density, 0.40)
-        XCTAssertGreaterThan(maxNoise, 2, "Need consecutive noise-only slots")
+        XCTAssertGreaterThan(density, 0.04)
+        XCTAssertLessThan(density, 0.12)
+        XCTAssertGreaterThan(maxNoise, 5, "Need consecutive noise-only slots")
         XCTAssertEqual(maxVocal, 2, "Occasional pairs, never longer bursts")
-        XCTAssertLessThan(Double(flips) / Double(slots - 1), 0.70, "Must not be a metronomic alternate")
+        XCTAssertLessThan(Double(flips) / Double(slots - 1), 0.30, "Must not be a metronomic alternate")
     }
 
     func testZeroProbabilityNeverSchedulesVocals() {
