@@ -119,4 +119,6 @@ jobs:
             build/listening-runs/
             build/evaluation-matrix/
             build/archived-regression-check/
+            build/fixture-capture/
+            tools/fixtures/
           if-no-files-found: error

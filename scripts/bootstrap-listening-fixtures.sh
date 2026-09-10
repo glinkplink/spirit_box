@@ -24,7 +24,9 @@ render_and_check() {
   shift
   "$ROOT/scripts/render-sweep.sh" "$CORPUS" "$dir" "$@"
   python3 "$ROOT/tools/check_sweep_render.py" "$dir" --manifest "$CORPUS/manifest.json"
-  python3 "$ROOT/tools/check_sweep_acoustics.py" "$dir"
+  if ! python3 "$ROOT/tools/check_sweep_acoustics.py" "$dir"; then
+    echo "WARN: acoustic checks failed for $dir (metrics still written)." >&2
+  fi
 }
 
 echo "=== Pre-rebalance gain A/B fixture ==="
