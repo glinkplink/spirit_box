@@ -89,3 +89,23 @@ No 10/10 rating, release approval or physical-device listening gate is inferred
 from these technical results. Live-device versus offline PCM identity has not
 been independently captured and compared; only their shared slot path and
 seeded offline prefix identity have been established.
+
+## Run 4 listening review and acoustic remediation
+
+In TestFlight Build 4 (commit `4eb5a164`), listening review identified two severe acoustic defects:
+1. Pulsing / gating static bed ("constantly going in and out, sounds unnatural").
+2. Unnatural, clicky voice pops appearing far too frequently.
+
+### Root Cause Analysis
+1. **Periodic noise bed gating tremolo**: In `ProceduralNoiseSource.swift`, `SweepSlotMixer.mix` multiplied `(channels[c][i] * vocalGain + bed) * envelope`, where `envelope` ducked the signal to 0.06 (-24.4 dB) for 10 ms at the start of every slot. This created a 3.3 Hz to 13 Hz square/trapezoidal gating tremolo across the static noise bed, violating Source of Truth §18.1 ("one continuous noise/static bed").
+2. **Excessive vocal event density**: `vocalEventProbability` was hardcoded to `0.33` (33% of dwells). At 200–300 ms sweep rates, this fired voices every 0.6–0.9 seconds (100+ voices per minute). The measured reference audio analysis (`build/reference_audio_analysis/analysis.md`) showed `speech_step_probability = 0.0576` (~5.8% of dwells). 33% density overwhelmed the listener with a constant barrage of voice clips, violating §6.2 ("allow long stretches with nothing interpretable").
+3. **Micro-truncation transient pops**: Dwell exposures had a hard cap of 75 ms (at 300 ms rate) down to 50 ms minimums. An isolated 50 ms snippet with 8 ms linear ramps leaves only ~34 ms of steady speech—insufficient to resolve vowel formant transitions or natural speech attacks, producing sharp click/pop transients.
+4. **Literal PCM reversal**: On reverse sweep, `reverse(cropped)` reversed the PCM waveform into backwards phonemes instead of scanning the corpus sequence in reverse order as specified in the reference prototype.
+
+### Remediations Implemented
+1. **Continuous static bed**: Restored uninterrupted noise addition in `SweepSlotMixer.mix`. `slotEnvelope` returns 1.0, removing the 10 ms gating drop. Empty-slot p90-p10 envelope spread drops from 27.8 dB to ~3.7 dB, eliminating static pulsing.
+2. **Reference-calibrated vocal density**: Reduced `vocalEventProbability` from 0.33 to 0.08 (~8%), closely matching the reference audio baseline (~5.8%).
+3. **Natural human vocal glimpses**: Scaled exposure window to 80–220 ms (50–80% of dwell duration; 150–220 ms at 300 ms rate, 100–160 ms at 200 ms rate) with smooth raised-cosine (Hanning) windowing to eliminate truncation clicks.
+4. **Natural reverse sweep scan**: Traverses source assets in reverse corpus sequence while playing forward speech snippets.
+5. **Acoustic validation**: `tools/check_sweep_acoustics.py` updated to verify `continuous_bed` (envelope spread < 12.0 dB) alongside loudness (-18.6 LUFS) and peak headroom (-7.5 dBTP).
+

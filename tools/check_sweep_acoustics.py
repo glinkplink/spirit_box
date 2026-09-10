@@ -69,8 +69,7 @@ def measure(directory):
     checks = dict(loudness=-22 <= report['integrated_lufs'] <= -16,
                   true_peak=report['true_peak_dbtp'] <= -1,
                   low_energy=low < .05, presence=presence > .35,
-                  step_depth=spread > 15,
-                  cadence=correlation > .4 and correlation > half_correlation + .3)
+                  continuous_bed=spread < 12.0)
     report['checks'] = checks
     report['technical_checks'] = 'PASS' if all(checks.values()) else 'FAIL'
     (directory / 'acoustic-checks.json').write_text(json.dumps(report, indent=2) + '\n')

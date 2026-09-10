@@ -68,23 +68,12 @@ final class ProceduralNoiseState {
     }
 
     static func commutationFrames(sampleRate: Double) -> (quiet: Int, edge: Int) {
-        let edge = max(1, Int(sampleRate * 0.005))
-        let quiet = max(1, Int(sampleRate * 0.010))
-        return (quiet, edge)
+        (0, 0)
     }
 
-    /// A 10 ms quiet commutation shelf with 5 ms edges mimics the brief
-    /// RF PLL step/chuff of an analog tuner without an unnatural gating tremolo.
+    /// The static bed remains continuous; slot envelope does not apply unnatural gating tremolo.
     static func slotEnvelope(frame: Int, count: Int, sampleRate: Double) -> Float {
-        let (quiet, edge) = commutationFrames(sampleRate: sampleRate)
-        if frame < quiet { return 0.06 }
-        if frame < quiet + edge {
-            return 0.06 + 0.94 * Float(frame - quiet) / Float(edge)
-        }
-        if frame >= count - edge {
-            return 0.06 + 0.94 * Float(count - 1 - frame) / Float(edge)
-        }
-        return 1
+        1.0
     }
 
     func nextSample() -> Float {
@@ -134,11 +123,9 @@ enum SweepSlotMixer {
         let count = Int(buffer.frameLength)
         guard count > 0 else { return }
         for i in 0..<count {
-            let envelope = ProceduralNoiseState.slotEnvelope(frame: i, count: count,
-                                                            sampleRate: buffer.format.sampleRate)
             let bed = noise.nextSample() * settings.staticGain
             for c in 0..<Int(buffer.format.channelCount) {
-                channels[c][i] = (channels[c][i] * settings.vocalGain + bed) * envelope * settings.outputGain
+                channels[c][i] = (channels[c][i] * settings.vocalGain + bed) * settings.outputGain
             }
         }
         for c in 0..<Int(buffer.format.channelCount) {

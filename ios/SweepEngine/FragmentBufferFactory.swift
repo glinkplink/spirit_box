@@ -27,16 +27,16 @@ public struct SweepRendererSettings: Equatable, Sendable {
     public static let listeningTest = SweepRendererSettings()
 
     public init(
-        vocalEventProbability: Double = 0.33,
+        vocalEventProbability: Double = 0.08,
         clusteriness: Double = 0.0,
         staticGain: Float = 0.10,
         vocalGain: Float = 0.48,
         outputGain: Float = 3.5,
-        minVocalExposureSeconds: Double = 0.050,
-        maxVocalExposureSeconds: Double = 0.085,
-        minExposureFractionOfDwell: Double = 0.22,
-        maxExposureFractionOfDwell: Double = 0.48,
-        fadeSeconds: Double = 0.008,
+        minVocalExposureSeconds: Double = 0.080,
+        maxVocalExposureSeconds: Double = 0.220,
+        minExposureFractionOfDwell: Double = 0.50,
+        maxExposureFractionOfDwell: Double = 0.80,
+        fadeSeconds: Double = 0.012,
         recentExclusionWindow: Int = 8,
         highPassHz: Double = 500.0,
         lowPassHz: Double = 3_600.0,
@@ -137,7 +137,9 @@ enum FragmentBufferFactory {
         // Shape once in source orientation so causal filter startup/tail loss
         // cannot change fragment energy when the direction control is flipped.
         applyRadioShape(cropped, variation: startJitterFraction, settings: settings)
-        let oriented = direction == .reverse ? reverse(cropped) : cropped
+        // Reverse direction reverses corpus traversal order; keep speech natural
+        // without unnatural PCM waveform reversal.
+        let oriented = cropped
         applyFades(oriented, fadeSeconds: settings.fadeSeconds)
         balanceVocalLevel(oriented, settings: settings)
         // One dwell-sized vocal slot: glimpse plus zeros. The independent noise
@@ -245,8 +247,8 @@ enum FragmentBufferFactory {
         let dwellFrames = max(1, Int((sampleRate * sweepRate.timeInterval).rounded()))
         let minFrames = max(1, Int((sampleRate * settings.minVocalExposureSeconds).rounded()))
         let maxFrames = max(minFrames, Int((sampleRate * settings.maxVocalExposureSeconds).rounded()))
-        // Hard safety bounds also apply to custom listening presets.
-        let hardSeconds = sweepRate == .ms300 ? 0.075 : 0.090
+        // Hard safety bounds: preserve natural speech syllables while preventing long sentence leakage.
+        let hardSeconds = min(0.240, sweepRate.timeInterval * 0.85)
         let hardFrames = max(1, Int((sampleRate * hardSeconds).rounded(.down)))
         let ceiling = max(1, min(availableFrames, dwellFrames, maxFrames, hardFrames))
         let rateMin = Int((Double(dwellFrames) * settings.minExposureFractionOfDwell).rounded())
@@ -372,7 +374,7 @@ enum FragmentBufferFactory {
         for channel in 0..<Int(buffer.format.channelCount) {
             let samples = channels[channel]
             for index in 0..<fadeFrames {
-                let gain = Float(index) / Float(fadeFrames)
+                let gain = Float(0.5 * (1.0 - cos(Double.pi * Double(index) / Double(fadeFrames))))
                 samples[index] *= gain
                 samples[count - 1 - index] *= gain
             }

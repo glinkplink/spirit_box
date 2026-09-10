@@ -39,7 +39,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
             sweepRate: .ms75,
             startJitterFraction: 0
         )
-        XCTAssertEqual(Int(cropped.frameLength), 2_400)
+        XCTAssertEqual(Int(cropped.frameLength), 3_060)
         XCTAssertLessThan(Int(cropped.frameLength), 3_600)
     }
 
@@ -50,8 +50,8 @@ final class FragmentBufferFactoryTests: XCTestCase {
         buffer.frameLength = frames
         let asset = SourceAsset(assetID: "RATES", durationMs: 1000, relativePath: "rates.wav")
 
-        let shortest: [SweepRate: Int] = [.ms75: 2_400, .ms125: 2_400, .ms200: 2_400, .ms300: 3_168]
-        let longest: [SweepRate: Int] = [.ms75: 2_400, .ms125: 2_880, .ms200: 4_080, .ms300: 3_600]
+        let shortest: [SweepRate: Int] = [.ms75: 3_060, .ms125: 3_840, .ms200: 4_800, .ms300: 7_200]
+        let longest: [SweepRate: Int] = [.ms75: 3_060, .ms125: 4_800, .ms200: 7_680, .ms300: 10_560]
         for rate in SweepRate.allCases {
             let dwell = rate.milliseconds * 48
             let minCrop = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: rate, startJitterFraction: 0, durationJitterFraction: 0)
@@ -63,7 +63,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
         }
         let max200 = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms200, startJitterFraction: 1, durationJitterFraction: 1)
         let max300 = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 1, durationJitterFraction: 1)
-        XCTAssertLessThan(Int(max300.frameLength), Int(max200.frameLength))
+        XCTAssertLessThan(Int(max200.frameLength), Int(max300.frameLength))
         XCTAssertLessThan(Int(max200.frameLength), 9_600)
         XCTAssertLessThan(Int(max300.frameLength), 14_400)
     }
@@ -82,7 +82,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
         )
 
         let cropped = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 0)
-        XCTAssertEqual(Int(cropped.frameLength), 3_168)
+        XCTAssertEqual(Int(cropped.frameLength), 7_200)
     }
     func testFinalVocalSlotsAreDwellSizedFiniteFadedAndBounded() throws {
         let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
@@ -177,7 +177,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
         for rate in SweepRate.allCases {
             let frames = FragmentBufferFactory.exposureFrameCount(sampleRate: 48000,
                 sweepRate: rate, availableFrames: 48000, durationJitterFraction: 1, settings: settings)
-            XCTAssertLessThanOrEqual(frames, rate == .ms300 ? 3600 : 4320)
+            XCTAssertLessThanOrEqual(frames, rate == .ms300 ? 11520 : Int((Double(rate.milliseconds * 48) * 0.85).rounded(.down)))
         }
     }
 
@@ -201,9 +201,9 @@ final class FragmentBufferFactoryTests: XCTestCase {
             func rms(_ range: Range<Int>) -> Double {
                 sqrt(range.reduce(0.0) { $0 + Double(first[$1] * first[$1]) } / Double(range.count))
             }
-            let quiet = rms(48..<ProceduralNoiseState.commutationFrames(sampleRate: 48000).quiet)
+            let front = rms(0..<min(count, 480))
             let open = rms((count / 2)..<(count * 3 / 4))
-            XCTAssertGreaterThan(20 * log10(open / quiet), 15)
+            XCTAssertLessThan(abs(20 * log10(open / front)), 3.0, "Noise bed must remain continuous without gating dropouts")
             XCTAssertTrue(first.allSatisfy { $0.isFinite && abs($0) <= SweepMasterLimiter.sampleCeiling })
         }
     }
