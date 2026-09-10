@@ -162,7 +162,7 @@ struct HarnessView: View {
 
     private var corpusSection: some View {
         Section("Corpus") {
-            if model.corpusSourceDescription != "Bundle/Phase1" {
+            if model.corpusSource != .bundlePhase1 {
                 Button("Use bundled Phase 1 corpus") {
                     model.useBundledCorpus()
                 }
