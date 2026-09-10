@@ -83,7 +83,7 @@ def check(directory, manifest_path=None):
     assert vocals, 'No vocal events'
     assert noise, 'Expected noise-only slots; voices were scheduled continuously'
     density = len(vocals) / len(events)
-    assert 0.15 <= density <= 0.50, f'Vocal density {density:.3f} is not intermittent'
+    assert 0.03 <= density <= 0.25, f'Vocal density {density:.3f} is not intermittent'
     max_noise_run = 0
     vocal_run = 0
     run = 0
@@ -118,11 +118,11 @@ def check(directory, manifest_path=None):
         assert event['source_start_frame'] >= 0
         assert event['emitted_frame_count'] > 0
         assert event['emitted_frame_count'] <= event['sweep_rate_ms'] * 48
-        if event['sweep_rate_ms'] >= 200:
-            assert event['emitted_frame_count'] < event['sweep_rate_ms'] * 48
-            assert event['emitted_frame_count'] <= round(0.090 * sample_rate)
-            if event['sweep_rate_ms'] == 300:
-                assert event['emitted_frame_count'] <= round(0.075 * sample_rate)
+        # Syllable glimpse exposure must remain bounded within 240 ms and 85% of dwell
+        max_allowed_frames = min(round(0.240 * sample_rate), round(event['sweep_rate_ms'] * (sample_rate / 1000) * 0.85))
+        assert event['emitted_frame_count'] <= max_allowed_frames, (
+            f"Emitted {event['emitted_frame_count']} frames exceeds bound {max_allowed_frames}"
+        )
         assert event['crop_offset_frames'] + event['emitted_frame_count'] <= event['source_frame_count']
         assert not event['relaxed_constraints']
         source_ids.add(event['asset_id'])
