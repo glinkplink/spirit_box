@@ -8,7 +8,7 @@
 
 | Field | Value |
 |---|---|
-| Preset | `listening-test` / `2026-09-10.gain-rebalance-v2` |
+| Preset | `listening-test` / `2026-09-10.gain-rebalance-v3` |
 | Seed | `12648430` |
 | Corpus | `ios/Phase1` |
 | Primary cell | 300 ms forward, 60 s |
@@ -17,9 +17,9 @@
 
 | Parameter | Pre-rebalance (A0) | Pass A final |
 |---|---:|---:|
-| `staticGain` | 0.10 | **0.050** |
-| `vocalGain` | 0.48 | **0.58** |
-| `outputGain` | 3.5 (default) | **4.15** (bumped after loudness gate failure at 3.75) |
+| `staticGain` | 0.10 | **0.047** |
+| `vocalGain` | 0.48 | **0.60** |
+| `outputGain` | 3.5 (default) | **4.28** (tuned for −22 LUFS floor + 8–12 dB SNR) |
 | Bed shape | `RadioSpeakerShape` | unchanged |
 | Scheduler / exposure / fade / cooldowns | — | unchanged |
 
