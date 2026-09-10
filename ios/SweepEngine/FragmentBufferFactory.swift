@@ -31,7 +31,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
         clusteriness: Double = 0.18,
         staticGain: Float = 0.10,
         vocalGain: Float = 0.48,
-        outputGain: Float = 5.2,
+        outputGain: Float = 2.4,
         minVocalExposureSeconds: Double = 0.050,
         maxVocalExposureSeconds: Double = 0.085,
         minExposureFractionOfDwell: Double = 0.22,
@@ -142,9 +142,12 @@ enum FragmentBufferFactory {
         balanceVocalLevel(oriented, settings: settings)
         // One dwell-sized vocal slot: glimpse plus zeros. The independent noise
         // bed continues; never stretch, loop, or overlap a second speaker.
+        // Coordinate placement with the commutation envelope so the glimpse
+        // never starts inside the initial quiet shelf.
         let dwellFrames = Int(convertedSource.format.sampleRate * sweepRate.timeInterval)
-        let slack = max(0, dwellFrames - Int(oriented.frameLength))
-        let lead = min(slack, Int(Double(slack) * min(1, max(0, placementJitterFraction))))
+        let quietFrames = ProceduralNoiseState.commutationFrames(sampleRate: convertedSource.format.sampleRate).quiet
+        let effectiveSlack = max(0, dwellFrames - Int(oriented.frameLength) - quietFrames)
+        let lead = quietFrames + min(effectiveSlack, Int(Double(effectiveSlack) * min(1, max(0, placementJitterFraction))))
         return padded(oriented, frames: dwellFrames, leadFrames: lead)
     }
 

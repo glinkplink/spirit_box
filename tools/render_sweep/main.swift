@@ -5,9 +5,12 @@ import AVFoundation
 // and all dwell rates. This is a level measurement, not a listening verdict.
 func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
     let format = AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1)!
-    func rms(_ buffer: AVAudioPCMBuffer, count: Int) -> Double {
+    func rms(_ buffer: AVAudioPCMBuffer, offset: Int = 0, count: Int) -> Double {
         let samples = buffer.floatChannelData![0]
-        return sqrt((0..<count).reduce(0.0) { $0 + Double(samples[$1]) * Double(samples[$1]) } / Double(count))
+        let start = min(Int(buffer.frameLength), max(0, offset))
+        let n = min(count, max(0, Int(buffer.frameLength) - start))
+        guard n > 0 else { return 0 }
+        return sqrt((start..<(start + n)).reduce(0.0) { $0 + Double(samples[$1]) * Double(samples[$1]) } / Double(n))
     }
     func db(_ value: Double) -> Double { 20 * log10(max(1e-12, value)) }
     func distribution(_ values: [Double]) -> [String: Double] {
@@ -33,6 +36,7 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
     } / 48000)
     var maximumPeak = 0.0
     for rate in SweepRate.allCases {
+        let quietFrames = ProceduralNoiseState.commutationFrames(sampleRate: format.sampleRate).quiet
         var levels: [Double] = [], reverseDifferences: [Double] = [], changes: [Double] = [], balances: [Double] = []
         for asset in assets {
             let source = try FragmentBufferFactory.loadConvertedSource(fileURL: root.appendingPathComponent(asset.relativePath), outputFormat: format)
@@ -40,12 +44,12 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
             for jitter in [0.0, 0.5, 1.0] {
                 let crop = FragmentBufferFactory.crop(source, asset: asset, sweepRate: rate, startJitterFraction: jitter)
                 let count = Int(crop.frameLength)
-                let inputLevel = rms(crop, count: count)
+                let inputLevel = rms(crop, offset: 0, count: count)
                 var pair: [Double] = []
                 for direction in SweepDirection.allCases {
                     let buffer = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
                         sweepRate: rate, direction: direction, startJitterFraction: jitter)
-                    let level = rms(buffer, count: count)
+                    let level = rms(buffer, offset: quietFrames, count: count)
                     pair.append(db(level))
                     levels.append(db(level * Double(SweepTuning.vocalGain * SweepTuning.outputGain)))
                     changes.append(db(level / max(inputLevel, 1e-12)))

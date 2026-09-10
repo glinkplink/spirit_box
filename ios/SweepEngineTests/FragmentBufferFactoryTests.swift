@@ -201,7 +201,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
             func rms(_ range: Range<Int>) -> Double {
                 sqrt(range.reduce(0.0) { $0 + Double(first[$1] * first[$1]) } / Double(range.count))
             }
-            let quiet = rms(48..<Int(Double(count) * 0.15))
+            let quiet = rms(48..<ProceduralNoiseState.commutationFrames(sampleRate: 48000).quiet)
             let open = rms((count / 2)..<(count * 3 / 4))
             XCTAssertGreaterThan(20 * log10(open / quiet), 15)
             XCTAssertTrue(first.allSatisfy { $0.isFinite && abs($0) <= SweepMasterLimiter.sampleCeiling })

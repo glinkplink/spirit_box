@@ -67,11 +67,16 @@ final class ProceduralNoiseState {
         shape = RadioSpeakerShape(sampleRate: sampleRate, settings: settings)
     }
 
-    /// A quiet 18% dwell with 6 ms edges makes every slot audible, including
-    /// long empty stretches. No wall clock or extra random draws at boundaries.
+    static func commutationFrames(sampleRate: Double) -> (quiet: Int, edge: Int) {
+        let edge = max(1, Int(sampleRate * 0.005))
+        let quiet = max(1, Int(sampleRate * 0.010))
+        return (quiet, edge)
+    }
+
+    /// A 10 ms quiet commutation shelf with 5 ms edges mimics the brief
+    /// RF PLL step/chuff of an analog tuner without an unnatural gating tremolo.
     static func slotEnvelope(frame: Int, count: Int, sampleRate: Double) -> Float {
-        let edge = max(1, Int(sampleRate * 0.006))
-        let quiet = Int(Double(count) * 0.18)
+        let (quiet, edge) = commutationFrames(sampleRate: sampleRate)
         if frame < quiet { return 0.06 }
         if frame < quiet + edge {
             return 0.06 + 0.94 * Float(frame - quiet) / Float(edge)
@@ -89,30 +94,13 @@ final class ProceduralNoiseState {
     }
 }
 
-/// A conservative reconstruction-bound limiter. A normalized 32-tap Lanczos
-/// interpolator has gain <= sum(abs(taps)); bounding every output sample by
-/// ceiling / that norm also bounds its 4x reconstructed peaks. This sacrifices
-/// peak headroom rather than treating a sample clipper as a true-peak limiter.
-/// The 2 ms forward preview is within the already prepared dwell; slot edges
-/// are quiet. No latency or random state depends on callback buffer size.
+/// Master peak limiter with anticipatory lookahead and smooth release.
+/// Uses a practical -2.5 dBFS sample ceiling (0.7498942) retaining ~1.5 dB
+/// true-peak reconstruction margin below the -1.0 dBFS (0.8912509) true peak ceiling.
+/// The 2 ms forward preview anticipates attacks; 40 ms release prevents pumping.
 enum SweepMasterLimiter {
-    static let truePeakCeiling: Float = 0.8912509 // -1 dBFS
-    static let reconstructionNorm: Float = {
-        func sinc(_ x: Double) -> Double {
-            abs(x) < 1e-12 ? 1 : sin(Double.pi * x) / (Double.pi * x)
-        }
-        var bound = 1.0
-        for phase in 1...3 {
-            let t = Double(phase) / 4
-            let taps = (-15...16).map { k -> Double in
-                let x = t - Double(k)
-                return abs(x) < 16 ? sinc(x) * sinc(x / 16) : 0
-            }
-            bound = max(bound, taps.reduce(0) { $0 + abs($1) } / abs(taps.reduce(0, +)))
-        }
-        return Float(bound) * 1.001
-    }()
-    static var sampleCeiling: Float { truePeakCeiling / reconstructionNorm }
+    static let truePeakCeiling: Float = 0.8912509 // -1.0 dBFS
+    static let sampleCeiling: Float = 0.7498942 // -2.5 dBFS (retains ~1.5 dB true-peak reconstruction margin)
 
     static func process(_ samples: UnsafeMutablePointer<Float>, count: Int, sampleRate: Double) {
         let ceiling = sampleCeiling

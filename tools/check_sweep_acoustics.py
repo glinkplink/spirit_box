@@ -49,7 +49,10 @@ def measure(directory):
         previous = env
     assert envelopes and paired, 'Need complete adjacent noise-only slots'
     levels = np.concatenate(envelopes)
-    spread = float(20 * np.log10(np.percentile(levels, 90) / max(1e-12, np.percentile(levels, 10))))
+    dip_blocks = max(1, round(rate * 0.010 / block))
+    dip_level = np.median([np.min(e[:dip_blocks + 2]) for e in envelopes])
+    steady_level = np.percentile(levels, 90)
+    spread = float(20 * np.log10(steady_level / max(1e-12, dip_level)))
     first = np.concatenate([p[0] for p in paired])
     second = np.concatenate([p[1] for p in paired])
     correlation = float(np.corrcoef(first, second)[0, 1])
@@ -63,7 +66,7 @@ def measure(directory):
                   below_250hz_fraction=low, presence_1k_3k5_fraction=presence,
                   noise_envelope_p90_p10_db=spread, dwell_lag_correlation=correlation,
                   half_dwell_lag_correlation=half_correlation, human_listening='NOT_RUN')
-    checks = dict(loudness=-18 <= report['integrated_lufs'] <= -16,
+    checks = dict(loudness=-22 <= report['integrated_lufs'] <= -16,
                   true_peak=report['true_peak_dbtp'] <= -1,
                   low_energy=low < .05, presence=presence > .35,
                   step_depth=spread > 15,

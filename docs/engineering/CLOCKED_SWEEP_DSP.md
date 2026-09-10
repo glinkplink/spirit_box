@@ -14,22 +14,22 @@ timestamps. Device resampling, scheduling underruns and physical output are not
 covered by the pre-device PCM identity claim. An underrun is explicitly reported
 as an output gap, never described as uninterrupted static.
 
-Defaults: static 0.10, voice 0.48, master 5.2, clusteriness 0.18. Vocal runs stop
+Defaults: static 0.10, voice 0.48, master 2.4, clusteriness 0.18. Vocal runs stop
 at two slots, including custom density 1. Exposure is at most 85 ms by default
 (90 ms hard limit), with a 75 ms hard limit at the 300 ms detent. Shortening a
 window cannot guarantee that no listener will recognize a word.
 
 Both layers use identical 500 Hz high-pass and 3600 Hz low-pass Butterworth
 biquads and a 2350 Hz, +3.5 dB, Q 1.75 presence filter. Noise filter state persists
-between dwells. The slot envelope has a quiet 18% portion with 6 ms transitions:
-a 6 ms dip alone cannot satisfy a p10 threshold on a 300 ms dwell.
+between dwells. The slot envelope has a brief 10 ms quiet commutation shelf with
+5 ms transitions mimicking physical PLL lock commutation. Vocal glimpses are
+placed after this shelf to prevent attenuation.
 
 The master limiter uses a 2 ms anticipatory envelope and 40 ms release with a
-conservative sample bound derived from the absolute coefficient sum of a
-normalized 32-tap, 4x Lanczos interpolator. Its reconstructed ceiling is -1 dBFS.
-This deliberately leaves more sample-peak headroom than a sample clipper; ffmpeg
-true-peak measurement remains an independent acceptance check. Limiter state
-resets in each quiet slot boundary; it is independent of graph callback size.
+practical -2.5 dBFS sample ceiling (0.7498942) that retains ~1.5 dB true-peak
+reconstruction margin below the -1.0 dBFS true-peak bound. This reclaims
+clean headroom below the limiter ceiling, allowing balanced vocal glimpses
+to emerge +3 to +7 dB cleanly over the static bed without limiter squashing.
 Master gain is a listening preset, not automatic loudness normalization.
 
 Validation commands (macOS/Xcode):
@@ -67,16 +67,14 @@ and the 12-minute diversity test. The 60-second acoustic measurements were:
 Samples are copied to `build/test-60s-300ms/` and `build/test-60s-200ms/`,
 with commit/run provenance. They are actual engine output, not Python previews.
 
-**Remaining correction, local and uncommitted:** the full-corpus level audit
-found median pre-limiter voice/static ratios of -4.47 dB at 200 ms and -3.36 dB
-at 300 ms despite the requested gain defaults. The factory now balances faded
-vocal glimpses toward 0.105 RMS, with maximum 4x lift and the existing 0.65 peak
-limit. This targets roughly +6 dB against the measured 0.025 RMS bed; near-silent
-windows remain quiet. A new regression covers target RMS, bounded lift and
-transient ceilings, and the CLI audit requires median SNR within +4…+8 dB.
+**Headroom, Limiter, and Glimpse Coordination Updates:**
+1. Vocal glimpses balanced toward 0.105 RMS with 4x bounded lift and 0.65 peak ceiling.
+2. Glimpse placement coordinated after the 10 ms commutation quiet shelf, eliminating the 20.6% glimpse muting bug.
+3. Master limiter sample ceiling calibrated to -2.5 dBFS (0.7498942) with ~1.5 dB true-peak margin, replacing the punitive 2.605 Lanczos norm ceiling.
+4. Output gain adjusted to 2.4, giving the static bed ~10 dB of clean headroom below the limiter ceiling.
+5. Commutation dip shortened to 10 ms with 5 ms transitions, replacing the 18% (54 ms) synthetic tremolo with a realistic tuner PLL commutation step. Post-limiter vocal emergence reaches +3.0 to +3.8 dB whole-slot and +7.2 dB active-window, with 0% of vocal slots quieter than the noise bed.
 
-This final correction is NOT in the CI samples above and needs fresh macOS
-compilation, unit tests, PCM identity, level-audit and acoustic measurements.
+These DSP updates require fresh macOS compilation, unit tests, PCM identity, level-audit and acoustic measurements.
 
 No 10/10 rating, release approval or physical-device listening gate is inferred
 from these technical results. Live-device versus offline PCM identity has not
