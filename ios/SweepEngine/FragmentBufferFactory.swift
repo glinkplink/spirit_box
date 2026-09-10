@@ -28,18 +28,18 @@ public struct SweepRendererSettings: Equatable, Sendable {
 
     public init(
         vocalEventProbability: Double = 0.33,
-        clusteriness: Double = 0.45,
-        staticGain: Float = 0.032,
-        vocalGain: Float = 0.88,
-        outputGain: Float = 0.82,
+        clusteriness: Double = 0.18,
+        staticGain: Float = 0.10,
+        vocalGain: Float = 0.48,
+        outputGain: Float = 2.4,
         minVocalExposureSeconds: Double = 0.050,
-        maxVocalExposureSeconds: Double = 0.130,
+        maxVocalExposureSeconds: Double = 0.085,
         minExposureFractionOfDwell: Double = 0.22,
         maxExposureFractionOfDwell: Double = 0.48,
         fadeSeconds: Double = 0.008,
         recentExclusionWindow: Int = 8,
-        highPassHz: Double = 280.0,
-        lowPassHz: Double = 4_200.0,
+        highPassHz: Double = 500.0,
+        lowPassHz: Double = 3_600.0,
         gainVariation: Float = 0.08,
         vocalPeakLimit: Float = 0.65,
         scheduleAheadSeconds: Double = 0.040
@@ -48,7 +48,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
         self.clusteriness = min(1, max(0, clusteriness))
         self.staticGain = max(0, staticGain)
         self.vocalGain = max(0, vocalGain)
-        self.outputGain = min(1, max(0, outputGain))
+        self.outputGain = min(8, max(0, outputGain))
         self.minVocalExposureSeconds = min(maxVocalExposureSeconds, max(0.015, minVocalExposureSeconds))
         self.maxVocalExposureSeconds = max(self.minVocalExposureSeconds, maxVocalExposureSeconds)
         self.minExposureFractionOfDwell = min(1, max(0.05, minExposureFractionOfDwell))
@@ -134,14 +134,20 @@ enum FragmentBufferFactory {
             durationJitterFraction: min(1, max(0, durationJitterFraction)),
             settings: settings
         )
+        // Shape once in source orientation so causal filter startup/tail loss
+        // cannot change fragment energy when the direction control is flipped.
+        applyRadioShape(cropped, variation: startJitterFraction, settings: settings)
         let oriented = direction == .reverse ? reverse(cropped) : cropped
-        applyRadioShape(oriented, variation: startJitterFraction, settings: settings)
         applyFades(oriented, fadeSeconds: settings.fadeSeconds)
+        balanceVocalLevel(oriented, settings: settings)
         // One dwell-sized vocal slot: glimpse plus zeros. The independent noise
         // bed continues; never stretch, loop, or overlap a second speaker.
+        // Coordinate placement with the commutation envelope so the glimpse
+        // never starts inside the initial quiet shelf.
         let dwellFrames = Int(convertedSource.format.sampleRate * sweepRate.timeInterval)
-        let slack = max(0, dwellFrames - Int(oriented.frameLength))
-        let lead = min(slack, Int(Double(slack) * min(1, max(0, placementJitterFraction))))
+        let quietFrames = ProceduralNoiseState.commutationFrames(sampleRate: convertedSource.format.sampleRate).quiet
+        let effectiveSlack = max(0, dwellFrames - Int(oriented.frameLength) - quietFrames)
+        let lead = quietFrames + min(effectiveSlack, Int(Double(effectiveSlack) * min(1, max(0, placementJitterFraction))))
         return padded(oriented, frames: dwellFrames, leadFrames: lead)
     }
 
@@ -239,7 +245,10 @@ enum FragmentBufferFactory {
         let dwellFrames = max(1, Int((sampleRate * sweepRate.timeInterval).rounded()))
         let minFrames = max(1, Int((sampleRate * settings.minVocalExposureSeconds).rounded()))
         let maxFrames = max(minFrames, Int((sampleRate * settings.maxVocalExposureSeconds).rounded()))
-        let ceiling = max(1, min(availableFrames, dwellFrames, maxFrames))
+        // Hard safety bounds also apply to custom listening presets.
+        let hardSeconds = sweepRate == .ms300 ? 0.075 : 0.090
+        let hardFrames = max(1, Int((sampleRate * hardSeconds).rounded(.down)))
+        let ceiling = max(1, min(availableFrames, dwellFrames, maxFrames, hardFrames))
         let rateMin = Int((Double(dwellFrames) * settings.minExposureFractionOfDwell).rounded())
         let rateMax = Int((Double(dwellFrames) * settings.maxExposureFractionOfDwell).rounded())
         let floor = min(ceiling, max(1, minFrames, rateMin))
@@ -303,25 +312,14 @@ enum FragmentBufferFactory {
         settings: SweepRendererSettings = .listeningTest
     ) {
         guard let channels = buffer.floatChannelData else { return }
-        let dt = 1 / buffer.format.sampleRate
         let mix = min(1, max(0, variation))
-        let hpHz = settings.highPassHz * (0.92 + 0.16 * mix)
-        let lpHz = settings.lowPassHz * (0.90 + 0.20 * mix)
-        let hpRC = 1 / (2 * Double.pi * hpHz)
-        let lpRC = 1 / (2 * Double.pi * lpHz)
-        let hp = Float(hpRC / (hpRC + dt))
-        let lp = Float(dt / (lpRC + dt))
         let gain = 1 + (Float(mix) * 2 - 1) * settings.gainVariation
         for channel in 0..<Int(buffer.format.channelCount) {
-            var previous: Float = 0, high: Float = 0, low: Float = 0
+            var shape = RadioSpeakerShape(sampleRate: buffer.format.sampleRate, settings: settings)
             var peak: Float = 0
             let samples = channels[channel]
             for index in 0..<Int(buffer.frameLength) {
-                let input = samples[index].isFinite ? samples[index] : 0
-                high = hp * (high + input - previous)
-                previous = input
-                low += lp * (high - low)
-                samples[index] = low * gain
+                samples[index] = shape.process(samples[index]) * gain
                 peak = max(peak, abs(samples[index]))
             }
             // Whole-window attenuation prevents clipping without nonlinear distortion.
@@ -378,6 +376,34 @@ enum FragmentBufferFactory {
                 samples[index] *= gain
                 samples[count - 1 - index] *= gain
             }
+        }
+    }
+
+    /// The actual full-corpus audit measured the shaped bed at ~0.025 RMS
+    /// with staticGain 0.10. A 0.105 RMS glimpse at vocalGain 0.48 is ~6 dB
+    /// above that bed. Bound lift to 12 dB: near-silent source windows remain
+    /// quiet rather than having their recording floor aggressively amplified.
+    /// Work on the faded glimpse, never on its dwell-sized zero padding.
+    static func balanceVocalLevel(
+        _ buffer: AVAudioPCMBuffer,
+        settings: SweepRendererSettings = .listeningTest
+    ) {
+        guard let channels = buffer.floatChannelData, buffer.frameLength > 0 else { return }
+        let count = Int(buffer.frameLength)
+        for channel in 0..<Int(buffer.format.channelCount) {
+            let samples = channels[channel]
+            var sum = 0.0
+            var peak: Float = 0
+            for i in 0..<count {
+                let sample = samples[i].isFinite ? samples[i] : 0
+                samples[i] = sample
+                sum += Double(sample) * Double(sample)
+                peak = max(peak, abs(sample))
+            }
+            let rms = sqrt(sum / Double(count))
+            guard rms > 0, peak > 0 else { continue }
+            let gain = min(Float(0.105 / rms), 4, settings.vocalPeakLimit / peak)
+            for i in 0..<count { samples[i] *= gain }
         }
     }
 

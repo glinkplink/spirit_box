@@ -85,11 +85,15 @@ def check(directory, manifest_path=None):
     density = len(vocals) / len(events)
     assert 0.15 <= density <= 0.50, f'Vocal density {density:.3f} is not intermittent'
     max_noise_run = 0
+    vocal_run = 0
     run = 0
     for event in events:
         if is_vocal(event):
+            vocal_run += 1
+            assert vocal_run <= 2, "More than two consecutive vocal slots"
             run = 0
         else:
+            vocal_run = 0
             run += 1
             max_noise_run = max(max_noise_run, run)
     assert max_noise_run >= 2, 'Expected consecutive noise-only slots'
@@ -116,7 +120,9 @@ def check(directory, manifest_path=None):
         assert event['emitted_frame_count'] <= event['sweep_rate_ms'] * 48
         if event['sweep_rate_ms'] >= 200:
             assert event['emitted_frame_count'] < event['sweep_rate_ms'] * 48
-            assert event['emitted_frame_count'] <= round(0.130 * sample_rate)
+            assert event['emitted_frame_count'] <= round(0.090 * sample_rate)
+            if event['sweep_rate_ms'] == 300:
+                assert event['emitted_frame_count'] <= round(0.075 * sample_rate)
         assert event['crop_offset_frames'] + event['emitted_frame_count'] <= event['source_frame_count']
         assert not event['relaxed_constraints']
         source_ids.add(event['asset_id'])

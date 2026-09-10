@@ -285,13 +285,19 @@ public final class SweepScheduler: @unchecked Sendable {
 /// Does not pick assets, listen to the microphone, or time events to questions.
 /// Stickiness is only to avoid a metronomic voice / noise / voice pattern.
 public final class VocalDensityScheduler: @unchecked Sendable {
-    public let settings: SweepRendererSettings
+    public private(set) var settings: SweepRendererSettings
     private var seed: UInt64
     private var lastWasVocal = false
+    private var consecutiveVocals = 0
 
     public init(settings: SweepRendererSettings = .listeningTest, seed: UInt64 = 0xC0FFEE) {
         self.settings = settings
         self.seed = seed
+    }
+
+    public func updateSettings(_ settings: SweepRendererSettings) {
+        self.settings = settings.clamped()
+        // Preserve the hard streak limit when internal tuning changes mid-run.
     }
 
     public func reset(seed: UInt64? = nil) {
@@ -299,6 +305,7 @@ public final class VocalDensityScheduler: @unchecked Sendable {
             self.seed = seed
         }
         lastWasVocal = false
+        consecutiveVocals = 0
     }
 
     public var continueProbability: Double {
@@ -313,7 +320,8 @@ public final class VocalDensityScheduler: @unchecked Sendable {
         let probability = lastWasVocal ? continueProbability : startProbability
         seed = seed &* 6_364_136_223_846_793_005 &+ 1
         let draw = Double(seed % 10_000) / 10_000.0
-        let vocal = draw < probability
+        let vocal = consecutiveVocals < 2 && draw < probability
+        consecutiveVocals = vocal ? consecutiveVocals + 1 : 0
         lastWasVocal = vocal
         return vocal
     }

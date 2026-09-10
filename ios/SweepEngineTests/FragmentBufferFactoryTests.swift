@@ -51,7 +51,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
         let asset = SourceAsset(assetID: "RATES", durationMs: 1000, relativePath: "rates.wav")
 
         let shortest: [SweepRate: Int] = [.ms75: 2_400, .ms125: 2_400, .ms200: 2_400, .ms300: 3_168]
-        let longest: [SweepRate: Int] = [.ms75: 2_400, .ms125: 2_880, .ms200: 4_608, .ms300: 6_240]
+        let longest: [SweepRate: Int] = [.ms75: 2_400, .ms125: 2_880, .ms200: 4_080, .ms300: 3_600]
         for rate in SweepRate.allCases {
             let dwell = rate.milliseconds * 48
             let minCrop = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: rate, startJitterFraction: 0, durationJitterFraction: 0)
@@ -63,7 +63,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
         }
         let max200 = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms200, startJitterFraction: 1, durationJitterFraction: 1)
         let max300 = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 1, durationJitterFraction: 1)
-        XCTAssertGreaterThan(Int(max300.frameLength), Int(max200.frameLength))
+        XCTAssertLessThan(Int(max300.frameLength), Int(max200.frameLength))
         XCTAssertLessThan(Int(max200.frameLength), 9_600)
         XCTAssertLessThan(Int(max300.frameLength), 14_400)
     }
@@ -105,7 +105,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
                 }
             }
         }
-        XCTAssertLessThan((SweepTuning.vocalPeakLimit * SweepTuning.vocalGain + SweepTuning.staticGain) * SweepTuning.outputGain, 1)
+        XCTAssertLessThan(SweepMasterLimiter.sampleCeiling, 1)
     }
 
     func testRadioShapeAttenuatesDCAndUltrasonicContent() throws {
@@ -167,6 +167,117 @@ final class FragmentBufferFactoryTests: XCTestCase {
         wait(for: [changed], timeout: 3)
         engine.stop()
         XCTAssertFalse(engine.isRunning)
+    }
+
+    func testCustomSettingsCannotExposeWholeDwell() {
+        let settings = SweepRendererSettings(minVocalExposureSeconds: 1,
+                                            maxVocalExposureSeconds: 2,
+                                            minExposureFractionOfDwell: 1,
+                                            maxExposureFractionOfDwell: 1)
+        for rate in SweepRate.allCases {
+            let frames = FragmentBufferFactory.exposureFrameCount(sampleRate: 48000,
+                sweepRate: rate, availableFrames: 48000, durationJitterFraction: 1, settings: settings)
+            XCTAssertLessThanOrEqual(frames, rate == .ms300 ? 3600 : 4320)
+        }
+    }
+
+    func testNoiseOnlySlotsAreClockedAndSeededAcrossRateChanges() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1))
+        let a = ProceduralNoiseState(), b = ProceduralNoiseState()
+        a.reset(seed: 12648430)
+        b.reset(seed: 12648430)
+        for rate in [SweepRate.ms300, .ms200, .ms75, .ms125, .ms300] {
+            let count = rate.milliseconds * 48
+            func render(_ state: ProceduralNoiseState) throws -> [Float] {
+                let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(count)))
+                buffer.frameLength = AVAudioFrameCount(count)
+                let data = try XCTUnwrap(buffer.floatChannelData)[0]
+                data.initialize(repeating: 0, count: count)
+                SweepSlotMixer.mix(buffer, noise: state, settings: .listeningTest)
+                return Array(UnsafeBufferPointer(start: data, count: count))
+            }
+            let first = try render(a)
+            XCTAssertEqual(first, try render(b), "Every slot uses the same seed and PCM path")
+            func rms(_ range: Range<Int>) -> Double {
+                sqrt(range.reduce(0.0) { $0 + Double(first[$1] * first[$1]) } / Double(range.count))
+            }
+            let quiet = rms(48..<ProceduralNoiseState.commutationFrames(sampleRate: 48000).quiet)
+            let open = rms((count / 2)..<(count * 3 / 4))
+            XCTAssertGreaterThan(20 * log10(open / quiet), 15)
+            XCTAssertTrue(first.allSatisfy { $0.isFinite && abs($0) <= SweepMasterLimiter.sampleCeiling })
+        }
+    }
+
+    func testMasterLimiterBoundsIntersampleReconstructionAndInvalidInput() {
+        var samples = (0..<4800).map { Float(sin(Double($0) * 2.2) * 12) }
+        samples[2] = .nan
+        samples[3] = .infinity
+        samples.withUnsafeMutableBufferPointer { data in
+            SweepMasterLimiter.process(data.baseAddress!, count: data.count, sampleRate: 48000)
+        }
+        XCTAssertTrue(samples.allSatisfy { $0.isFinite && abs($0) <= SweepMasterLimiter.sampleCeiling })
+        func sinc(_ x: Double) -> Double {
+            abs(x) < 1e-12 ? 1 : sin(Double.pi * x) / (Double.pi * x)
+        }
+        for i in 16..<(samples.count - 17) {
+            for phase in 1...3 {
+                let t = Double(phase) / 4
+                var reconstructed = 0.0, weight = 0.0
+                for k in -15...16 {
+                    let x = t - Double(k)
+                    let tap = sinc(x) * sinc(x / 16)
+                    reconstructed += Double(samples[i + k]) * tap
+                    weight += tap
+                }
+                XCTAssertLessThanOrEqual(abs(reconstructed / weight), Double(SweepMasterLimiter.truePeakCeiling))
+            }
+        }
+    }
+
+    func testRadioShapingHasEqualEnergyInBothDirections() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1))
+        let source = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 9600))
+        source.frameLength = 9600
+        let data = try XCTUnwrap(source.floatChannelData)[0]
+        for i in 0..<9600 {
+            data[i] = Float(exp(-Double(i) / 500) * sin(Double(i) * 0.08))
+        }
+        let asset = SourceAsset(assetID: "asymmetric", durationMs: 200)
+        for rate in SweepRate.allCases {
+            let f = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
+                sweepRate: rate, direction: .forward, startJitterFraction: 0)
+            let r = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
+                sweepRate: rate, direction: .reverse, startJitterFraction: 0)
+            func energy(_ buffer: AVAudioPCMBuffer) -> Double {
+                let samples = buffer.floatChannelData![0]
+                return (0..<Int(buffer.frameLength)).reduce(0) { $0 + Double(samples[$1]) * Double(samples[$1]) }
+            }
+            XCTAssertEqual(energy(f), energy(r), accuracy: 1e-8)
+        }
+    }
+
+    func testVocalBalanceTargetsGlimpseRMSWithBoundedLiftAndPeak() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1))
+        let count = 4800
+        let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(count)))
+        buffer.frameLength = AVAudioFrameCount(count)
+        let data = try XCTUnwrap(buffer.floatChannelData)[0]
+        for amplitude in [Float(0), 0.0001, 0.06, 2] {
+            for i in 0..<count { data[i] = amplitude * Float(sin(Double(i) * 2 * Double.pi / 48)) }
+            FragmentBufferFactory.balanceVocalLevel(buffer)
+            let rms = sqrt((0..<count).reduce(0.0) { $0 + Double(data[$1]) * Double(data[$1]) } / Double(count))
+            if amplitude == 0 { XCTAssertEqual(rms, 0) }
+            else if amplitude < 0.001 {
+                XCTAssertLessThanOrEqual(rms, Double(amplitude) * 4, "Do not amplify near silence without bound")
+            } else {
+                XCTAssertEqual(rms, 0.105, accuracy: 0.00001)
+            }
+            XCTAssertTrue((0..<count).allSatisfy { abs(data[$0]) <= SweepTuning.vocalPeakLimit })
+        }
+        data.initialize(repeating: 0, count: count)
+        data[2400] = 0.5
+        FragmentBufferFactory.balanceVocalLevel(buffer)
+        XCTAssertLessThanOrEqual(abs(data[2400]), SweepTuning.vocalPeakLimit)
     }
 
 }

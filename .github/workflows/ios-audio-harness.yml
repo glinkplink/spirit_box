@@ -79,6 +79,13 @@ jobs:
           python3 tools/check_sweep_render.py build/listening-2min
           build/render-sweep/render-sweep ios/Phase1 build/listening-12min 720 300 forward 1234
           python3 tools/check_sweep_render.py build/listening-12min
+      - name: Measure loudness, true peak, spectrum and empty-slot cadence
+        run: |
+          python3 -m venv build/acoustic-venv
+          build/acoustic-venv/bin/pip install numpy
+          command -v ffmpeg || brew install ffmpeg
+          build/acoustic-venv/bin/python tools/check_sweep_acoustics.py build/listening-60s-300ms
+          build/acoustic-venv/bin/python tools/check_sweep_acoustics.py build/listening-60s-200ms
       - name: Upload real rendered mix and source traces
         if: always()
         uses: actions/upload-artifact@v4
