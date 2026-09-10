@@ -31,7 +31,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
         clusteriness: Double = 0.18,
         staticGain: Float = 0.10,
         vocalGain: Float = 0.48,
-        outputGain: Float = 4.0,
+        outputGain: Float = 5.2,
         minVocalExposureSeconds: Double = 0.050,
         maxVocalExposureSeconds: Double = 0.085,
         minExposureFractionOfDwell: Double = 0.22,
@@ -134,8 +134,10 @@ enum FragmentBufferFactory {
             durationJitterFraction: min(1, max(0, durationJitterFraction)),
             settings: settings
         )
+        // Shape once in source orientation so causal filter startup/tail loss
+        // cannot change fragment energy when the direction control is flipped.
+        applyRadioShape(cropped, variation: startJitterFraction, settings: settings)
         let oriented = direction == .reverse ? reverse(cropped) : cropped
-        applyRadioShape(oriented, variation: startJitterFraction, settings: settings)
         applyFades(oriented, fadeSeconds: settings.fadeSeconds)
         // One dwell-sized vocal slot: glimpse plus zeros. The independent noise
         // bed continues; never stretch, loop, or overlap a second speaker.

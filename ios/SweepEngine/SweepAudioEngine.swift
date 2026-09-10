@@ -104,7 +104,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
     public func setRendererSettings(_ settings: SweepRendererSettings) {
         queue.sync {
             rendererSettings = settings.clamped()
-            density = VocalDensityScheduler(settings: rendererSettings, seed: jitterSeed)
+            density.updateSettings(rendererSettings)
             scheduler.configuration = rendererSettings.schedulerConfiguration
             // New settings take effect atomically on the next prepared slot.
             noiseState.configure(sampleRate: graphFormat?.sampleRate ?? 48_000, settings: rendererSettings)

@@ -66,7 +66,7 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
                 reverseDifferences.append(difference)
             }
         }
-        reports[String(rate.milliseconds)] = ["active_vocal_rms_dbfs": distribution(levels),
+        reports[String(rate.milliseconds)] = ["pre_limiter_active_vocal_rms_dbfs": distribution(levels),
             "runtime_level_change_db": distribution(changes),
             "reverse_absolute_rms_difference_db": distribution(reverseDifferences),
             "active_voice_to_static_db": distribution(balances)]

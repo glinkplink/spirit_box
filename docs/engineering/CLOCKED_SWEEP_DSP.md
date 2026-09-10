@@ -14,7 +14,7 @@ timestamps. Device resampling, scheduling underruns and physical output are not
 covered by the pre-device PCM identity claim. An underrun is explicitly reported
 as an output gap, never described as uninterrupted static.
 
-Defaults: static 0.10, voice 0.48, master 4.0, clusteriness 0.18. Vocal runs stop
+Defaults: static 0.10, voice 0.48, master 5.2, clusteriness 0.18. Vocal runs stop
 at two slots, including custom density 1. Exposure is at most 85 ms by default
 (90 ms hard limit), with a 75 ms hard limit at the 300 ms detent. Shortening a
 window cannot guarantee that no listener will recognize a word.

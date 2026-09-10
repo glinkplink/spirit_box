@@ -234,4 +234,26 @@ final class FragmentBufferFactoryTests: XCTestCase {
         }
     }
 
+    func testRadioShapingHasEqualEnergyInBothDirections() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1))
+        let source = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 9600))
+        source.frameLength = 9600
+        let data = try XCTUnwrap(source.floatChannelData)[0]
+        for i in 0..<9600 {
+            data[i] = Float(exp(-Double(i) / 500) * sin(Double(i) * 0.08))
+        }
+        let asset = SourceAsset(assetID: "asymmetric", durationMs: 200)
+        for rate in SweepRate.allCases {
+            let f = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
+                sweepRate: rate, direction: .forward, startJitterFraction: 0)
+            let r = FragmentBufferFactory.makeBuffer(convertedSource: source, asset: asset,
+                sweepRate: rate, direction: .reverse, startJitterFraction: 0)
+            func energy(_ buffer: AVAudioPCMBuffer) -> Double {
+                let samples = buffer.floatChannelData![0]
+                return (0..<Int(buffer.frameLength)).reduce(0) { $0 + Double(samples[$1]) * Double(samples[$1]) }
+            }
+            XCTAssertEqual(energy(f), energy(r), accuracy: 1e-8)
+        }
+    }
+
 }

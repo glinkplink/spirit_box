@@ -58,7 +58,7 @@ def measure(directory):
     ffmpeg = subprocess.run(['ffmpeg', '-hide_banner', '-nostats', '-i', str(path),
                              '-af', 'loudnorm=I=-17:TP=-1:LRA=11:print_format=json',
                              '-f', 'null', '-'], capture_output=True, text=True, check=True)
-    meter = json.loads(ffmpeg.stderr[ffmpeg.stderr.rfind('{'):])
+    meter, _ = json.JSONDecoder().raw_decode(ffmpeg.stderr[ffmpeg.stderr.rfind('{'):])
     report = dict(integrated_lufs=float(meter['input_i']), true_peak_dbtp=float(meter['input_tp']),
                   below_250hz_fraction=low, presence_1k_3k5_fraction=presence,
                   noise_envelope_p90_p10_db=spread, dwell_lag_correlation=correlation,
