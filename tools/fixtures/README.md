@@ -4,9 +4,9 @@ Durable render bundles for mix-rebalance A/B and archived PCM regression.
 
 | Path | Role |
 |------|------|
-| `listening-test-pre-rebalance-gain-ab/` | Frozen A0 gains (0.10 / 0.48) for Pass A blinded listening |
-| `listening-test-pass-a-final/` | Pass A accepted gains without bed decoupling (Pass B blinded A/B) |
-| `archived-pcm-regression/` | 30 s `archived-continuous-static` PCM/event prefix hashes |
+| `listening-test-pre-rebalance-gain-ab/` | Frozen A0 static/vocal (0.10 / 0.48) for Pass A blinded listening. **Committed.** `outputGain` on this capture is 4.05 (inherits live init default), not A0’s 3.5. |
+| `listening-test-pass-a-final/` | Pass A accepted gains without bed decoupling (Pass B blinded A/B). **Not committed** — Pass A v5 was not accepted. |
+| `archived-pcm-regression/` | 30 s `archived-continuous-static` PCM/event prefix hashes. Deferred with Pass B. |
 
 Capture on macOS:
 
