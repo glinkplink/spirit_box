@@ -14,7 +14,7 @@ timestamps. Device resampling, scheduling underruns and physical output are not
 covered by the pre-device PCM identity claim. An underrun is explicitly reported
 as an output gap, never described as uninterrupted static.
 
-Defaults: static 0.10, voice 0.48, master 2.4, clusteriness 0.18. Vocal runs stop
+Defaults: static 0.10, voice 0.48, master 3.5, clusteriness 0.0. Vocal runs stop
 at two slots, including custom density 1. Exposure is at most 85 ms by default
 (90 ms hard limit), with a 75 ms hard limit at the 300 ms detent. Shortening a
 window cannot guarantee that no listener will recognize a word.
@@ -71,8 +71,8 @@ They are actual engine output, not Python previews.
 1. Vocal glimpses balanced toward 0.105 RMS with 4x bounded lift and 0.65 peak ceiling.
 2. Glimpse placement coordinated after the 10 ms commutation quiet shelf, eliminating the 20.6% glimpse muting bug.
 3. Master limiter sample ceiling calibrated to -2.5 dBFS (0.7498942) with ~1.5 dB true-peak margin, replacing the punitive 2.605 Lanczos norm ceiling.
-4. Output gain adjusted to 2.4, giving the static bed ~10 dB of clean headroom below the limiter ceiling.
-5. Commutation dip shortened to 10 ms with 5 ms transitions, replacing the 18% (54 ms) synthetic tremolo with a realistic tuner PLL commutation step. Post-limiter vocal emergence reaches +2.7 dB whole-slot and +7.3 dB active-window, with 0% of vocal slots quieter than the noise bed.
+4. Output gain calibrated to 3.5, pulling integrated loudness to ~ -18.3 LUFS and mitigating rate-switch volume plunge while retaining ~1.4 dB true-peak headroom below the limiter ceiling.
+5. Clusteriness set to 0.0 to eliminate rapid back-to-back voice flipping on adjacent slots.
 
 All macOS compilation, unit tests, PCM identity, level-audit and acoustic checks PASS.
 

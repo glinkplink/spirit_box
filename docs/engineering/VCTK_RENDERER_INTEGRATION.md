@@ -118,10 +118,10 @@ single default tuning location (also editable in the harness):
 | Setting                      | Value                                                           |
 | ---------------------------- | --------------------------------------------------------------- |
 | Vocal event probability      | 0.33                                                            |
-| Gap/cluster stickiness       | 0.18                                                            |
+| Gap/cluster stickiness       | 0.00                                                            |
 | Procedural static gain       | 0.10                                                            |
 | Vocal player gain            | 0.48                                                            |
-| Output gain                  | 2.40 (with -2.5 dBFS sample limiter)                            |
+| Output gain                  | 3.50 (with -2.5 dBFS sample limiter)                            |
 | Vocal exposure               | 50–85 ms (75 ms hard limit at 300 ms), 22–48% of dwell           |
 | High-pass / low-pass         | 500 / 3600 Hz 2-pole Butterworth, +3.5 dB @ 2350 Hz presence    |
 | Boundary fades               | 8 ms each, no vocal overlap                                     |
