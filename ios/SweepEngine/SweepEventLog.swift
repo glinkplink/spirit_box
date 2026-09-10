@@ -117,7 +117,9 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
 
     public func diagnosticJSONLine() -> String {
         var payload: [String: Any] = [
-            "timestamp": timestamp.timeIntervalSince1970,
+            // Stable audio timeline in exported traces; the in-memory wall time
+            // remains available for the harness display.
+            "timestamp": renderTimeSeconds ?? timestamp.timeIntervalSince1970,
             "asset_id": assetID,
             "sweep_rate_ms": sweepRate.milliseconds,
             "direction": direction.debugLabel,

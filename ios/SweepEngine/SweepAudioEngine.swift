@@ -20,7 +20,6 @@ public final class SweepAudioEngine: @unchecked Sendable {
     private let captureWriter = EngineOutputCaptureWriter()
     private let eventLog: SweepEventLog
 
-    private var noiseNode: AVAudioSourceNode?
     private var timer: DispatchSourceTimer?
     private var scheduler = SweepScheduler(assets: [])
     private var density = VocalDensityScheduler()
@@ -107,21 +106,18 @@ public final class SweepAudioEngine: @unchecked Sendable {
             rendererSettings = settings.clamped()
             density = VocalDensityScheduler(settings: rendererSettings, seed: jitterSeed)
             scheduler.configuration = rendererSettings.schedulerConfiguration
-            noiseState.amplitude = rendererSettings.staticGain
-            if running {
-                fragmentPlayer.volume = rendererSettings.vocalGain
-                engine.mainMixerNode.outputVolume = rendererSettings.outputGain
-            }
+            // New settings take effect atomically on the next prepared slot.
+            noiseState.configure(sampleRate: graphFormat?.sampleRate ?? 48_000, settings: rendererSettings)
         }
     }
 
-    public func start() throws {
+    public func start(seed: UInt64 = 0xC0FFEE) throws {
         try queue.sync {
             if running {
                 stopLocked(deactivateSession: false)
             }
             do {
-                try startLocked()
+                try startLocked(seed: seed)
             } catch {
                 stopLocked(deactivateSession: true)
                 throw error
@@ -181,7 +177,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         stopEngineOutputCapture()
     }
 
-    private func startLocked() throws {
+    private func startLocked(seed: UInt64) throws {
         #if os(iOS)
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playback, mode: .default, options: [])
@@ -190,6 +186,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
 
         attachGraphLocked()
 
+        resetTimelineLocked(seed: seed)
         try preloadSourcesLocked()
         nextSlotFrame = 0
         renderStartedAt = Date()
@@ -240,31 +237,29 @@ public final class SweepAudioEngine: @unchecked Sendable {
         let format = AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1)
             ?? engine.mainMixerNode.outputFormat(forBus: 0)
         graphFormat = format
-        noiseState.amplitude = rendererSettings.staticGain
-        noiseState.reset()
-
-        let noise = ProceduralNoiseSource.makeNode(format: format, state: noiseState)
-        noiseNode = noise
         fragmentPlayer = AVAudioPlayerNode()
-
-        engine.attach(noise)
         engine.attach(fragmentPlayer)
-        engine.connect(noise, to: engine.mainMixerNode, format: format)
         engine.connect(fragmentPlayer, to: engine.mainMixerNode, format: format)
-        fragmentPlayer.volume = rendererSettings.vocalGain
-        engine.mainMixerNode.outputVolume = rendererSettings.outputGain
+        // Gains and limiter are in shared slot PCM, not device mixer controls.
+        fragmentPlayer.volume = 1
+        engine.mainMixerNode.outputVolume = 1
     }
 
     private func detachGraphLocked() {
-        if let noiseNode {
-            engine.disconnectNodeOutput(noiseNode)
-            engine.detach(noiseNode)
-            self.noiseNode = nil
-        }
         if fragmentPlayer.engine != nil {
             engine.disconnectNodeOutput(fragmentPlayer)
             engine.detach(fragmentPlayer)
         }
+    }
+
+    private func resetTimelineLocked(seed: UInt64) {
+        scheduler = SweepScheduler(assets: corpus.assets,
+                                   configuration: rendererSettings.schedulerConfiguration, seed: seed)
+        density = VocalDensityScheduler(settings: rendererSettings, seed: seed)
+        jitterSeed = seed
+        noiseState.reset(seed: UInt32(truncatingIfNeeded: seed),
+                         sampleRate: graphFormat?.sampleRate ?? 48_000, settings: rendererSettings)
+        eventLog.reset()
     }
 
     private func preloadSourcesLocked() throws {
@@ -309,7 +304,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
         let ahead = AVAudioFramePosition(format.sampleRate * rendererSettings.scheduleAheadSeconds)
         if nextSlotFrame < currentFrame {
             // Never enqueue a burst of stale fragments after a scheduling stall.
-            notifyRuntime("Vocal scheduling underrun at frame \(currentFrame); static continued.")
+            notifyRuntime("Sweep scheduling underrun at frame \(currentFrame); output gap.")
             nextSlotFrame = currentFrame + ahead
         }
         while nextSlotFrame <= currentFrame + ahead {
@@ -323,6 +318,16 @@ public final class SweepAudioEngine: @unchecked Sendable {
         guard let format = graphFormat else { return }
         let started = Date()
         defer { maximumSlotPreparationSeconds = max(maximumSlotPreparationSeconds, Date().timeIntervalSince(started)) }
+        var vocalBuffer: AVAudioPCMBuffer?
+        defer {
+            if let buffer = vocalBuffer ?? makeEmptySlotLocked(format: format) {
+                SweepSlotMixer.mix(buffer, noise: noiseState, settings: rendererSettings)
+                fragmentPlayer.scheduleBuffer(
+                    buffer, at: AVAudioTime(sampleTime: frame, atRate: format.sampleRate),
+                    options: [], completionHandler: nil
+                )
+            }
+        }
         let seconds = Double(frame) / format.sampleRate
         let timestamp = renderStartedAt.addingTimeInterval(seconds)
 
@@ -370,10 +375,7 @@ public final class SweepAudioEngine: @unchecked Sendable {
                 durationJitterFraction: durationJitter, placementJitterFraction: placementJitter,
                 settings: rendererSettings
             )
-            fragmentPlayer.scheduleBuffer(
-                buffer, at: AVAudioTime(sampleTime: frame, atRate: format.sampleRate),
-                options: [], completionHandler: nil
-            )
+            vocalBuffer = buffer
             var event = SweepEvent(pick: pick, rate: sweepRate, direction: direction, timestamp: timestamp)
             event.cropOffsetFrames = bounds.start
             event.emittedFrameCount = bounds.count
@@ -381,6 +383,17 @@ public final class SweepAudioEngine: @unchecked Sendable {
             event.exposedDurationMs = Int((Double(bounds.count) / format.sampleRate) * 1000.0)
             emitSlotEventLocked(event, renderTimeSeconds: seconds)
         }
+    }
+
+    private func makeEmptySlotLocked(format: AVAudioFormat) -> AVAudioPCMBuffer? {
+        let count = AVAudioFrameCount(format.sampleRate * sweepRate.timeInterval)
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: count),
+              let channels = buffer.floatChannelData else { return nil }
+        buffer.frameLength = count
+        for channel in 0..<Int(format.channelCount) {
+            channels[channel].initialize(repeating: 0, count: Int(count))
+        }
+        return buffer
     }
 
     private func emitSlotEventLocked(_ event: SweepEvent, renderTimeSeconds: Double) {
@@ -415,15 +428,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
                 offlineRendering = false
             }
             guard let format = graphFormat else { throw CaptureError.engineFormatUnavailable }
-            scheduler = SweepScheduler(
-                assets: corpus.assets,
-                configuration: rendererSettings.schedulerConfiguration,
-                seed: seed
-            )
-            density = VocalDensityScheduler(settings: rendererSettings, seed: seed)
+            resetTimelineLocked(seed: seed)
             try preloadSourcesLocked()
-            jitterSeed = seed
-            noiseState.reset(seed: UInt32(truncatingIfNeeded: seed))
             nextSlotFrame = 0
             renderStartedAt = Date(timeIntervalSince1970: 0)
             eventLog.reset()
@@ -477,6 +483,8 @@ public final class SweepAudioEngine: @unchecked Sendable {
                 "vocal_event_probability": rendererSettings.vocalEventProbability,
                 "clusteriness": rendererSettings.clusteriness,
                 "static_gain": Double(rendererSettings.staticGain),
+                "output_gain": Double(rendererSettings.outputGain),
+                "limiter_sample_ceiling": Double(SweepMasterLimiter.sampleCeiling),
                 "vocal_gain": Double(rendererSettings.vocalGain),
                 "min_vocal_exposure_seconds": rendererSettings.minVocalExposureSeconds,
                 "max_vocal_exposure_seconds": rendererSettings.maxVocalExposureSeconds

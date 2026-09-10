@@ -26,6 +26,7 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
         ["asset_id": $0.id, "rms_dbfs": $0.dbfs] as [String: Any]
     }
     let noise = ProceduralNoiseState()
+    noise.reset(seed: 12648430)
     let noiseRMS = sqrt((0..<48000).reduce(0.0) { sum, _ in
         let x = Double(noise.nextSample() * SweepTuning.staticGain)
         return sum + x * x
@@ -71,7 +72,8 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
             "active_voice_to_static_db": distribution(balances)]
     }
     reports["maximum_vocal_peak"] = maximumPeak
-    reports["worst_case_mix_peak_bound"] = (Double(SweepTuning.vocalPeakLimit * SweepTuning.vocalGain) + Double(SweepTuning.staticGain)) * Double(SweepTuning.outputGain)
+    reports["limited_sample_peak_bound"] = Double(SweepMasterLimiter.sampleCeiling)
+    reports["reconstructed_peak_bound"] = Double(SweepMasterLimiter.truePeakCeiling)
     reports["human_listening"] = "NOT_RUN"
     try JSONSerialization.data(withJSONObject: reports, options: [.sortedKeys, .prettyPrinted])
         .write(to: output.appendingPathComponent("level-audit.json"))

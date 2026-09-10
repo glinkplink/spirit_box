@@ -31,7 +31,7 @@ final class VocalDensitySchedulerTests: XCTestCase {
         XCTAssertGreaterThan(density, 0.25)
         XCTAssertLessThan(density, 0.40)
         XCTAssertGreaterThan(maxNoise, 2, "Need consecutive noise-only slots")
-        XCTAssertGreaterThan(maxVocal, 1, "Need occasional vocal clusters")
+        XCTAssertEqual(maxVocal, 2, "Occasional pairs, never longer bursts")
         XCTAssertLessThan(Double(flips) / Double(slots - 1), 0.70, "Must not be a metronomic alternate")
     }
 
@@ -43,12 +43,15 @@ final class VocalDensitySchedulerTests: XCTestCase {
         XCTAssertFalse((0..<400).contains { _ in scheduler.nextContainsVocal() })
     }
 
-    func testFullProbabilityWithNoClusterAlwaysSchedulesVocals() {
+    func testFullProbabilityStillForcesEveryThirdSlotToNoise() {
         let scheduler = VocalDensityScheduler(
             settings: SweepRendererSettings(vocalEventProbability: 1, clusteriness: 0),
             seed: 99
         )
-        XCTAssertEqual((0..<200).filter { _ in scheduler.nextContainsVocal() }.count, 200)
+        let expected = (0..<200).map { $0 % 3 != 2 }
+        XCTAssertEqual((0..<200).map { _ in scheduler.nextContainsVocal() }, expected)
+        scheduler.reset(seed: 99)
+        XCTAssertEqual((0..<200).map { _ in scheduler.nextContainsVocal() }, expected)
     }
 
     func testSameSeedReplaysAndDifferentSeedDiverges() {
@@ -60,11 +63,10 @@ final class VocalDensitySchedulerTests: XCTestCase {
         XCTAssertNotEqual(first, (0..<300).map { _ in c.nextContainsVocal() })
     }
 
-    func testListeningTestStaticIsQuietRelativeToPreviousBed() {
-        XCTAssertLessThan(SweepRendererSettings.listeningTest.staticGain, 0.05)
-        XCTAssertLessThan(SweepRendererSettings.listeningTest.staticGain, 0.09)
-        XCTAssertGreaterThan(SweepRendererSettings.listeningTest.staticGain, 0.01)
-        XCTAssertEqual(SweepRendererSettings.listeningTest.vocalEventProbability, 0.33, accuracy: 0.001)
+    func testListeningTestMixUsesAudibleBed() {
+        XCTAssertEqual(SweepRendererSettings.listeningTest.staticGain, 0.10, accuracy: 0.001)
+        XCTAssertEqual(SweepRendererSettings.listeningTest.vocalGain, 0.48, accuracy: 0.001)
+        XCTAssertEqual(SweepRendererSettings.listeningTest.clusteriness, 0.18, accuracy: 0.001)
         XCTAssertEqual(SweepRate.default, .ms300)
     }
 }
