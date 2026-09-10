@@ -50,7 +50,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
     /// Pass A accepted gains without bed spectral decoupling (Pass B blinded A/B baseline).
     public static let listeningTestGainRebalanceIdentity = NamedRendererPreset(
         identifier: "listening-test-gain-rebalance",
-        version: "2026-09-10.gain-rebalance-v1"
+        version: "2026-09-10.gain-rebalance-v2"
     )
 
     /// Frozen pre-rebalance listening-test gains for gain-only A/B fixture renders.
@@ -82,8 +82,9 @@ public struct SweepRendererSettings: Equatable, Sendable {
 
     /// Default preset for the next 200/300 ms listening tests.
     public static let listeningTest = SweepRendererSettings(
-        staticGain: 0.062,
-        vocalGain: 0.52,
+        staticGain: 0.055,
+        vocalGain: 0.55,
+        outputGain: 3.58,
         usesDecoupledBedShape: true,
         bedHighPassHz: 200,
         bedLowPassHz: 4_500,
@@ -99,8 +100,9 @@ public struct SweepRendererSettings: Equatable, Sendable {
 
     /// Pass A accepted gains only; bed shape unchanged from pre-rebalance.
     public static let listeningTestGainRebalance = SweepRendererSettings(
-        staticGain: 0.062,
-        vocalGain: 0.52
+        staticGain: 0.055,
+        vocalGain: 0.55,
+        outputGain: 3.58
     )
 
     /// PR #31 continuous-static / 8% density defaults, kept only so baseline clips
@@ -122,9 +124,9 @@ public struct SweepRendererSettings: Equatable, Sendable {
     public init(
         vocalEventProbability: Double = 0.07,
         clusteriness: Double = 0.0,
-        staticGain: Float = 0.062,
-        vocalGain: Float = 0.52,
-        outputGain: Float = 3.5,
+        staticGain: Float = 0.055,
+        vocalGain: Float = 0.55,
+        outputGain: Float = 3.58,
         minVocalExposureSeconds: Double = 0.100,
         maxVocalExposureSeconds: Double = 0.180,
         minExposureFractionOfDwell: Double = 0.40,

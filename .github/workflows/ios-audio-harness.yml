@@ -81,6 +81,7 @@ jobs:
           if [[ ! -f tools/fixtures/archived-pcm-regression/pcm-prefix.sha256 ]]; then
             ./scripts/bootstrap-listening-fixtures.sh
           fi
+          ls -la tools/fixtures/ || true
       - name: Render evaluation matrix and primary 60s candidate
         run: |
           export PATH="$PWD/build/acoustic-venv/bin:$PATH"
