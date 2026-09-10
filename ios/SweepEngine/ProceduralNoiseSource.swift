@@ -3,12 +3,14 @@ import Foundation
 
 /// Continuous procedural hiss / static bed. No stored radio or broadcast recordings.
 final class ProceduralNoiseState: @unchecked Sendable {
+    var amplitude: Float
     private var brown: Float = 0
     private var crackleCountdown: Int
     private var seed: UInt32
 
-    init(seed: UInt32 = 0x5EED_F15E) {
+    init(seed: UInt32 = 0x5EED_F15E, amplitude: Float = SweepRendererSettings.listeningTest.staticGain) {
         self.seed = seed
+        self.amplitude = amplitude
         self.crackleCountdown = 24_000
     }
 
@@ -27,7 +29,7 @@ final class ProceduralNoiseState: @unchecked Sendable {
             sample += nextUnit() * 0.35
             crackleCountdown = 6_000 + Int(nextUInt32() % 36_000)
         }
-        return max(-1, min(1, sample))
+        return max(-1, min(1, sample)) * amplitude
     }
 
     private func nextUnit() -> Float {
@@ -41,7 +43,7 @@ final class ProceduralNoiseState: @unchecked Sendable {
 }
 
 enum ProceduralNoiseSource {
-    static func makeNode(format: AVAudioFormat, state: ProceduralNoiseState, amplitude: Float = 0.045) -> AVAudioSourceNode {
+    static func makeNode(format: AVAudioFormat, state: ProceduralNoiseState) -> AVAudioSourceNode {
         AVAudioSourceNode(format: format) { isSilence, _, frameCount, audioBufferList -> OSStatus in
             isSilence.pointee = false
             let abl = UnsafeMutableAudioBufferListPointer(audioBufferList)
@@ -50,7 +52,7 @@ enum ProceduralNoiseSource {
                 let samples = raw.assumingMemoryBound(to: Float.self)
                 let count = Int(frameCount)
                 for index in 0..<count {
-                    samples[index] = state.nextSample() * amplitude
+                    samples[index] = state.nextSample()
                 }
             }
             return noErr

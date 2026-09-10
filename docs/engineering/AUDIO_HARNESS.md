@@ -180,6 +180,14 @@ If the bank is too small, constraints relax in that order, after first preferrin
 
 Runtime crop stays inside `crop_safe_start_ms` / `crop_safe_end_ms` when those fields are present.
 
+Vocal exposure is a short glimpse inside the dwell, not the whole dwell and not a speed-changed recording. Sweep rate sizes the opportunity and the glimpse; it does not fast-forward speech.
+
+## Vocal density
+
+The renderer is two layers: a continuous procedural static bed, plus intermittent vocal fragments. A slot does **not** always contain a voice.
+
+Default listening-test density is about **33%** vocal / **67%** noise-only, with gap/cluster stickiness so the pattern is not metronomic. Density, static gain, vocal gain, exposure bounds, and the anti-repeat window are internal harness tuners in `SweepRendererSettings` (`listeningTest` preset). They are not customer-facing product constants.
+
 ## Forward / Reverse
 
 - **FWD:** ascending `asset_id` among `forward_allowed` assets; fragments play forward
@@ -189,9 +197,9 @@ This is traversal of source material, not radio tuning.
 
 ## Sweep rates
 
-Select **75 / 125 / 200 / 300 ms** in the harness. Default is **200 ms**.
+Select **75 / 125 / 200 / 300 ms** in the harness. Default is **300 ms**.
 
-The selected value is the scheduler / playback cadence, not a label.
+The selected value is the scheduler / playback cadence and glimpse-size control, not a label and not a playback-rate multiplier. The 200 ms and 300 ms detents are the primary listening-test rates.
 
 ## Start / stop
 
@@ -212,9 +220,12 @@ It is **not** the future customer session-recording feature and does not use the
 
 In the harness:
 
+- `Capture final mix (30 sec)` / `(60 sec)` / `(5 min)`
 - `Capture final mix (2 min)`
 - `Capture final mix (20 min, manual gate)`
 - `Stop capture`
+
+For the current renderer listening pass, capture **60 seconds at 300 ms FWD** and **60 seconds at 200 ms FWD**. On macOS/Xcode, `./scripts/render-listening-tests.sh` writes the same mixes from the actual engine. Linux cannot run AVAudioEngine.
 
 Files are written to:
 
@@ -280,14 +291,16 @@ Physical Files-app retrieval of a gate bundle has **not** been verified in this 
 
 ## Event log
 
-Each scheduled fragment records:
+Each scheduled **slot** records:
 
+- vocal vs noise-only
 - timestamp
-- asset ID
+- asset ID (vocal slots)
 - performer / voice family
 - phonetic / source family
 - sweep rate
 - direction
+- source offset and exposed duration
 - events since this asset was previously used
 - which anti-repeat constraints were relaxed
 

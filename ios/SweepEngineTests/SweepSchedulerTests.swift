@@ -223,6 +223,7 @@ final class SweepSchedulerTests: XCTestCase {
         XCTAssertEqual(event.sweepRate, .ms125)
         XCTAssertEqual(event.direction, .forward)
         XCTAssertEqual(event.eventsSincePreviousUse, nil)
+        XCTAssertTrue(event.containsVocal)
         XCTAssertFalse(event.debugLine.contains("answer"))
         XCTAssertFalse(event.debugLine.contains("ghost"))
     }

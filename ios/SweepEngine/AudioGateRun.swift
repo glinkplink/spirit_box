@@ -178,6 +178,9 @@ public struct AudioGateRunSummary: Equatable, Sendable {
     public var observedDirections: [String]
 
     public var totalEvents: Int
+    public var vocalEventCount: Int
+    public var noiseOnlyEventCount: Int
+    public var vocalDensity: Double?
     public var uniqueAssetIDs: Int
     public var corpusCoverage: Double?
     public var firstUseEventCount: Int
@@ -210,7 +213,8 @@ public struct AudioGateRunSummary: Equatable, Sendable {
         startingDirection: SweepDirection,
         events: [SweepEvent]
     ) -> AudioGateRunSummary {
-        let uniqueAssets = Set(events.map(\.assetID))
+        let vocalEvents = events.filter(\.containsVocal)
+        let uniqueAssets = Set(vocalEvents.map(\.assetID).filter { !$0.isEmpty })
         let coverage: Double?
         if corpus.assetCount > 0 {
             coverage = Double(uniqueAssets.count) / Double(corpus.assetCount)
@@ -218,8 +222,8 @@ public struct AudioGateRunSummary: Equatable, Sendable {
             coverage = nil
         }
 
-        let firstUse = events.filter { $0.eventsSincePreviousUse == nil }.count
-        let repeatDistances = events.compactMap(\.eventsSincePreviousUse)
+        let firstUse = vocalEvents.filter { $0.eventsSincePreviousUse == nil }.count
+        let repeatDistances = vocalEvents.compactMap(\.eventsSincePreviousUse)
         let buckets = [
             "0-4": repeatDistances.filter { $0 <= 4 }.count,
             "5-9": repeatDistances.filter { $0 >= 5 && $0 <= 9 }.count,
@@ -227,12 +231,14 @@ public struct AudioGateRunSummary: Equatable, Sendable {
             "20+": repeatDistances.filter { $0 >= 20 }.count,
         ]
 
-        let performerCounts = counted(events.compactMap(\.performerID))
-        let familyCounts = counted(events.compactMap(\.voiceFamily))
+        let performerCounts = counted(vocalEvents.compactMap(\.performerID))
+        let familyCounts = counted(vocalEvents.compactMap(\.voiceFamily))
         let total = events.count
+        let vocalCount = vocalEvents.count
+        let noiseCount = events.filter { !$0.containsVocal }.count
 
-        let relaxedCounts = counted(events.flatMap { $0.relaxedConstraints.map(\.rawValue) })
-        let needingRelaxation = events.filter { !$0.relaxedConstraints.isEmpty }.count
+        let relaxedCounts = counted(vocalEvents.flatMap { $0.relaxedConstraints.map(\.rawValue) })
+        let needingRelaxation = vocalEvents.filter { !$0.relaxedConstraints.isEmpty }.count
 
         return AudioGateRunSummary(
             runID: runID,
@@ -253,6 +259,9 @@ public struct AudioGateRunSummary: Equatable, Sendable {
             observedSweepRateMs: Array(Set(events.map(\.sweepRate.milliseconds))).sorted(),
             observedDirections: Array(Set(events.map(\.direction.debugLabel))).sorted(),
             totalEvents: total,
+            vocalEventCount: vocalCount,
+            noiseOnlyEventCount: noiseCount,
+            vocalDensity: total > 0 ? Double(vocalCount) / Double(total) : nil,
             uniqueAssetIDs: uniqueAssets.count,
             corpusCoverage: coverage,
             firstUseEventCount: firstUse,
@@ -261,14 +270,14 @@ public struct AudioGateRunSummary: Equatable, Sendable {
             medianRepeatDistance: median(repeatDistances),
             repeatDistanceBuckets: buckets,
             performerCounts: performerCounts,
-            performerPercents: percents(performerCounts, total: total),
+            performerPercents: percents(performerCounts, total: vocalCount),
             voiceFamilyCounts: familyCounts,
-            voiceFamilyPercents: percents(familyCounts, total: total),
+            voiceFamilyPercents: percents(familyCounts, total: vocalCount),
             maxConsecutiveSamePerformer: maxConsecutive(events.map(\.performerID)),
             maxConsecutiveSameVoiceFamily: maxConsecutive(events.map(\.voiceFamily)),
             relaxedConstraintCounts: relaxedCounts,
             eventsRequiringRelaxation: needingRelaxation,
-            relaxationPercent: total > 0 ? (Double(needingRelaxation) / Double(total)) * 100.0 : nil
+            relaxationPercent: vocalCount > 0 ? (Double(needingRelaxation) / Double(vocalCount)) * 100.0 : nil
         )
     }
 
@@ -291,6 +300,8 @@ public struct AudioGateRunSummary: Equatable, Sendable {
             "observed_sweep_rates_ms": observedSweepRateMs,
             "observed_directions": observedDirections,
             "total_scheduled_fragment_events": totalEvents,
+            "vocal_event_count": vocalEventCount,
+            "noise_only_event_count": noiseOnlyEventCount,
             "unique_asset_ids_used": uniqueAssetIDs,
             "first_use_event_count": firstUseEventCount,
             "repeat_use_event_count": repeatUseEventCount,
@@ -309,6 +320,7 @@ public struct AudioGateRunSummary: Equatable, Sendable {
         payload["minimum_repeat_distance"] = minimumRepeatDistance.map { $0 as Any } ?? NSNull()
         payload["median_repeat_distance"] = medianRepeatDistance.map { $0 as Any } ?? NSNull()
         payload["relaxation_percent"] = relaxationPercent.map { $0 as Any } ?? NSNull()
+        payload["vocal_density"] = vocalDensity.map { $0 as Any } ?? NSNull()
         return payload
     }
 
@@ -355,6 +367,11 @@ public struct AudioGateRunSummary: Equatable, Sendable {
         lines.append("Observed directions: \(observedDirections.joined(separator: ", "))")
         lines.append("")
         lines.append("Scheduled fragment events: \(totalEvents)")
+        lines.append("Vocal events: \(vocalEventCount)")
+        lines.append("Noise-only events: \(noiseOnlyEventCount)")
+        if let vocalDensity {
+            lines.append(String(format: "Vocal density: %.1f%%", vocalDensity * 100))
+        }
         lines.append("Unique asset IDs used: \(uniqueAssetIDs)")
         if let corpusCoverage {
             lines.append(

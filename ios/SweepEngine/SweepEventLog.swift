@@ -22,6 +22,9 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
     public var eventsSincePreviousUse: Int?
     public var relaxedConstraints: [RelaxedConstraint]
     public var decisionSummary: String
+    public var containsVocal: Bool = true
+    public var sourceOffsetMs: Int? = nil
+    public var exposedDurationMs: Int? = nil
 
     public init(
         id: UUID = UUID(),
@@ -35,7 +38,10 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
         direction: SweepDirection,
         eventsSincePreviousUse: Int?,
         relaxedConstraints: [RelaxedConstraint],
-        decisionSummary: String
+        decisionSummary: String,
+        containsVocal: Bool = true,
+        sourceOffsetMs: Int? = nil,
+        exposedDurationMs: Int? = nil
     ) {
         self.id = id
         self.timestamp = timestamp
@@ -49,6 +55,31 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
         self.eventsSincePreviousUse = eventsSincePreviousUse
         self.relaxedConstraints = relaxedConstraints
         self.decisionSummary = decisionSummary
+        self.containsVocal = containsVocal
+        self.sourceOffsetMs = sourceOffsetMs
+        self.exposedDurationMs = exposedDurationMs
+    }
+
+    public static func noiseOnlySlot(
+        rate: SweepRate,
+        direction: SweepDirection,
+        timestamp: Date,
+        decisionSummary: String = "noise-only"
+    ) -> SweepEvent {
+        SweepEvent(
+            timestamp: timestamp,
+            assetID: "",
+            performerID: nil,
+            voiceFamily: nil,
+            phoneticFamily: nil,
+            sourceType: nil,
+            sweepRate: rate,
+            direction: direction,
+            eventsSincePreviousUse: nil,
+            relaxedConstraints: [],
+            decisionSummary: decisionSummary,
+            containsVocal: false
+        )
     }
 
     public init(pick: SchedulePick, rate: SweepRate, direction: SweepDirection, timestamp: Date = Date()) {
@@ -70,13 +101,18 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
         sourceStartFrame = pick.asset.sourceStartFrame
         sourceFrameCount = pick.asset.sourceFrameCount
         eventsSinceSpeakerUse = pick.eventsSinceSpeakerUse
+        containsVocal = true
     }
 
     public var debugLine: String {
-        let since = eventsSincePreviousUse.map(String.init) ?? "first"
+        let kind = containsVocal ? "vocal" : "noise"
+        let since = eventsSincePreviousUse.map(String.init) ?? (containsVocal ? "first" : "—")
         let family = voiceFamily ?? performerID ?? "—"
         let phonetic = phoneticFamily ?? sourceType ?? "—"
-        return "\(timestamp.formatted(date: .omitted, time: .standard))  \(assetID)  \(family)  \(phonetic)  \(sweepRate.milliseconds)ms  \(direction.debugLabel)  since=\(since)  \(decisionSummary)"
+        let asset = containsVocal ? assetID : "—"
+        let offset = sourceOffsetMs.map { "off=\($0)ms" } ?? "off=—"
+        let exposed = exposedDurationMs.map { "exp=\($0)ms" } ?? "exp=—"
+        return "\(timestamp.formatted(date: .omitted, time: .standard))  \(kind)  \(asset)  \(family)  \(phonetic)  \(sweepRate.milliseconds)ms  \(direction.debugLabel)  \(offset)  \(exposed)  since=\(since)  \(decisionSummary)"
     }
 
     public func diagnosticJSONLine() -> String {
@@ -87,6 +123,7 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
             "direction": direction.debugLabel,
             "relaxed_constraints": relaxedConstraints.map(\.rawValue),
             "decision_summary": decisionSummary,
+            "contains_vocal": containsVocal,
         ]
         if let utteranceID { payload["utterance_id"] = utteranceID }
         if let sourceFile { payload["source_file"] = sourceFile }
@@ -101,6 +138,8 @@ public struct SweepEvent: Identifiable, Equatable, Sendable {
         if let phoneticFamily { payload["phonetic_family"] = phoneticFamily }
         if let sourceType { payload["source_type"] = sourceType }
         if let eventsSincePreviousUse { payload["events_since_previous_use"] = eventsSincePreviousUse }
+        if let sourceOffsetMs { payload["source_offset_ms"] = sourceOffsetMs }
+        if let exposedDurationMs { payload["exposed_duration_ms"] = exposedDurationMs }
         guard let data = try? JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys]),
               let line = String(data: data, encoding: .utf8)
         else {

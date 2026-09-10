@@ -39,21 +39,33 @@ final class FragmentBufferFactoryTests: XCTestCase {
             sweepRate: .ms75,
             startJitterFraction: 0
         )
-        XCTAssertEqual(Int(cropped.frameLength), 3_600)
+        XCTAssertEqual(Int(cropped.frameLength), 2_400)
+        XCTAssertLessThan(Int(cropped.frameLength), 3_600)
     }
 
-    func testCropLengthFollowsEachLockedSweepRate() throws {
+    func testCropIsAGlimpseNotADwellSizedRecording() throws {
         let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
         let frames: AVAudioFrameCount = 48_000
         let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames))
         buffer.frameLength = frames
         let asset = SourceAsset(assetID: "RATES", durationMs: 1000, relativePath: "rates.wav")
 
-        let expected = [SweepRate.ms75: 3_600, .ms125: 6_000, .ms200: 9_600, .ms300: 14_400]
-        for (rate, framesExpected) in expected {
-            let cropped = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: rate, startJitterFraction: 0)
-            XCTAssertEqual(Int(cropped.frameLength), framesExpected, "Crop must follow \(rate.milliseconds) ms cadence")
+        let shortest: [SweepRate: Int] = [.ms75: 2_400, .ms125: 2_400, .ms200: 2_400, .ms300: 3_168]
+        let longest: [SweepRate: Int] = [.ms75: 2_400, .ms125: 2_880, .ms200: 4_608, .ms300: 6_240]
+        for rate in SweepRate.allCases {
+            let dwell = rate.milliseconds * 48
+            let minCrop = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: rate, startJitterFraction: 0, durationJitterFraction: 0)
+            let maxCrop = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: rate, startJitterFraction: 1, durationJitterFraction: 1)
+            XCTAssertEqual(Int(minCrop.frameLength), shortest[rate], "Min exposure for \(rate.milliseconds) ms")
+            XCTAssertEqual(Int(maxCrop.frameLength), longest[rate], "Max exposure for \(rate.milliseconds) ms")
+            XCTAssertLessThanOrEqual(Int(maxCrop.frameLength), dwell)
+            XCTAssertEqual(minCrop.format.sampleRate, 48_000, "Must crop, not resample/speed-change")
         }
+        let max200 = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms200, startJitterFraction: 1, durationJitterFraction: 1)
+        let max300 = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 1, durationJitterFraction: 1)
+        XCTAssertGreaterThan(Int(max300.frameLength), Int(max200.frameLength))
+        XCTAssertLessThan(Int(max200.frameLength), 9_600)
+        XCTAssertLessThan(Int(max300.frameLength), 14_400)
     }
 
     func testCropDoesNotExceedCropSafeWindow() throws {
@@ -70,7 +82,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
         )
 
         let cropped = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 0)
-        XCTAssertEqual(Int(cropped.frameLength), 7_200)
+        XCTAssertEqual(Int(cropped.frameLength), 3_168)
     }
     func testFinalVocalSlotsAreDwellSizedFiniteFadedAndBounded() throws {
         let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
