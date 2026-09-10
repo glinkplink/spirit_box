@@ -121,6 +121,9 @@ final class FragmentBufferFactoryTests: XCTestCase {
         let mid = try energy(hz: 1000)
         XCTAssertLessThan(try energy(hz: 0), mid * 0.01)
         XCTAssertLessThan(try energy(hz: 18000), mid * 0.2)
+        // Vocal path adds a 300 Hz high-pass after RadioSpeakerShape.
+        // A single 500 Hz stage leaves ~6% relative energy at 250 Hz.
+        XCTAssertLessThan(try energy(hz: 250), mid * 0.03)
     }
 
     func testLiveRateAndDirectionChangesKeepTheSameEngineRunning() throws {

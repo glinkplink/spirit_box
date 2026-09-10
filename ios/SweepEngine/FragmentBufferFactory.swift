@@ -496,12 +496,25 @@ enum FragmentBufferFactory {
         guard let channels = buffer.floatChannelData else { return }
         let mix = min(1, max(0, variation))
         let gain = 1 + (Float(mix) * 2 - 1) * settings.gainVariation
+        // Frozen A0 PCM must stay bit-identical to the committed fixture.
+        let freezeA0VocalShape = settings == .listeningTestPreRebalance
         for channel in 0..<Int(buffer.format.channelCount) {
             var shape = RadioSpeakerShape(sampleRate: buffer.format.sampleRate, settings: settings)
+            // Extra vocal-only 300 Hz high-pass. RadioSpeakerShape stays
+            // 12 dB/oct at highPassHz for the shared noise bed.
+            var vocalHighPass = SweepBiquad(
+                hz: 300,
+                sampleRate: buffer.format.sampleRate,
+                highPass: true
+            )
             var peak: Float = 0
             let samples = channels[channel]
             for index in 0..<Int(buffer.frameLength) {
-                samples[index] = shape.process(samples[index]) * gain
+                var shaped = shape.process(samples[index])
+                if !freezeA0VocalShape {
+                    shaped = Float(vocalHighPass.process(Double(shaped)))
+                }
+                samples[index] = shaped * gain
                 peak = max(peak, abs(samples[index]))
             }
             // Whole-window attenuation prevents clipping without nonlinear distortion.
