@@ -54,7 +54,7 @@ is_ios_relevant_path() {
   case "${file}" in
     ios/*) return 0 ;;
     scripts/ci-ios-test.sh) return 0 ;;
-    scripts/render-sweep.sh|scripts/render-short-listening.sh|tools/render_sweep/*|tools/check_sweep_render.py|tools/check_sweep_acoustics.py) return 0 ;;
+    scripts/render-sweep.sh|scripts/render-short-listening.sh|scripts/render-evaluation-matrix.sh|scripts/bootstrap-listening-fixtures.sh|scripts/capture-listening-fixture.sh|scripts/capture-archived-pcm-fixture.sh|tools/render_sweep/*|tools/check_sweep_render.py|tools/check_sweep_acoustics.py|tools/verify_archived_pcm_regression.py|tools/fixtures/*) return 0 ;;
     assets/audio/*) return 0 ;;
     .github/workflows/ios-audio-harness.yml) return 0 ;;
   esac

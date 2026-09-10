@@ -216,6 +216,31 @@ final class FragmentBufferFactoryTests: XCTestCase {
         }
     }
 
+    func testDecoupledBedShapeIsDeterministicAfterReset() {
+        let a = ProceduralNoiseState()
+        let b = ProceduralNoiseState()
+        a.reset(seed: 12648430, settings: .listeningTest)
+        b.reset(seed: 12648430, settings: .listeningTest)
+        var samplesA: [Float] = []
+        var samplesB: [Float] = []
+        for _ in 0..<48_000 {
+            samplesA.append(a.nextSample())
+            samplesB.append(b.nextSample())
+        }
+        XCTAssertEqual(samplesA, samplesB)
+    }
+
+    func testArchivedPresetKeepsRadioSpeakerBedPath() {
+        let state = ProceduralNoiseState()
+        state.reset(seed: 12648430, settings: .archivedContinuousStatic)
+        XCTAssertFalse(SweepRendererSettings.archivedContinuousStatic.usesDecoupledBedShape)
+        var peak: Float = 0
+        for _ in 0..<48_000 {
+            peak = max(peak, abs(state.nextSample()))
+        }
+        XCTAssertGreaterThan(peak, 0)
+    }
+
     func testNoiseOnlySlotsAreClockedAndSeededAcrossRateChanges() throws {
         let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1))
         let a = ProceduralNoiseState(), b = ProceduralNoiseState()

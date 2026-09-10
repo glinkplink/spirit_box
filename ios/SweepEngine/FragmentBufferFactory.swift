@@ -34,10 +34,28 @@ public struct SweepRendererSettings: Equatable, Sendable {
     public var gainVariation: Float
     public var vocalPeakLimit: Float
     public var scheduleAheadSeconds: Double
+    /// When true, procedural bed uses `NoiseBedShape` instead of `RadioSpeakerShape`.
+    public var usesDecoupledBedShape: Bool
+    public var bedHighPassHz: Double
+    public var bedLowPassHz: Double
+    public var bedWanderDepthHz: Double
+    public var bedWanderPeriodSeconds: Double
 
     /// Shared live/offline default. Experimental candidate, not a proven listening improvement.
     public static let listeningTestIdentity = NamedRendererPreset(
         identifier: "listening-test",
+        version: "2026-09-10.bed-spectrum-v1"
+    )
+
+    /// Pass A accepted gains without bed spectral decoupling (Pass B blinded A/B baseline).
+    public static let listeningTestGainRebalanceIdentity = NamedRendererPreset(
+        identifier: "listening-test-gain-rebalance",
+        version: "2026-09-10.gain-rebalance-v1"
+    )
+
+    /// Frozen pre-rebalance listening-test gains for gain-only A/B fixture renders.
+    public static let listeningTestPreRebalanceIdentity = NamedRendererPreset(
+        identifier: "listening-test-pre-rebalance",
         version: "2026-09-10.sparse-exposure-v1"
     )
 
@@ -51,6 +69,10 @@ public struct SweepRendererSettings: Equatable, Sendable {
         switch identifier {
         case listeningTestIdentity.identifier, "default", "candidate":
             return .listeningTest
+        case listeningTestPreRebalanceIdentity.identifier, "pre-rebalance":
+            return .listeningTestPreRebalance
+        case listeningTestGainRebalanceIdentity.identifier, "pass-a-final", "gain-rebalance":
+            return .listeningTestGainRebalance
         case archivedContinuousStaticIdentity.identifier, "baseline", "archived":
             return .archivedContinuousStatic
         default:
@@ -59,7 +81,27 @@ public struct SweepRendererSettings: Equatable, Sendable {
     }
 
     /// Default preset for the next 200/300 ms listening tests.
-    public static let listeningTest = SweepRendererSettings()
+    public static let listeningTest = SweepRendererSettings(
+        staticGain: 0.062,
+        vocalGain: 0.52,
+        usesDecoupledBedShape: true,
+        bedHighPassHz: 200,
+        bedLowPassHz: 4_500,
+        bedWanderDepthHz: 35,
+        bedWanderPeriodSeconds: 20
+    )
+
+    /// Pre-rebalance gain baseline (0.10 / 0.48) for controlled fixture renders.
+    public static let listeningTestPreRebalance = SweepRendererSettings(
+        staticGain: 0.10,
+        vocalGain: 0.48
+    )
+
+    /// Pass A accepted gains only; bed shape unchanged from pre-rebalance.
+    public static let listeningTestGainRebalance = SweepRendererSettings(
+        staticGain: 0.062,
+        vocalGain: 0.52
+    )
 
     /// PR #31 continuous-static / 8% density defaults, kept only so baseline clips
     /// can be rendered from this revision without checking out history.
@@ -80,8 +122,8 @@ public struct SweepRendererSettings: Equatable, Sendable {
     public init(
         vocalEventProbability: Double = 0.07,
         clusteriness: Double = 0.0,
-        staticGain: Float = 0.10,
-        vocalGain: Float = 0.48,
+        staticGain: Float = 0.062,
+        vocalGain: Float = 0.52,
         outputGain: Float = 3.5,
         minVocalExposureSeconds: Double = 0.100,
         maxVocalExposureSeconds: Double = 0.180,
@@ -93,7 +135,12 @@ public struct SweepRendererSettings: Equatable, Sendable {
         lowPassHz: Double = 3_600.0,
         gainVariation: Float = 0.08,
         vocalPeakLimit: Float = 0.65,
-        scheduleAheadSeconds: Double = 0.040
+        scheduleAheadSeconds: Double = 0.040,
+        usesDecoupledBedShape: Bool = false,
+        bedHighPassHz: Double = 500.0,
+        bedLowPassHz: Double = 3_600.0,
+        bedWanderDepthHz: Double = 0,
+        bedWanderPeriodSeconds: Double = 20
     ) {
         self.vocalEventProbability = min(1, max(0, vocalEventProbability))
         self.clusteriness = min(1, max(0, clusteriness))
@@ -111,6 +158,11 @@ public struct SweepRendererSettings: Equatable, Sendable {
         self.gainVariation = min(0.2, max(0, gainVariation))
         self.vocalPeakLimit = min(0.95, max(0.1, vocalPeakLimit))
         self.scheduleAheadSeconds = min(0.12, max(0.02, scheduleAheadSeconds))
+        self.usesDecoupledBedShape = usesDecoupledBedShape
+        self.bedHighPassHz = bedHighPassHz
+        self.bedLowPassHz = bedLowPassHz
+        self.bedWanderDepthHz = min(120, max(0, bedWanderDepthHz))
+        self.bedWanderPeriodSeconds = min(60, max(5, bedWanderPeriodSeconds))
     }
 
     public var schedulerConfiguration: SchedulerConfiguration {
@@ -134,13 +186,20 @@ public struct SweepRendererSettings: Equatable, Sendable {
             lowPassHz: lowPassHz,
             gainVariation: gainVariation,
             vocalPeakLimit: vocalPeakLimit,
-            scheduleAheadSeconds: scheduleAheadSeconds
+            scheduleAheadSeconds: scheduleAheadSeconds,
+            usesDecoupledBedShape: usesDecoupledBedShape,
+            bedHighPassHz: bedHighPassHz,
+            bedLowPassHz: bedLowPassHz,
+            bedWanderDepthHz: bedWanderDepthHz,
+            bedWanderPeriodSeconds: bedWanderPeriodSeconds
         )
     }
 
     /// Identity of the named preset these values match, or `custom` / UNKNOWN.
     public var namedPreset: NamedRendererPreset {
         if self == .listeningTest { return Self.listeningTestIdentity }
+        if self == .listeningTestGainRebalance { return Self.listeningTestGainRebalanceIdentity }
+        if self == .listeningTestPreRebalance { return Self.listeningTestPreRebalanceIdentity }
         if self == .archivedContinuousStatic { return Self.archivedContinuousStaticIdentity }
         return NamedRendererPreset(identifier: "custom", version: CaptureProvenance.unknown)
     }
@@ -186,7 +245,12 @@ public struct SweepRendererSettings: Equatable, Sendable {
             "gain_variation": Double(gainVariation),
             "vocal_peak_limit": Double(vocalPeakLimit),
             "schedule_ahead_seconds": scheduleAheadSeconds,
-            "noise_bed": Self.configuredNoiseBedDescription,
+            "uses_decoupled_bed_shape": usesDecoupledBedShape,
+            "bed_high_pass_hz": bedHighPassHz,
+            "bed_low_pass_hz": bedLowPassHz,
+            "bed_wander_depth_hz": bedWanderDepthHz,
+            "bed_wander_period_seconds": bedWanderPeriodSeconds,
+            "noise_bed": noiseBedDescription,
             "limiter_sample_ceiling": Double(SweepMasterLimiter.sampleCeiling),
             "limiter_sample_ceiling_dbfs": -2.5,
             "limiter_does_not_prove_true_peak": true,
@@ -195,6 +259,15 @@ public struct SweepRendererSettings: Equatable, Sendable {
 
     public static let configuredNoiseBedDescription =
         "continuous additive static; slot envelope is unity (no per-slot ducking)"
+
+    public var noiseBedDescription: String {
+        if usesDecoupledBedShape {
+            return "decoupled bed shape HP \(Int(bedHighPassHz)) Hz LP \(Int(bedLowPassHz)) Hz; "
+                + "bounded deterministic spectral variation period \(bedWanderPeriodSeconds)s; "
+                + "slot envelope is unity (no per-slot ducking)"
+        }
+        return Self.configuredNoiseBedDescription
+    }
 
     /// Read-only harness diagnostics derived from these applied settings.
     public func harnessDiagnosticLines(
@@ -223,7 +296,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
             ),
             "Clusteriness: \(clusteriness) (0 = no extra cluster bias; two-vocal-run cap still applies)",
             "Effective exposure at \(sweepRate.milliseconds) ms, \(Int(sampleRate)) Hz, long source: \(exposure). Short sources can crop shorter. Not a universal 100–180 ms range.",
-            "Noise bed: \(Self.configuredNoiseBedDescription)",
+            "Noise bed: \(noiseBedDescription)",
             String(
                 format: "Sample limiter ceiling: %.6f (−2.5 dBFS sample peak). Does not prove a true-peak ceiling or absence of underruns.",
                 SweepMasterLimiter.sampleCeiling

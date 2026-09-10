@@ -72,12 +72,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.source_sha || github.sha }}
-      - name: Render 60s 300ms candidate and matched baseline first
+      - name: Bootstrap committed fixtures when absent
         run: |
-          ./scripts/render-short-listening.sh --preset listening-test --rate 300 --seconds 60 --also-baseline --skip-acoustics
+          if [[ ! -f tools/fixtures/archived-pcm-regression/pcm-prefix.sha256 ]]; then
+            ./scripts/bootstrap-listening-fixtures.sh
+          fi
+      - name: Render evaluation matrix and primary 60s candidate
+        run: |
+          python3 -m venv build/acoustic-venv
+          build/acoustic-venv/bin/pip install numpy
+          command -v ffmpeg || brew install ffmpeg
+          ./scripts/render-evaluation-matrix.sh --preset listening-test --seed 12648430 \
+            --output-dir build/evaluation-matrix/listening-test
           mkdir -p build/listening-60s-300ms
-          cp -a "$(cat build/listening-runs/latest-candidate.txt)"/. build/listening-60s-300ms/
-          python3 tools/check_sweep_render.py build/listening-60s-300ms
+          cp -a build/evaluation-matrix/listening-test/300ms-forward-60s/. build/listening-60s-300ms/
+          ./scripts/render-sweep.sh ios/Phase1 build/archived-regression-check 30 300 forward 12648430 archived-continuous-static
+          python3 tools/check_sweep_render.py build/archived-regression-check --manifest ios/Phase1/manifest.json
+          python3 tools/verify_archived_pcm_regression.py build/archived-regression-check tools/fixtures/archived-pcm-regression/
       - name: Upload 60s listening clips immediately
         if: always()
         uses: actions/upload-artifact@v4
@@ -91,28 +102,10 @@ jobs:
         run: |
           ./scripts/render-sweep.sh ios/Phase1 build/listening-30s-300ms 30 300 forward 12648430
           python3 tools/check_sweep_render.py build/listening-30s-300ms --compare-prefix build/listening-60s-300ms
-          ./scripts/render-sweep.sh ios/Phase1 build/listening-60s-200ms 60 200 forward 12648430
-          python3 tools/check_sweep_render.py build/listening-60s-200ms
-          for rate in 75 125; do
-            ./scripts/render-sweep.sh ios/Phase1 "build/rate-${rate}" 30 "$rate" forward 12648430
-            python3 tools/check_sweep_render.py "build/rate-${rate}"
-          done
-          ./scripts/render-sweep.sh ios/Phase1 build/reverse-30s 30 300 reverse 12648430
-          python3 tools/check_sweep_render.py build/reverse-30s
           SPIRIT_BOX_LEVEL_AUDIT=1 ./scripts/render-sweep.sh ios/Phase1 build/listening-2min 120 200 forward 12648430
           python3 tools/check_sweep_render.py build/listening-2min
           ./scripts/render-sweep.sh ios/Phase1 build/listening-12min 720 300 forward 1234
           python3 tools/check_sweep_render.py build/listening-12min
-      - name: Measure loudness, true peak, spectrum and empty-slot cadence
-        run: |
-          python3 -m venv build/acoustic-venv
-          build/acoustic-venv/bin/pip install numpy
-          command -v ffmpeg || brew install ffmpeg
-          build/acoustic-venv/bin/python tools/check_sweep_acoustics.py build/listening-60s-300ms
-          build/acoustic-venv/bin/python tools/check_sweep_acoustics.py build/listening-60s-200ms
-          if [[ -f build/listening-runs/latest-baseline.txt ]]; then
-            build/acoustic-venv/bin/python tools/check_sweep_acoustics.py "$(cat build/listening-runs/latest-baseline.txt)" || true
-          fi
       - name: Upload real rendered mix and source traces
         if: always()
         uses: actions/upload-artifact@v4
@@ -121,6 +114,6 @@ jobs:
           path: |
             build/listening-*/
             build/listening-runs/
-            build/rate-*/
-            build/reverse-*/
+            build/evaluation-matrix/
+            build/archived-regression-check/
           if-no-files-found: error

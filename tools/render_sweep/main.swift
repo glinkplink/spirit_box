@@ -91,7 +91,7 @@ func auditLevels(assets: [SourceAsset], root: URL, output: URL) throws {
 let args = CommandLine.arguments
 if args.count < 4 || args.count > 8 {
     fputs("Usage: render-sweep CORPUS OUTPUT_DIRECTORY SECONDS [75|125|200|300] [forward|reverse] [SEED] [PRESET]\n", stderr)
-    fputs("PRESET: listening-test (default) | archived-continuous-static\n", stderr)
+    fputs("PRESET: listening-test (default) | listening-test-pre-rebalance | listening-test-gain-rebalance | archived-continuous-static\n", stderr)
     exit(2)
 }
 do {

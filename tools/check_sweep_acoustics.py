@@ -40,6 +40,21 @@ def aligned_slot(pcm, rate, event):
     return pcm[start:start + count]
 
 
+def parse_loudness_range_lu(ffmpeg_stderr: str) -> float:
+    """Parse input_lra from ffmpeg loudnorm JSON output. Fail if missing or invalid."""
+    start = ffmpeg_stderr.rfind('{')
+    if start < 0:
+        raise ValueError('ffmpeg loudnorm JSON not found in stderr')
+    meter, _ = json.JSONDecoder().raw_decode(ffmpeg_stderr[start:])
+    value = meter.get('input_lra')
+    if value is None:
+        raise ValueError('ffmpeg loudnorm JSON missing input_lra')
+    parsed = float(value)
+    if not (parsed == parsed):  # NaN
+        raise ValueError(f'input_lra is not numeric: {value!r}')
+    return parsed
+
+
 def measure(directory):
     import numpy as np
     path = directory / 'sweep.wav'
@@ -99,12 +114,14 @@ def measure(directory):
     ffmpeg = subprocess.run(['ffmpeg', '-hide_banner', '-nostats', '-i', str(path),
                              '-af', 'loudnorm=I=-17:TP=-1:LRA=11:print_format=json',
                              '-f', 'null', '-'], capture_output=True, text=True, check=True)
+    loudness_range_lu = parse_loudness_range_lu(ffmpeg.stderr)
     meter, _ = json.JSONDecoder().raw_decode(ffmpeg.stderr[ffmpeg.stderr.rfind('{'):])
     emergence = None
     if vocal_rms and noise_rms:
         emergence = float(20 * np.log10(np.median(vocal_rms) / max(1e-12, np.median(noise_rms))))
     sample_peak = float(20 * np.log10(max(1e-12, np.max(np.abs(pcm)))))
     report = dict(integrated_lufs=float(meter['input_i']), true_peak_dbtp=float(meter['input_tp']),
+                  loudness_range_lu=loudness_range_lu,
                   sample_peak_dbfs=sample_peak,
                   below_250hz_fraction=low, presence_1k_3k5_fraction=presence,
                   noise_envelope_p90_over_early_slot_min_median_db=spread,
