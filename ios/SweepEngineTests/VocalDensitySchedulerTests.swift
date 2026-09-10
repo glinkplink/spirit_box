@@ -129,7 +129,8 @@ final class VocalDensitySchedulerTests: XCTestCase {
         let at75 = settings.harnessDiagnosticLines(sweepRate: .ms75, sampleRate: 48_000, buildLines: [])
             .joined(separator: "\n")
         XCTAssertTrue(at75.contains("63.75 ms"))
-        XCTAssertFalse(at75.contains("100–180 ms"))
+        XCTAssertFalse(at75.contains("120.00–180.00 ms"))
+        XCTAssertTrue(at75.contains("Not a universal 100–180 ms range"))
     }
 
     func testArchivedBaselinePresetStaysFrozenAndIsNotTheLiveDefault() {
