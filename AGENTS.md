@@ -72,6 +72,13 @@ No:
 - Prefer pull requests back into `main`.
 - Do not merge a PR merely because it compiles.
 
+### Do not burn usage on idle waits
+
+- Never sit idle polling CI, GitHub Actions, PR checks, TestFlight processing, App Store Connect, or similar remote jobs.
+- After push / PR open: report the PR URL and how to check status, then stop or do other real work.
+- Do not sleep-loop, `gh run watch`, or repeatedly re-query until green unless the human explicitly asked you to wait and act on the result.
+- Prefer local checks (`xcodebuild`, unit tests, lint) when they unblock the task; remote CI is async by default.
+
 ## Commercial objective
 
 Profitability is the primary product objective.

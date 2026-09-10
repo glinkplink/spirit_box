@@ -197,12 +197,12 @@ Vocal exposure is a short glimpse inside the dwell, not the whole dwell and not 
 
 The renderer is two layers: a continuous procedural static bed, plus intermittent vocal fragments. A slot does **not** always contain a voice.
 
-Default listening-test density is about **33%** vocal / **67%** noise-only, with gap/cluster stickiness so the pattern is not metronomic. Density, static gain, vocal gain, exposure bounds, and the anti-repeat window are internal harness tuners in `SweepRendererSettings` (`listeningTest` preset). They are not customer-facing product constants.
+Default listening-test density is a **7% configured vocal-event probability** (scheduler target, not measured density) with a hard max run of two vocal slots. `clusteriness` is 0, which adds no extra cluster bias. Density, static gain, vocal gain, exposure bounds, and the anti-repeat window live in one shared `SweepRendererSettings.listeningTest` preset. The harness shows read-only diagnostics of the settings actually applied to the engine. They are not customer-facing product constants. See `docs/research/SPIRIT-BOX-AUDIO-RUN-COMPARISON.md`.
 
 ## Forward / Reverse
 
 - **FWD:** ascending `asset_id` among `forward_allowed` assets; fragments play forward
-- **REV:** descending `asset_id` among `reverse_allowed` assets; fragments play reversed
+- **REV:** descending `asset_id` among `reverse_allowed` assets; fragments keep forward PCM orientation (reverse is scan direction, not a backwards-speech effect)
 
 This is traversal of source material, not radio tuning.
 

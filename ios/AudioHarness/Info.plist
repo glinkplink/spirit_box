@@ -4,6 +4,10 @@
 <dict>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>SpiritBoxSourceCommit</key>
+	<string>$(SPIRIT_BOX_SOURCE_COMMIT)</string>
+	<key>SpiritBoxSourceDirty</key>
+	<string>$(SPIRIT_BOX_SOURCE_DIRTY)</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 </dict>

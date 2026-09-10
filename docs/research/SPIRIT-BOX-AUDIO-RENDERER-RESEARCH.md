@@ -17,7 +17,9 @@ It is now:
 
 Is the current renderer using good source material in the wrong way?
 
-The main renderer risks are currently too much vocal activity, too-frequent speaker changes, overly rigid one-fragment-per-sweep-step behavior, static balance, and Reverse behavior that may sound like literal backwards speech rather than a reverse scan.
+The main renderer risks are currently too much vocal activity, too-frequent speaker changes, overly rigid one-fragment-per-sweep-step behavior, static balance, and Reverse behavior that may sound like a reverse scan. Current live/offline defaults are the experimental `listening-test` preset in `SweepRendererSettings` (7% configured probability, 100–180 ms exposure bounds, rate-limited by dwell). Those values are a candidate, not a proven improvement and not P-SB7 calibration.
+
+Forensic measurements for Run3 / Run4 / Run5, reference files, and the candidate preset live in [`SPIRIT-BOX-AUDIO-RUN-COMPARISON.md`](./SPIRIT-BOX-AUDIO-RUN-COMPARISON.md). That ledger labels recomputed vs reported-unverified vs unknown provenance. Do not treat Run5 as proof of the current default settings: its bundle does not record build or effective renderer settings.
 
 We should test those before replacing the corpus.
 
@@ -39,9 +41,11 @@ Rejected as shipping changes from that review:
 
 Next required gate: 15–20 minutes on physical iOS hardware with unprimed listeners (Source of Truth §18). Prefer mostly Forward at 200/300 ms; long uninterrupted Reverse is a separate reverse-semantics test, not the default endurance protocol.
 
-## Run 4 physical device review (2026-09-10)
+## Run 4 reported device notes (2026-09-10)
 
-TestFlight Build 4 (commit `4eb5a164`) review identified that the PR #28 DSP changes introduced two acoustic defects:
+**Evidence:** SUBJECTIVE / REPORTED_NOT_REPRODUCED. The Run6 ledger did not re-listen; physical-device review is not evidenced on this branch. Treat the following as reported notes attached to TestFlight Build 4 (`4eb5a164`), not as a verified listening verdict.
+
+A reported TestFlight Build 4 (`4eb5a164`) review described the PR #28 DSP changes as introducing two acoustic defects:
 1. Static noise bed was pulsing / gating due to a 10 ms ducking envelope on every slot (`ProceduralNoiseState.slotEnvelope` dropping to 0.06).
 2. Voice snippets were firing too frequently (33% probability vs reference ~5.8%) and were over-clipped to 50–75 ms, creating unnatural transient clicks/pops.
 
@@ -227,11 +231,11 @@ These are implementation facts from the current sweep renderer, not competitor r
 
 A. Vocal occupancy is intermittent, not every slot
 
-**Superseded:** the engine no longer schedules a vocal on every sweep slot. `VocalDensityScheduler` plus `SweepRendererSettings.listeningTest` target about 33% vocal occupancy with a hard max run of 2 slots. Run 3 measured 25.7% vocal / 74.3% noise-only.
+**Superseded:** the engine no longer schedules a vocal on every sweep slot. `VocalDensityScheduler` plus `SweepRendererSettings.listeningTest` currently target **7%** configured vocal-event probability with a hard max run of 2 slots. That is a scheduler target, not measured density, and not “~1 in 14” marketing copy.
 
-Older notes that assumed “voice every 75 / 125 / 200 / 300 ms” described a previous renderer. Do not add a second density layer to “fix” 5.A.
+Run 3 measured 25.7% vocal / 74.3% noise-only on a mixed-rate live capture whose bundle does **not** record the applied probability. Run 5 measured 33.3% at 300 ms FWD with ~66–75 ms exposures; build/settings provenance is **UNKNOWN** (see the run-comparison ledger). Do not treat older “voice on every slot” notes as current, and do not treat Run 5 as the current 7% preset.
 
-Remaining occupancy question: whether ~25–33% is the right listening-test density, not whether noise-only slots exist.
+Remaining occupancy question: which experimental probability survives unprimed listening, not whether noise-only slots exist.
 
 B. The source speaker can change every slot
 
@@ -269,17 +273,15 @@ rare connected burst: 500–900 ms.
 
 These are test ranges, not validated production values.
 
-D. Reverse currently affects both traversal and the waveform
+D. Reverse currently affects traversal; waveform orientation is a separate choice
 
 The scheduler reverses source traversal when direction changes.
 
-The DSP also literally reverses the selected vocal buffer.
+Current production/harness behavior plays forward-orientation speech snippets while walking the corpus in reverse. Literal PCM reversal remains available in the buffer factory for tests, but it is not the live reverse-scan default.
 
-Those are two different behaviors.
+Those are two different behaviors. Keep the current forward-PCM reverse traversal unless a verified bug requires a narrow repair.
 
-A user selecting Reverse sweep may reasonably expect the scan direction to reverse without every human fragment sounding backwards.
-
-Required A/B test
+Required A/B test (still open as a perceptual question, not a claim that the current default is proven):
 
 Compare:
 
@@ -323,11 +325,13 @@ Create otherwise identical renders with different probabilities of a foreground 
 
 Suggested starting A/B/C:
 
-A: current behavior, near-100% vocal slots;
+A: current shared preset (~7% configured probability);
 
-B: ~55–65% vocal slots;
+B: archived PR #31 (~8% configured probability);
 
-C: ~35–45% vocal slots.
+C: a sparser or denser experimental arm only if A/B is inconclusive.
+
+Do not treat short-clip density as a universal band. 60-second files vary; use a long deterministic scheduler test for occupancy contracts.
 
 Noise/sweep should continue through silent-vocal slots.
 
@@ -437,7 +441,7 @@ The current app uses VCTK-derived natural speech, not the old isolated-phoneme b
 
 The current renderer schedules vocals at sweep slots with continuous procedural noise.
 
-Current Reverse behavior includes literal vocal waveform reversal.
+Current Reverse default is reverse corpus traversal with forward-orientation snippets. Literal waveform reversal is not the live default.
 
 The current renderer uses one dominant vocal stream rather than multiple simultaneous voices.
 

@@ -58,10 +58,29 @@ fi
 
 echo "Using destination: ${DESTINATION}"
 
+SOURCE_COMMIT="${SPIRIT_BOX_SOURCE_COMMIT:-}"
+if [[ -z "${SOURCE_COMMIT}" ]]; then
+  SOURCE_COMMIT="$(git -C "${ROOT}" rev-parse HEAD 2>/dev/null || echo UNKNOWN)"
+fi
+SOURCE_DIRTY="${SPIRIT_BOX_SOURCE_DIRTY:-}"
+if [[ -z "${SOURCE_DIRTY}" ]]; then
+  if [[ -n "$(git -C "${ROOT}" status --porcelain 2>/dev/null || true)" ]]; then
+    SOURCE_DIRTY=dirty
+  elif git -C "${ROOT}" rev-parse HEAD >/dev/null 2>&1; then
+    SOURCE_DIRTY=clean
+  else
+    SOURCE_DIRTY=UNKNOWN
+  fi
+fi
+echo "SPIRIT_BOX_SOURCE_COMMIT=${SOURCE_COMMIT}"
+echo "SPIRIT_BOX_SOURCE_DIRTY=${SOURCE_DIRTY}"
+
 xcodebuild test \
   -project "${PROJECT}" \
   -scheme "${SCHEME}" \
   -destination "${DESTINATION}" \
   -skipPackagePluginValidation \
   CODE_SIGNING_ALLOWED=NO \
-  CODE_SIGN_IDENTITY=-
+  CODE_SIGN_IDENTITY=- \
+  SPIRIT_BOX_SOURCE_COMMIT="${SOURCE_COMMIT}" \
+  SPIRIT_BOX_SOURCE_DIRTY="${SOURCE_DIRTY}"

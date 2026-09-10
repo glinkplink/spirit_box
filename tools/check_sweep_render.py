@@ -105,6 +105,11 @@ def check(directory, manifest_path=None):
     engine_diagnostics = json.loads((directory / 'engine-diagnostics.json').read_text())
     assert engine_diagnostics['available_assets'] == len(assets)
     assert engine_diagnostics['decoded_source_count'] >= len(assets)
+    renderer_settings = engine_diagnostics.get('renderer_settings')
+    if isinstance(renderer_settings, dict):
+        assert abs(float(renderer_settings['vocal_event_probability']) - float(engine_diagnostics['vocal_event_probability'])) < 1e-12
+        assert renderer_settings.get('preset_identifier')
+        assert 'source_commit' in engine_diagnostics
     last_asset, last_speaker, last_utterance = {}, {}, {}
     source_ids = set()
     for index, event in enumerate(events):

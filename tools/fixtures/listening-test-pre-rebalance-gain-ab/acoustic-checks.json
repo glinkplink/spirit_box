@@ -1,0 +1,25 @@
+{
+  "integrated_lufs": -18.46,
+  "true_peak_dbtp": -2.4,
+  "loudness_range_lu": 0.8,
+  "sample_peak_dbfs": -2.499835086148646,
+  "below_250hz_fraction": 0.005675012352276413,
+  "presence_1k_3k5_fraction": 0.6691504469331704,
+  "noise_envelope_p90_over_early_slot_min_median_db": 3.6774389709092263,
+  "noise_envelope_p90_p10_db": 3.6774389709092263,
+  "noise_envelope_p90_p10_db_definition": "compatibility alias for noise_envelope_p90_over_early_slot_min_median_db; 20*log10(p90(2ms RMS in noise-only slots) / median(min of first ~10ms of each noise-only slot)); not a p90/p10 ratio",
+  "vocal_slot_minus_noise_slot_db": 3.3041146745347634,
+  "vocal_slot_minus_noise_slot_db_definition": "20*log10(median RMS of WAV-aligned vocal dwells / median RMS of WAV-aligned noise-only dwells); slot windows, not a listening score",
+  "aligned_slot_events": 200,
+  "dwell_lag_correlation": 0.004706766177117352,
+  "half_dwell_lag_correlation": 0.009222191841254633,
+  "human_listening": "NOT_RUN",
+  "checks": {
+    "loudness": true,
+    "true_peak": true,
+    "low_energy": true,
+    "presence": true,
+    "continuous_bed": true
+  },
+  "technical_checks": "PASS"
+}

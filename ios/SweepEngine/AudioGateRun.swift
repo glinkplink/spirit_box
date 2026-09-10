@@ -470,9 +470,14 @@ public enum AudioGateRunBundleWriter {
     public static func writeSummaries(
         _ summary: AudioGateRunSummary,
         location: AudioGateRunLocation,
+        provenance: [String: Any]? = nil,
         fileManager: FileManager = .default
     ) throws {
-        let json = try summary.jsonData()
+        var object = summary.jsonObject()
+        if let provenance {
+            object["provenance"] = provenance
+        }
+        let json = try JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys])
         var errors: [String] = []
         do {
             try writeNewFile(json, to: location.summaryJSONURL, fileManager: fileManager)

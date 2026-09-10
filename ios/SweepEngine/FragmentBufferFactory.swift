@@ -1,12 +1,24 @@
 import AVFoundation
 import Foundation
 
+/// Named identity for a version-controlled renderer preset.
+public struct NamedRendererPreset: Equatable, Sendable {
+    public var identifier: String
+    public var version: String
+
+    public init(identifier: String, version: String) {
+        self.identifier = identifier
+        self.version = version
+    }
+}
+
 /// Internal renderer tuning. Shared by live playback, the harness, and offline mix.
 /// These are listening-test parameters, not customer-facing product constants.
 public struct SweepRendererSettings: Equatable, Sendable {
-    /// Fraction of sweep slots that expose a vocal fragment. Start ~0.33.
+    /// Fraction of sweep slots that expose a vocal fragment. Scheduler target, not measured density.
     public var vocalEventProbability: Double
     /// 0 = independent Bernoulli slots; 1 = sticky gaps and short clusters.
+    /// Zero adds no extra cluster bias; adjacent vocals can still occur up to the two-slot cap.
     public var clusteriness: Double
     public var staticGain: Float
     public var vocalGain: Float
@@ -23,20 +35,90 @@ public struct SweepRendererSettings: Equatable, Sendable {
     public var vocalPeakLimit: Float
     public var scheduleAheadSeconds: Double
 
+    /// Shared live/offline default. Experimental candidate, not a proven listening improvement.
+    public static let listeningTestIdentity = NamedRendererPreset(
+        identifier: "listening-test",
+        version: "2026-09-10.owner-review-mix-v2"
+    )
+
+    /// Frozen A0 snapshot for fixture renders. Every field is set explicitly
+    /// so this baseline cannot inherit later initializer defaults.
+    public static let listeningTestPreRebalanceIdentity = NamedRendererPreset(
+        identifier: "listening-test-pre-rebalance",
+        version: "2026-09-10.sparse-exposure-v1"
+    )
+
+    /// Frozen PR #31 values for controlled A/B renders only. Not the live default.
+    public static let archivedContinuousStaticIdentity = NamedRendererPreset(
+        identifier: "archived-continuous-static",
+        version: "2026-09-10.pr31"
+    )
+
+    public static func preset(identifier: String) -> SweepRendererSettings? {
+        switch identifier {
+        case listeningTestIdentity.identifier, "default", "candidate":
+            return .listeningTest
+        case listeningTestPreRebalanceIdentity.identifier, "pre-rebalance":
+            return .listeningTestPreRebalance
+        case archivedContinuousStaticIdentity.identifier, "baseline", "archived":
+            return .archivedContinuousStatic
+        default:
+            return nil
+        }
+    }
+
     /// Default preset for the next 200/300 ms listening tests.
-    public static let listeningTest = SweepRendererSettings()
+    public static let listeningTest = SweepRendererSettings(
+        staticGain: 0.0515, vocalGain: 0.90, outputGain: 4.2
+    )
+
+    /// Frozen A0 listening-test values. Do not omit fields; this is the fixture baseline.
+    public static let listeningTestPreRebalance = SweepRendererSettings(
+        vocalEventProbability: 0.07,
+        clusteriness: 0.0,
+        staticGain: 0.10,
+        vocalGain: 0.48,
+        outputGain: 3.5,
+        minVocalExposureSeconds: 0.100,
+        maxVocalExposureSeconds: 0.180,
+        minExposureFractionOfDwell: 0.40,
+        maxExposureFractionOfDwell: 0.65,
+        fadeSeconds: 0.015,
+        recentExclusionWindow: 8,
+        highPassHz: 500.0,
+        lowPassHz: 3_600.0,
+        gainVariation: 0.08,
+        vocalPeakLimit: 0.65,
+        scheduleAheadSeconds: 0.040
+    )
+
+    /// PR #31 continuous-static / 8% density defaults, kept only so baseline clips
+    /// can be rendered from this revision without checking out history.
+    public static let archivedContinuousStatic = SweepRendererSettings(
+        vocalEventProbability: 0.08,
+        clusteriness: 0.0,
+        staticGain: 0.10,
+        vocalGain: 0.48,
+        outputGain: 3.5,
+        minVocalExposureSeconds: 0.080,
+        maxVocalExposureSeconds: 0.220,
+        minExposureFractionOfDwell: 0.50,
+        maxExposureFractionOfDwell: 0.80,
+        fadeSeconds: 0.012,
+        recentExclusionWindow: 8
+    )
 
     public init(
-        vocalEventProbability: Double = 0.08,
+        vocalEventProbability: Double = 0.07,
         clusteriness: Double = 0.0,
         staticGain: Float = 0.10,
         vocalGain: Float = 0.48,
         outputGain: Float = 3.5,
-        minVocalExposureSeconds: Double = 0.080,
-        maxVocalExposureSeconds: Double = 0.220,
-        minExposureFractionOfDwell: Double = 0.50,
-        maxExposureFractionOfDwell: Double = 0.80,
-        fadeSeconds: Double = 0.012,
+        minVocalExposureSeconds: Double = 0.100,
+        maxVocalExposureSeconds: Double = 0.180,
+        minExposureFractionOfDwell: Double = 0.40,
+        maxExposureFractionOfDwell: Double = 0.65,
+        fadeSeconds: Double = 0.015,
         recentExclusionWindow: Int = 8,
         highPassHz: Double = 500.0,
         lowPassHz: Double = 3_600.0,
@@ -85,6 +167,104 @@ public struct SweepRendererSettings: Equatable, Sendable {
             vocalPeakLimit: vocalPeakLimit,
             scheduleAheadSeconds: scheduleAheadSeconds
         )
+    }
+
+    /// Identity of the named preset these values match, or `custom` / UNKNOWN.
+    public var namedPreset: NamedRendererPreset {
+        if self == .listeningTest { return Self.listeningTestIdentity }
+        if self == .listeningTestPreRebalance { return Self.listeningTestPreRebalanceIdentity }
+        if self == .archivedContinuousStatic { return Self.archivedContinuousStaticIdentity }
+        return NamedRendererPreset(identifier: "custom", version: CaptureProvenance.unknown)
+    }
+
+    public var matchesSharedListeningPreset: Bool { self == .listeningTest }
+
+    public func exposureFrameRange(
+        sampleRate: Double,
+        sweepRate: SweepRate,
+        availableFrames: Int = Int.max / 4
+    ) -> (min: Int, max: Int) {
+        let lo = FragmentBufferFactory.exposureFrameCount(
+            sampleRate: sampleRate, sweepRate: sweepRate, availableFrames: availableFrames,
+            durationJitterFraction: 0, settings: self
+        )
+        let hi = FragmentBufferFactory.exposureFrameCount(
+            sampleRate: sampleRate, sweepRate: sweepRate, availableFrames: availableFrames,
+            durationJitterFraction: 1, settings: self
+        )
+        return (min(lo, hi), max(lo, hi))
+    }
+
+    /// Effective settings as applied to the engine. Not a UI copy.
+    public func jsonObject() -> [String: Any] {
+        let preset = namedPreset
+        return [
+            "preset_identifier": preset.identifier,
+            "preset_version": preset.version,
+            "matches_named_preset": preset.identifier != "custom",
+            "vocal_event_probability": vocalEventProbability,
+            "clusteriness": clusteriness,
+            "static_gain": Double(staticGain),
+            "vocal_gain": Double(vocalGain),
+            "output_gain": Double(outputGain),
+            "min_vocal_exposure_seconds": minVocalExposureSeconds,
+            "max_vocal_exposure_seconds": maxVocalExposureSeconds,
+            "min_exposure_fraction_of_dwell": minExposureFractionOfDwell,
+            "max_exposure_fraction_of_dwell": maxExposureFractionOfDwell,
+            "fade_seconds": fadeSeconds,
+            "recent_exclusion_window": recentExclusionWindow,
+            "high_pass_hz": highPassHz,
+            "low_pass_hz": lowPassHz,
+            "gain_variation": Double(gainVariation),
+            "vocal_peak_limit": Double(vocalPeakLimit),
+            "schedule_ahead_seconds": scheduleAheadSeconds,
+            "noise_bed": Self.configuredNoiseBedDescription,
+            "limiter_sample_ceiling": Double(SweepMasterLimiter.sampleCeiling),
+            "limiter_sample_ceiling_dbfs": -2.5,
+            "limiter_does_not_prove_true_peak": true,
+        ]
+    }
+
+    public static let configuredNoiseBedDescription =
+        "continuous additive static; slot envelope is unity (no per-slot ducking)"
+
+    public var noiseBedDescription: String { Self.configuredNoiseBedDescription }
+
+    /// Read-only harness diagnostics derived from these applied settings.
+    public func harnessDiagnosticLines(
+        sweepRate: SweepRate,
+        sampleRate: Double,
+        buildLines: [String]
+    ) -> [String] {
+        let preset = namedPreset
+        let range = exposureFrameRange(sampleRate: sampleRate, sweepRate: sweepRate)
+        let loMs = Double(range.min) / sampleRate * 1000.0
+        let hiMs = Double(range.max) / sampleRate * 1000.0
+        let exposure: String
+        if range.min == range.max {
+            exposure = String(format: "%.2f ms (%d frames)", loMs, range.min)
+        } else {
+            exposure = String(
+                format: "%.2f–%.2f ms (%d–%d frames)",
+                loMs, hiMs, range.min, range.max
+            )
+        }
+        var lines = [
+            "Preset: \(preset.identifier) \(preset.version)",
+            String(
+                format: "Configured vocal-event probability: %.1f%% of slots (scheduler target, not measured density)",
+                vocalEventProbability * 100
+            ),
+            "Clusteriness: \(clusteriness) (0 = no extra cluster bias; two-vocal-run cap still applies)",
+            "Effective exposure at \(sweepRate.milliseconds) ms, \(Int(sampleRate)) Hz, long source: \(exposure). Short sources can crop shorter. Not a universal 100–180 ms range.",
+            "Noise bed: \(noiseBedDescription)",
+            String(
+                format: "Sample limiter ceiling: %.6f (−2.5 dBFS sample peak). Does not prove a true-peak ceiling or absence of underruns.",
+                SweepMasterLimiter.sampleCeiling
+            ),
+        ]
+        lines.append(contentsOf: buildLines)
+        return lines
     }
 }
 
@@ -316,12 +496,25 @@ enum FragmentBufferFactory {
         guard let channels = buffer.floatChannelData else { return }
         let mix = min(1, max(0, variation))
         let gain = 1 + (Float(mix) * 2 - 1) * settings.gainVariation
+        // Frozen A0 PCM must stay bit-identical to the committed fixture.
+        let freezeA0VocalShape = settings == .listeningTestPreRebalance
         for channel in 0..<Int(buffer.format.channelCount) {
             var shape = RadioSpeakerShape(sampleRate: buffer.format.sampleRate, settings: settings)
+            // Extra vocal-only 300 Hz high-pass. RadioSpeakerShape stays
+            // 12 dB/oct at highPassHz for the shared noise bed.
+            var vocalHighPass = SweepBiquad(
+                hz: 300,
+                sampleRate: buffer.format.sampleRate,
+                highPass: true
+            )
             var peak: Float = 0
             let samples = channels[channel]
             for index in 0..<Int(buffer.frameLength) {
-                samples[index] = shape.process(samples[index]) * gain
+                var shaped = shape.process(samples[index])
+                if !freezeA0VocalShape {
+                    shaped = Float(vocalHighPass.process(Double(shaped)))
+                }
+                samples[index] = shaped * gain
                 peak = max(peak, abs(samples[index]))
             }
             // Whole-window attenuation prevents clipping without nonlinear distortion.

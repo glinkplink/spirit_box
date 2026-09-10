@@ -2,7 +2,7 @@ import AVFoundation
 import Foundation
 
 /// Direct-form II biquad. State belongs to one stream, never to the audio graph.
-private struct SweepBiquad {
+struct SweepBiquad {
     var b0: Double, b1: Double, b2: Double, a1: Double, a2: Double
     private var z1 = 0.0, z2 = 0.0
 

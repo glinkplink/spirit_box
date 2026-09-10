@@ -15,9 +15,16 @@ covered by the pre-device PCM identity claim. An underrun is explicitly reported
 as an output gap, never described as uninterrupted static.
 
 Defaults: static 0.10, voice 0.48, master 3.5, clusteriness 0.0. Vocal runs stop
-at two slots, including custom density 1. Exposure is at most 85 ms by default
-(90 ms hard limit), with a 75 ms hard limit at the 300 ms detent. Shortening a
-window cannot guarantee that no listener will recognize a word.
+at two slots, including custom density 1. Current shared listening-test exposure
+is 100–180 ms absolute and 40–65% of dwell, never longer than the dwell; a 75 ms
+rate remains 63.75 ms. Those values are experimental (see
+`docs/research/SPIRIT-BOX-AUDIO-RUN-COMPARISON.md`). Shortening a window cannot
+guarantee that no listener will recognize a word.
+
+The 10 ms commutation duck described below is historical for the first clocked-DSP
+pass. Continuous-static remediation sets `slotEnvelope` to 1.0 so the noise bed is
+not periodically gated. Do not treat the following envelope paragraph as the
+current live default.
 
 Both layers use identical 500 Hz high-pass and 3600 Hz low-pass Butterworth
 biquads and a 2350 Hz, +3.5 dB, Q 1.75 presence filter. Noise filter state persists
@@ -108,4 +115,3 @@ In TestFlight Build 4 (commit `4eb5a164`), listening review identified two sever
 3. **Natural human vocal glimpses**: Scaled exposure window to 80–220 ms (50–80% of dwell duration; 150–220 ms at 300 ms rate, 100–160 ms at 200 ms rate) with smooth raised-cosine (Hanning) windowing to eliminate truncation clicks.
 4. **Natural reverse sweep scan**: Traverses source assets in reverse corpus sequence while playing forward speech snippets.
 5. **Acoustic validation**: `tools/check_sweep_acoustics.py` updated to verify `continuous_bed` (envelope spread < 12.0 dB) alongside loudness (-18.6 LUFS) and peak headroom (-7.5 dBTP).
-

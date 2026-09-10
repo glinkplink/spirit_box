@@ -334,6 +334,8 @@ jobs:
                   "CODE_SIGNING_ALLOWED=NO",
                   "CODE_SIGNING_REQUIRED=NO",
                   "CURRENT_PROJECT_VERSION={}".format(os.environ["GITHUB_RUN_NUMBER"]),
+                  "SPIRIT_BOX_SOURCE_COMMIT={}".format(os.environ["SOURCE_SHA"]),
+                  "SPIRIT_BOX_SOURCE_DIRTY=clean",
               ],
               capture_output=True,
               text=True,
@@ -394,6 +396,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
+            SPIRIT_BOX_SOURCE_COMMIT="${SOURCE_SHA}" \
+            SPIRIT_BOX_SOURCE_DIRTY=clean \
             archive
           if [[ ! -d "${ARCHIVE_PATH}" ]]; then
             echo "::error::xcodebuild archive reported success but ${ARCHIVE_PATH} was not created."
@@ -453,6 +457,7 @@ jobs:
             fi
           fi
           python3 - <<'PY' "${app_path}/Info.plist"
+          import os
           import plistlib
           import sys
 
@@ -477,13 +482,24 @@ jobs:
               actual = plist_bool(plist.get(key))
               if actual is not True:
                   missing.append(f"{key}={plist.get(key)!r} (expected true)")
+          expected_sha = (os.environ.get("SOURCE_SHA") or "").strip().lower()
+          actual_sha = str(plist.get("SpiritBoxSourceCommit") or "").strip().lower()
+          if expected_sha and actual_sha != expected_sha:
+              missing.append(
+                  f"SpiritBoxSourceCommit={plist.get('SpiritBoxSourceCommit')!r} (expected {expected_sha})"
+              )
+          dirty = str(plist.get("SpiritBoxSourceDirty") or "")
+          if dirty != "clean":
+              missing.append(f"SpiritBoxSourceDirty={plist.get('SpiritBoxSourceDirty')!r} (expected clean)")
           if missing:
-              print("::error::Archived SpiritBoxAudioHarness Info.plist is missing required Files-app keys:")
+              print("::error::Archived SpiritBoxAudioHarness Info.plist is missing required Files-app keys or source revision:")
               for item in missing:
                   print(f"::error::  {item}")
               print("::error::Info.plist keys present:", ", ".join(sorted(plist.keys())))
               raise SystemExit(1)
           print("Archived app Info.plist file-sharing keys verified.")
+          print(f"Archived app SpiritBoxSourceCommit={actual_sha}")
+          print(f"Archived app SpiritBoxSourceDirty={dirty}")
           PY
 
       - name: Export and upload to App Store Connect

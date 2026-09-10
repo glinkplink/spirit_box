@@ -50,8 +50,8 @@ final class FragmentBufferFactoryTests: XCTestCase {
         buffer.frameLength = frames
         let asset = SourceAsset(assetID: "RATES", durationMs: 1000, relativePath: "rates.wav")
 
-        let shortest: [SweepRate: Int] = [.ms75: 3_060, .ms125: 3_840, .ms200: 4_800, .ms300: 7_200]
-        let longest: [SweepRate: Int] = [.ms75: 3_060, .ms125: 4_800, .ms200: 7_680, .ms300: 10_560]
+        let shortest: [SweepRate: Int] = [.ms75: 3_060, .ms125: 4_800, .ms200: 4_800, .ms300: 5_760]
+        let longest: [SweepRate: Int] = [.ms75: 3_060, .ms125: 4_800, .ms200: 6_240, .ms300: 8_640]
         for rate in SweepRate.allCases {
             let dwell = rate.milliseconds * 48
             let minCrop = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: rate, startJitterFraction: 0, durationJitterFraction: 0)
@@ -82,7 +82,7 @@ final class FragmentBufferFactoryTests: XCTestCase {
         )
 
         let cropped = FragmentBufferFactory.crop(buffer, asset: asset, sweepRate: .ms300, startJitterFraction: 0)
-        XCTAssertEqual(Int(cropped.frameLength), 7_200)
+        XCTAssertEqual(Int(cropped.frameLength), 5_760)
     }
     func testFinalVocalSlotsAreDwellSizedFiniteFadedAndBounded() throws {
         let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
@@ -121,6 +121,9 @@ final class FragmentBufferFactoryTests: XCTestCase {
         let mid = try energy(hz: 1000)
         XCTAssertLessThan(try energy(hz: 0), mid * 0.01)
         XCTAssertLessThan(try energy(hz: 18000), mid * 0.2)
+        // Vocal path adds a 300 Hz high-pass after RadioSpeakerShape.
+        // A single 500 Hz stage leaves ~6% relative energy at 250 Hz.
+        XCTAssertLessThan(try energy(hz: 250), mid * 0.03)
     }
 
     func testLiveRateAndDirectionChangesKeepTheSameEngineRunning() throws {
@@ -169,6 +172,41 @@ final class FragmentBufferFactoryTests: XCTestCase {
         XCTAssertFalse(engine.isRunning)
     }
 
+    func testSharedPresetDoesNotForce100msIntoA75msDwell() {
+        let frames = FragmentBufferFactory.exposureFrameCount(
+            sampleRate: 48_000, sweepRate: .ms75, availableFrames: 48_000,
+            durationJitterFraction: 1, settings: .listeningTest
+        )
+        XCTAssertEqual(frames, 3_060)
+        XCTAssertEqual(Double(frames) / 48_000, 0.06375, accuracy: 0.000_000_1)
+        XCTAssertLessThan(frames, 4_800, "Must not force the 100 ms floor into a 75 ms dwell")
+    }
+
+    func testShortSourceCanShortenCropsBelowConfiguredFloor() {
+        let short = FragmentBufferFactory.exposureFrameCount(
+            sampleRate: 48_000, sweepRate: .ms300, availableFrames: 2_400,
+            durationJitterFraction: 1, settings: .listeningTest
+        )
+        XCTAssertEqual(short, 2_400)
+        XCTAssertLessThan(short, 5_760)
+    }
+
+    func testRateSpecificExposureBoundsMatchTheSharedPreset() {
+        let expected: [SweepRate: (Int, Int)] = [
+            .ms75: (3_060, 3_060),
+            .ms125: (4_800, 4_800),
+            .ms200: (4_800, 6_240),
+            .ms300: (5_760, 8_640),
+        ]
+        for rate in SweepRate.allCases {
+            let range = SweepRendererSettings.listeningTest.exposureFrameRange(
+                sampleRate: 48_000, sweepRate: rate, availableFrames: 48_000
+            )
+            XCTAssertEqual(range.min, expected[rate]?.0, "min \(rate.milliseconds) ms")
+            XCTAssertEqual(range.max, expected[rate]?.1, "max \(rate.milliseconds) ms")
+        }
+    }
+
     func testCustomSettingsCannotExposeWholeDwell() {
         let settings = SweepRendererSettings(minVocalExposureSeconds: 1,
                                             maxVocalExposureSeconds: 2,
@@ -179,6 +217,30 @@ final class FragmentBufferFactoryTests: XCTestCase {
                 sweepRate: rate, availableFrames: 48000, durationJitterFraction: 1, settings: settings)
             XCTAssertLessThanOrEqual(frames, rate == .ms300 ? 11520 : Int((Double(rate.milliseconds * 48) * 0.85).rounded(.down)))
         }
+    }
+
+    func testProceduralNoiseIsDeterministicAfterReset() {
+        let a = ProceduralNoiseState()
+        let b = ProceduralNoiseState()
+        a.reset(seed: 12648430, settings: .listeningTest)
+        b.reset(seed: 12648430, settings: .listeningTest)
+        var samplesA: [Float] = []
+        var samplesB: [Float] = []
+        for _ in 0..<48_000 {
+            samplesA.append(a.nextSample())
+            samplesB.append(b.nextSample())
+        }
+        XCTAssertEqual(samplesA, samplesB)
+    }
+
+    func testArchivedPresetKeepsRadioSpeakerBedPath() {
+        let state = ProceduralNoiseState()
+        state.reset(seed: 12648430, settings: .archivedContinuousStatic)
+        var peak: Float = 0
+        for _ in 0..<48_000 {
+            peak = max(peak, abs(state.nextSample()))
+        }
+        XCTAssertGreaterThan(peak, 0)
     }
 
     func testNoiseOnlySlotsAreClockedAndSeededAcrossRateChanges() throws {

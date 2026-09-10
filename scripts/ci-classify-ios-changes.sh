@@ -12,6 +12,17 @@ if [[ -z "${HEAD_SHA}" ]]; then
   exit 1
 fi
 
+if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+  echo "=== Classification ==="
+  echo "workflow_dispatch always requests actual-engine validation."
+  echo "ios_relevant=true"
+  echo "A skipped iOS-relevance job is not audio validation; this path does not skip."
+  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    echo "ios_relevant=true" >> "${GITHUB_OUTPUT}"
+  fi
+  exit 0
+fi
+
 resolve_changed_files() {
   if [[ "${EVENT_NAME}" == "pull_request" ]]; then
     if [[ -z "${BASE_SHA}" ]]; then
@@ -43,7 +54,7 @@ is_ios_relevant_path() {
   case "${file}" in
     ios/*) return 0 ;;
     scripts/ci-ios-test.sh) return 0 ;;
-    scripts/render-sweep.sh|tools/render_sweep/*|tools/check_sweep_render.py) return 0 ;;
+    scripts/render-sweep.sh|scripts/render-short-listening.sh|scripts/render-evaluation-matrix.sh|scripts/bootstrap-listening-fixtures.sh|scripts/capture-listening-fixture.sh|scripts/capture-archived-pcm-fixture.sh|tools/render_sweep/*|tools/check_sweep_render.py|tools/check_sweep_acoustics.py|tools/verify_archived_pcm_regression.py|tools/verify_mix_candidate.py|tools/fixtures/*) return 0 ;;
     assets/audio/*) return 0 ;;
     .github/workflows/ios-audio-harness.yml) return 0 ;;
   esac
