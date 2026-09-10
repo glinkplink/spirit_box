@@ -1,0 +1,29 @@
+{
+  "trackName": "Mileage IQ",
+  "trackId": 6744014373,
+  "sellerName": "AAB Creative Studio LLC",
+  "artistName": "AAB Creative Studio",
+  "artistId": 1787238106,
+  "averageUserRating": 4.28495,
+  "userRatingCount": 186,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2025-04-10T07:00:00Z",
+  "currentVersionReleaseDate": "2026-08-18T15:20:28Z",
+  "version": "2.2.13",
+  "primaryGenreName": "Travel",
+  "genres": [
+    "Travel",
+    "Navigation"
+  ],
+  "sellerUrl": "https://aabcreativestudio.com/app-ads.txt",
+  "trackViewUrl": "https://apps.apple.com/us/app/mileage-iq/id6744014373?uo=4",
+  "trackCensoredName": "Mileage IQ",
+  "description": "Tired of tracking miles the hard way? Don\u2019t worry, we\u2019ve got you covered ! \nTrack your mileage easily, save money, and stay organized.\n\nMain Features :\n\u2022  Report the total of your trips by day, week, and month.\n\u2022  Detect driving and automatically track mileage.\n\u2022  Automatically log expenses.\n\u2022  Maximize your tax deductions.\n\u2022  Categorize and tag for different purposes (e.g., business, personal).\n\u2022  Review and edit your logs.\n\u2022  Save frequently visited addresses.\n\u2022  No data selling.\n\nYou can choose a weekly subscription or yearly subscription.\n\n\u2013 Payment will be charged to iTunes Account at confirmation of purchase (After free trial period if offered).\n\u2013 Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period.\n\u2013 Account will be charged for renewal within 24-hours prior to the end of the current period, and identify the cost of the renewal.\n\u2013 Subscriptions may be managed by the user and auto-renewal may be turned off by going to the user\u2019s Account Settings after purchase.\n\u2013 Any unused portion of a free trial period, if offered, will be forfeited when the user purchases a subscription to that publication, where applicable.\n\nPrivacy Policy:\nhttps://sites.google.com/soosky.co/mileage-tracker-privacy-policy/\nTerms of Use:\nhttps://sites.google.com/soosky.co/mileage-tracker-terms-of-use/",
+  "releaseNotes": "- Auto-Tracking Upgrade: Smoother, more accurate drive detection with significantly reduced battery drain.\n- Bug Fixes: Resolved sudden trip drops and boosted cloud sync speeds for total reliability.",
+  "languageCodesISO2A": [
+    "EN"
+  ],
+  "fileSizeBytes": "51568640",
+  "bundleId": "com.mileage.tracker.app.free"
+}

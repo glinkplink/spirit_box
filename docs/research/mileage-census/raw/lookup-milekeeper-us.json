@@ -1,0 +1,29 @@
+{
+  "trackName": "MileKeeper: Mileage Tracker AI",
+  "trackId": 6737186612,
+  "sellerName": "TAX TECHNOLOGIES GROUP INC",
+  "artistName": "TAX TECHNOLOGIES GROUP INC",
+  "artistId": 1775135342,
+  "averageUserRating": 4.89109,
+  "userRatingCount": 404,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2024-12-23T08:00:00Z",
+  "currentVersionReleaseDate": "2026-02-24T11:12:56Z",
+  "version": "1.0.22",
+  "primaryGenreName": "Finance",
+  "genres": [
+    "Finance",
+    "Business"
+  ],
+  "sellerUrl": "https://milekeeper.ai",
+  "trackViewUrl": "https://apps.apple.com/us/app/milekeeper-mileage-tracker-ai/id6737186612?uo=4",
+  "trackCensoredName": "MileKeeper: Mileage Tracker AI",
+  "description": "Save Time and Money with MileKeeper \u2014 Your Smart AI Mileage Tracker.\nTry it now and simplify your life!\n\nMileKeeper operates seamlessly in the background, automatically tracking every mile you drive. Say goodbye to manual logs and paperwork\u2014MileKeeper eliminates the hassle of mileage tracking, making it simple and reliable for small business owners, freelancers, and self-employed professionals.\n\nDesigned for accuracy, convenience, and efficiency, MileKeeper lets you focus on your work while it handles the details. Just set your work hours, and the app will automatically classify trips as business or personal\u2014no extra actions required.\n\nWhy Choose MileKeeper?\n- Smart Mileage Tracker \u2013 Automatically records and classifies every trip, so you don\u2019t have to.\n- IRS-Compliant Reports \u2013 Generate detailed logs that maximize your tax deductions.\n- Effortless Trip Categorization \u2013 Set your work hours, and the app does the rest.\n- User-Friendly Interface \u2013 Intuitive, easy-to-use design tailored for busy professionals.\n- Start for Free \u2013 Track up to 40 trips per month at no cost, then upgrade anytime for unlimited tracking.\n- Battery-Efficient \u2013 Uses smart tracking algorithms to extend your phone\u2019s battery life.\n\nKey Features of MileKeeper \u2013 Your Mileage Tracker App:\n- Automatic Mileage Tracking \u2013 Captures every mile with precision and accuracy.\n- Customizable Work Hours \u2013 Set your schedule, and the app sorts your drives automatically.\n- Tax-Ready Reports \u2013 Export driving logs for tax ded",
+  "releaseNotes": "We\u2019ve made MileKeeper faster and more reliable \u2014 everything you need to wrap up tax season with confidence and stay compliant in 2026",
+  "languageCodesISO2A": [
+    "EN"
+  ],
+  "fileSizeBytes": "29672448",
+  "bundleId": "com.taxtechnologiesgroup.milekeeper"
+}

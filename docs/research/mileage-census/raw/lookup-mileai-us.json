@@ -1,0 +1,29 @@
+{
+  "trackName": "Mile AI: business mileage log",
+  "trackId": 6502352467,
+  "sellerName": "Dmitrii Kvashnin",
+  "artistName": "Dmitrii Kvashnin",
+  "artistId": 1745133051,
+  "averageUserRating": 4.67169,
+  "userRatingCount": 332,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2024-07-19T07:00:00Z",
+  "currentVersionReleaseDate": "2026-08-18T09:27:57Z",
+  "version": "1.4.5",
+  "primaryGenreName": "Business",
+  "genres": [
+    "Business",
+    "Finance"
+  ],
+  "sellerUrl": "https://www.mile-ai.com",
+  "trackViewUrl": "https://apps.apple.com/us/app/mile-ai-business-mileage-log/id6502352467?uo=4",
+  "trackCensoredName": "Mile AI: business mileage log",
+  "description": "Simplify your mileage and expense tracking with Mile AI, the app designed to make your life easier and your tax savings bigger. On average, users save about $4000 per year on their taxes. Here's how Mile AI can help you achieve that:\n\nWhy You'll Like Mile AI:\n\n1. Automatic Mileage Tracking: You don't have to manually log your miles anymore. Just start the app, and it automatically tracks every mile you drive\n2. IRS Compliance: The app generates IRS-compliant reports, which means you can easily use them for your taxes and maximize your deductions\n3. Ease of Use: The interface is super user-friendly. You can classify your trips and generate reports with just a few taps\n4. Extra Features: It has cool features like reminders, auto-classification, and excellent support to help you get the most out of the app.\n\nHow to Use Mile AI:\n\n1. Download the App: It's available for free on your app store\n2. Start Tracking: Open the app and let it run in the background. It will automatically log your trips in real-time\n3. Classify Your Trips: After the trip, you can classify it in one tap as Business, Personal, Medical or Charity for a compliant driving log\n4. Review and edit: Review your trips at a glance and easily edit details\n5. Generate Reports: When it's tax time, you can generate detailed, IRS-ready reports with just a few taps\n6. Get Help: Our efficient and effective Support team is ready to assist you at any time at support@mile-ai.com\n\nWhy You Should Try It:\n\n- Save Money: On average",
+  "releaseNotes": "Small fixes and improvements",
+  "languageCodesISO2A": [
+    "EN"
+  ],
+  "fileSizeBytes": "23351296",
+  "bundleId": "com.kvashnin.mile"
+}

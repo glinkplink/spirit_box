@@ -1,0 +1,92 @@
+[
+  {
+    "id": "14402154603",
+    "title": "Great app!",
+    "content": "A great app to be honest, but i can\u2019t dind the available features in the paid version",
+    "rating": 5,
+    "author": "Khalil ouerfelli",
+    "updated": "2026-08-08T02:23:27-07:00",
+    "version": "6.7.1",
+    "cc": "us"
+  },
+  {
+    "id": "14326155527",
+    "title": "Privacy is key",
+    "content": "Great app. My favorite part is I own the data. It\u2019s not being shipped off to some external server. I control its release.",
+    "rating": 5,
+    "author": "pilotinprogress",
+    "updated": "2026-07-20T05:34:51-07:00",
+    "version": "6.7",
+    "cc": "us"
+  },
+  {
+    "id": "14143649800",
+    "title": "Sleek app",
+    "content": "This app looks amazing and is feature packed at a great price. I have been testing it against mileIQ and Everlance as I have recently started a new job with a lot more business mileage and needed an app to help me track those work related miles. Magica is a much better price but could improve a little bit in the ease of classification of trips to be more like Everlance and MileIQ\u2019s swipe to classify feature. I emailed the app creator and gave him my thoughts. He was amazingly responsive, asked some questions to better understand my feedback and immediately went about trying to develop some improvements based on some of that feedback. I\u2019ll continue to use Magica and hope to see the improvements in convenient trip classification soon! Thanks Dimitri for making this app and trying to meet the needs of your customers!",
+    "rating": 5,
+    "author": "smash ngrab",
+    "updated": "2026-06-04T10:02:07-07:00",
+    "version": "6.5",
+    "cc": "us"
+  },
+  {
+    "id": "13903371190",
+    "title": "Perfect for EV\u2019s",
+    "content": "This is the only mileage tracker that works with EVs. The refill/recharge supports EV charging so you can track easily when you need to recharge again. The reporting is very clear, supports maintenance records and multiple vehicles.",
+    "rating": 5,
+    "author": "JiiiimT",
+    "updated": "2026-03-30T06:15:05-07:00",
+    "version": "6.3",
+    "cc": "us"
+  },
+  {
+    "id": "13675914571",
+    "title": "Constant GPS use",
+    "content": "Always-on GPS. I have automated tracking on when I connect to Bluetooth, so the app should not be tracking my movement when it\u2019s not connected to my car. It\u2019s almost always reporting my location\u2014privacy issues aside, this is a massive drain on the battery. There is no reason it should be requesting my location, yet it is. I purchased this app because it seemed well-suited for my purposes but I cannot recommend this app.",
+    "rating": 2,
+    "author": "Army2949",
+    "updated": "2026-01-25T16:01:12-07:00",
+    "version": "6.2.1",
+    "cc": "us"
+  },
+  {
+    "id": "12468200460",
+    "title": "Used to be great",
+    "content": "Ugh.  I used this app solely for my side business to track trips using manual mode in car play. After the latest update, it is forcing me to turn location tracking always on. So now I need to nope right out of the app and find a new one.",
+    "rating": 1,
+    "author": "DallasAppGuy",
+    "updated": "2025-03-26T15:02:10-07:00",
+    "version": "5.4",
+    "cc": "us"
+  },
+  {
+    "id": "9455811113",
+    "title": "Faulty odometer reading",
+    "content": "Really slick app that integrates with CarPlay to get really detailed stats. Only issue I have is the odometer reading is off. For some reason the app keeps adding 14000 miles to my odometer after a refueling and I\u2019m not sure why.",
+    "rating": 3,
+    "author": "EdKensington",
+    "updated": "2022-12-31T09:42:52-07:00",
+    "version": "3.2.3",
+    "cc": "us"
+  },
+  {
+    "id": "9284354263",
+    "title": "Does almost everything",
+    "content": "I haven\u2019t found a mileage tracking app as well designed and as polished as this one. Huge thank you to the developer. There is one problem though, when using CarPlay, it seems to force an active trip no matter how many times I try to enable manual mode. Otherwise, it\u2019s fantastic. I like the LiveActivites integration and detailed trip screens, they are very nice touches",
+    "rating": 5,
+    "author": "zzzzz6969420",
+    "updated": "2022-11-12T22:43:53-07:00",
+    "version": "3.1.1",
+    "cc": "us"
+  },
+  {
+    "id": "9200329162",
+    "title": "Great and complete app",
+    "content": "I used many mileage tracker apps but this is the best one.\nYou can add the data manually or have it all done automatically.\nLots of statistics that can be downloaded in any format.",
+    "rating": 5,
+    "author": "gray-man56",
+    "updated": "2022-10-19T06:04:48-07:00",
+    "version": "3.0.2",
+    "cc": "us"
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "trackName": "Smart Mileage Tracker",
+  "trackId": 6746294900,
+  "sellerName": "Justin Czisny",
+  "artistName": "Justin Czisny",
+  "artistId": 1775296075,
+  "averageUserRating": 4.5,
+  "userRatingCount": 18,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2025-06-11T07:00:00Z",
+  "currentVersionReleaseDate": "2026-09-10T17:52:37Z",
+  "version": "2.8.0",
+  "primaryGenreName": "Finance",
+  "genres": [
+    "Finance",
+    "Business"
+  ],
+  "sellerUrl": null,
+  "trackViewUrl": "https://apps.apple.com/us/app/smart-mileage-tracker/id6746294900?uo=4",
+  "trackCensoredName": "Smart Mileage Tracker",
+  "description": "Every feature is free. There are no subscriptions, premium tiers, trip limits, or time limits.\n\nWhether you drive 5 miles or 50,000 miles per year, you get the complete experience\u2014because accurate mileage tracking should not require another monthly bill.\n\nMeet your ultimate mileage companion; automatically track every drive and maximize reimbursements or tax deductions with ease.\n\nNo account. No subscription. No in-app purchases. Just simple mileage tracking with privacy built in.\n\nAUTOMATIC TRIP TRACKING\nSmart GPS detection begins logging when you start driving and stops when your trip ends\u2014no need to press Start or Stop.\n\nCustomize automatic tracking to fit your needs:\n\nChoose the trigger speed for auto-start\nAdjust the stop delay\nSet a minimum distance to ignore very short trips\nFOLLOW YOUR TRIP WHILE YOU DRIVE\nA Live Activity on your Lock Screen and Dynamic Island displays your live distance and a running timer. You can confirm that your drive is being recorded without opening the app.\n\nQUICK CATEGORIZATION AND NOTES\nClassify trips with a simple swipe:\n\nSwipe left for Business\nSwipe right for Personal\nLong-press for Medical, Charity, or Other\nYou can also categorize a trip directly from the Trip Ended notification without unlocking your phone.\n\nAutomatically categorize drives based on your work hours, or save frequent destinations as Favorite Locations\u2014such as \u201cHome,\u201d \u201cOffice,\u201d or \u201cClient\u201d\u2014with their own assigned categories. Add notes or a business purpose to any trip.\n\nM",
+  "releaseNotes": "IRS mid-year bump: business miles are 76\u00a2 from July 1 (was 72.5\u00a2). \nMedical rates updated. Each trip grabs the rate for its date automatically.\nMissed Trip Recovery (optional, in Settings): if iOS killed the app mid-drive, the trip gets rebuilt from your recorded departure and arrival. \nFixed: after a background restart, trip detection could silently stop working until you reopened the app. No more. Short drives also caught more reliably now.\nYear-End Tax Package now includes an audit-defense section.\nShare a YTD deduction card from Reports.",
+  "languageCodesISO2A": [
+    "EN"
+  ],
+  "fileSizeBytes": "5179392",
+  "bundleId": "Justin.Simple-Mileage-Tracker"
+}

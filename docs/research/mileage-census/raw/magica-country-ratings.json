@@ -1,0 +1,202 @@
+[
+  {
+    "cc": "ae",
+    "name": "Mileage Tracker - Magica",
+    "rating": 0,
+    "count": 0,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "at",
+    "name": "Magica Fahrtenbuch & GPS",
+    "rating": 4,
+    "count": 2,
+    "price": "Gratis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "au",
+    "name": "Logbook & Mileage Tracker",
+    "rating": 4.8,
+    "count": 15,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "be",
+    "name": "Mileage Tracker - Magica",
+    "rating": 4,
+    "count": 4,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "br",
+    "name": "Mileage Tracker: Driver Log",
+    "rating": 5,
+    "count": 2,
+    "price": "Gr\u00e1tis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "ca",
+    "name": "Ride Hours Tracker - Magica",
+    "rating": 4.33333,
+    "count": 3,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "ch",
+    "name": "Magica Fahrtenbuch & GPS",
+    "rating": 0,
+    "count": 0,
+    "price": "Gratis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "cz",
+    "name": "Mileage Tracker - Magica",
+    "rating": 4.55556,
+    "count": 9,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "de",
+    "name": "Magica Fahrtenbuch & GPS",
+    "rating": 4.44444,
+    "count": 9,
+    "price": "Gratis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "dk",
+    "name": "Mileage Tracker - Magica",
+    "rating": 5,
+    "count": 1,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "es",
+    "name": "Magica - Registro Kilometraje",
+    "rating": 3.46667,
+    "count": 15,
+    "price": "Gratis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "fr",
+    "name": "Suivi du kilom\u00e9trage: Magica",
+    "rating": 3.72727,
+    "count": 11,
+    "price": "Gratuit",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "gb",
+    "name": "Mileage Tracker - Magica",
+    "rating": 2.66667,
+    "count": 3,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "ie",
+    "name": "Mileage Tracker - Magica",
+    "rating": 2,
+    "count": 1,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "in",
+    "name": "Mileage Tracker - Magica",
+    "rating": 0,
+    "count": 0,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "it",
+    "name": "Gestione auto - Magica",
+    "rating": 3.97159,
+    "count": 176,
+    "price": "Gratis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "jp",
+    "name": "Mileage Tracker - Magica Car",
+    "rating": 5,
+    "count": 1,
+    "price": "\u7121\u6599",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "mx",
+    "name": "Magica: Rastreador kilometraje",
+    "rating": 0,
+    "count": 0,
+    "price": "Gratis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "nl",
+    "name": "Mileage Tracker - Magica Car",
+    "rating": 4,
+    "count": 4,
+    "price": "Gratis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "no",
+    "name": "Mileage Tracker - Magica",
+    "rating": 0,
+    "count": 0,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "nz",
+    "name": "Logbook & Mileage Tracker",
+    "rating": 4,
+    "count": 1,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "pl",
+    "name": "Mileage Tracker - Magica",
+    "rating": 3.42857,
+    "count": 7,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "pt",
+    "name": "Mileage Tracker: Driver Log",
+    "rating": 5,
+    "count": 3,
+    "price": "Gratuito",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "se",
+    "name": "Mileage Tracker - Magica Car",
+    "rating": 2.66667,
+    "count": 3,
+    "price": "Gratis",
+    "primaryGenre": "Navigation"
+  },
+  {
+    "cc": "us",
+    "name": "Mileage Tracker - Magica Car",
+    "rating": 3.89474,
+    "count": 19,
+    "price": "Free",
+    "primaryGenre": "Navigation"
+  }
+]

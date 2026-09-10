@@ -1,0 +1,29 @@
+{
+  "trackName": "MileIQ: Mileage Tracker & Log",
+  "trackId": 578830929,
+  "sellerName": "MileIQ Inc.",
+  "artistName": "MileIQ Inc.",
+  "artistId": 578830932,
+  "averageUserRating": 4.76613,
+  "userRatingCount": 112637,
+  "formattedPrice": "Free",
+  "price": 0.0,
+  "releaseDate": "2013-01-15T08:00:00Z",
+  "currentVersionReleaseDate": "2026-08-25T07:56:05Z",
+  "version": "5.66.1",
+  "primaryGenreName": "Finance",
+  "genres": [
+    "Finance",
+    "Business"
+  ],
+  "sellerUrl": "https://www.mileiq.com",
+  "trackViewUrl": "https://apps.apple.com/us/app/mileiq-mileage-tracker-log/id578830929?uo=4",
+  "trackCensoredName": "MileIQ: Mileage Tracker & Log",
+  "description": "Track and Record Mileage Automatically and Maximize your Tax Reimbursement with MileIQ\n\nMileIQ is the #1 automatic mileage tracker app, trusted by millions of users to simplify productivity, tax preparation, expense tracking, and financial planning. Whether you're self-employed, a small business owner, or part of a team, MileIQ simplifies mileage tracking so you can focus on growing your business. Save time, maximize tax deductions and reimbursements, and generate IRS-compliant reports\u2014without the hassle of manual logs.\n\nSmart, Automatic Mileage Tracking\nStop wasting time on manual mileage logs. MileIQ\u2019s smart mile tracker uses GPS-powered tracking that runs in the background, automatically recording every business and personal drive to streamline your reimbursement. Add custom labels, notes, and purposes to keep your mileage records organized.\n\nMaximize Your Tax Deductions\nTurn miles into tax savings with MileIQ. Automatically calculate business and personal mileage. Easily generate IRS-compliant reports for easy write-offs, reimbursements, and Schedule C or 1099 filings. Skip the spreadsheets\u2014export logs in seconds and join millions who\u2019ve saved $10B+ using MileIQ.\n\nFlexible Categorization & Customization\nQuickly classify your drives with MileIQ\u2019s smart mile tracker, swiping right for business and left for personal.  Need more control? Customize categories to match your workflow and stay aligned with your unique needs. Boost productivity by keeping everything organized in o",
+  "releaseNotes": "This update includes bug fixes and minor improvements to enhance your experience. Safe driving!",
+  "languageCodesISO2A": [
+    "EN"
+  ],
+  "fileSizeBytes": "121546752",
+  "bundleId": "com.mobiledatalabs.goiq"
+}

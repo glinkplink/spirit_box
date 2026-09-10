@@ -1,0 +1,79 @@
+[
+  {
+    "rating": 5,
+    "title": "Love it\u2019",
+    "content": "So easy to use!!",
+    "updated": "2026-08-29T12:36:50-07:00",
+    "author": "nickie750"
+  },
+  {
+    "rating": 1,
+    "title": "Ai sucks",
+    "content": "It keeps duplicating multiple days of logs and even if I delete the trip that it\u2019s prompting me to do it just pops up again the next day",
+    "updated": "2026-08-27T05:44:30-07:00",
+    "author": "Turner get"
+  },
+  {
+    "rating": 3,
+    "title": "Input name for trip",
+    "content": "It would be nice to have a small text box to name the trip.   Like   -to office- or client home.",
+    "updated": "2026-08-15T02:16:54-07:00",
+    "author": "miiml"
+  },
+  {
+    "rating": 4,
+    "title": "Easy to use, great for deductions",
+    "content": "Easy to use",
+    "updated": "2026-07-15T00:20:40-07:00",
+    "author": "Join it up buttercup"
+  },
+  {
+    "rating": 4,
+    "title": "Convenient",
+    "content": "App is very helpful for logging miles.  Reason for 4 stars is that duplicate trips show up and frequently.",
+    "updated": "2026-07-12T17:02:33-07:00",
+    "author": "Dmoose011"
+  },
+  {
+    "rating": 5,
+    "title": "review",
+    "content": "works well",
+    "updated": "2026-07-05T11:22:46-07:00",
+    "author": "meanjelly"
+  },
+  {
+    "rating": 2,
+    "title": "Minimal",
+    "content": "This app will not automatically track you.  You have to manually enter your whole route even after asking to allow access to my location. It\u2019s easier to just set my odometer and track in a spreadsheet \u2026.",
+    "updated": "2026-01-15T09:25:39-07:00",
+    "author": "CMBrindle"
+  },
+  {
+    "rating": 2,
+    "title": "Location never right when entering mileage manually",
+    "content": "When I start typing the location where my drive started or ended it will never show me the address. It\u2019s the same address displayed and I have to click on whatever is displayed and it might or might not add the correct address. In today geo mapping apps this sad. As every other app can display the address you start typing and suggest the one based on the start of the typed address you enter . Bad execution for a paid app. Seeking alternative app.",
+    "updated": "2025-06-20T05:51:49-07:00",
+    "author": "cschaefgen"
+  },
+  {
+    "rating": 5,
+    "title": "Useful application",
+    "content": "Excellent for tracking miles! Easy to use and keeps all my records organized for tax deductions. A must-have for drivers.",
+    "updated": "2024-09-01T14:40:31-07:00",
+    "author": "My_ReVeReNce"
+  },
+  {
+    "rating": 5,
+    "title": "Excellent app",
+    "content": "Simplifies mileage tracking for tax purposes. Accurate, intuitive, and saves time during tax season. Highly recommend!",
+    "updated": "2024-08-27T17:15:20-07:00",
+    "author": "the_konovalov"
+  },
+  {
+    "rating": 5,
+    "title": "Easy to use",
+    "content": "Easy to use and accurate mileage tracking. Highly recommend for anyone needing to track expenses",
+    "updated": "2024-08-02T07:00:35-07:00",
+    "author": "LinaArcher"
+  }
+]
