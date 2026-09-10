@@ -53,13 +53,13 @@ If the failure looks structural: reconsider the rights-cleared live-radio archit
 
 Do **not** rescue failure with AI, generated answers/words, question detection, response timing, fake frequencies, copyrighted radio, or semantic logic.
 
-**Dev fixtures cannot pass this gate.**
+**Dev fixtures cannot pass this gate.** A capture shorter than 15 minutes cannot pass it either, including the 2-minute smoke run.
 
 ## Audio gate status
 
 `PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED`
 
-The harness and bundled Phase 1 bank exist. Automated renders and diagnostic bundles are available. **Human listening** over 15–20 minutes on a physical device remains the product gate.
+The harness and bundled Phase 1 bank exist. Automated renders and diagnostic bundles are available. **Human listening** over 15–20 minutes on a physical device remains the product gate. Run 3 (`20260909-234802-86b84c46`) is a completed 2-minute live smoke capture on the PR #28 DSP; it is plumbing/scheduler evidence only.
 
 ## Project / target structure
 
@@ -271,7 +271,7 @@ The folder name includes a short unique ID so two runs in the same second cannot
 
 Run-scoped events are collected from the moment the run starts. The longer-lived in-memory event log is **not** dumped into the bundle.
 
-Automated summaries are diagnostic (coverage, repetition distances, family distribution, scheduler relaxation). They do **not** declare the audio convincing, and they do **not** pass the canonical gate.
+Automated summaries are diagnostic (coverage, repetition distances, family distribution, scheduler relaxation). They do **not** declare the audio convincing, and they do **not** pass the canonical gate. If captured duration is under 15 minutes, `summary.md` states that the run cannot pass the endurance gate.
 
 **DEV FIXTURES CANNOT PASS THE CANONICAL AUDIO GATE.** A 2-minute smoke run with DevFixtures is for plumbing only. A completed 20-minute DevFixtures run is not a canonical gate attempt.
 

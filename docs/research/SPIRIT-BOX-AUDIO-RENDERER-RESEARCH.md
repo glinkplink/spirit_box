@@ -1,6 +1,6 @@
 SPIRIT BOX AUDIO RESEARCH — UPDATED SOURCE OF TRUTH
 
-Date: 2026-09-09
+Date: 2026-09-10
 Purpose: Give audio-evaluation models and implementation agents a current, evidence-separated view of what we know about convincing spirit-box audio and what should be tested next.
 
 1. Current conclusion
@@ -20,6 +20,24 @@ Is the current renderer using good source material in the wrong way?
 The main renderer risks are currently too much vocal activity, too-frequent speaker changes, overly rigid one-fragment-per-sweep-step behavior, static balance, and Reverse behavior that may sound like literal backwards speech rather than a reverse scan.
 
 We should test those before replacing the corpus.
+
+## Run 3 live 2-minute smoke (2026-09-10)
+
+Live engine capture `20260909-234802-86b84c46` on the PR #28 clocked DSP and bundled 1,200-asset VCTK bank. 120 s requested and captured. Mixed-rate live smoke, not a Section 18 endurance pass.
+
+Verified on this capture:
+
+- limiter sample peak exactly −2.50 dBFS; true peak −2.35 dBTP
+- 209 vocal events, 209 unique assets, 0 repeats, 0 constraint relaxations
+- vocal density 25.7%; vocal runs capped at 2 slots; max consecutive same performer 1
+- vocal density is already intermittent; do not treat older “voice on every slot” notes as current
+
+Rejected as shipping changes from that review:
+
+1. **Per-rate output-gain trims.** Mixed-rate short-segment LUFS is not a calibration source. PR #28 equal-length 60 s renders at 300 ms and 200 ms differed by 0.14 LUFS. Sweep rate must remain a cadence control (Source of Truth §6.2). Revisit only with equal-length single-rate 75 / 125 / 200 / 300 captures.
+2. **Relaxing speaker cooldown on clustered vocal slots.** Canonical §6.2 requires avoiding adjacent clips from the same voice/register family. Research §5.B remains an explicit A/B experiment, not a silent production default.
+
+Next required gate: 15–20 minutes on physical iOS hardware with unprimed listeners (Source of Truth §18). Prefer mostly Forward at 200/300 ms; long uninterrupted Reverse is a separate reverse-semantics test, not the default endurance protocol.
 
 1. What competitor research actually supports
 
@@ -194,21 +212,13 @@ Until then, corpus replacement is premature.
 
 These are implementation facts from the current sweep renderer, not competitor research.
 
-A. A vocal event is scheduled on essentially every sweep slot
+A. Vocal occupancy is intermittent, not every slot
 
-The current engine advances in sweep-rate slots and asks the scheduler for a source each slot. With a full corpus, that normally means another vocal fragment every 75 / 125 / 200 / 300 ms.
+**Superseded:** the engine no longer schedules a vocal on every sweep slot. `VocalDensityScheduler` plus `SweepRendererSettings.listeningTest` target about 33% vocal occupancy with a hard max run of 2 slots. Run 3 measured 25.7% vocal / 74.3% noise-only.
 
-There is currently no explicit probability of:
+Older notes that assumed “voice every 75 / 125 / 200 / 300 ms” described a previous renderer. Do not add a second density layer to “fix” 5.A.
 
-sweep step → static only → no foreground voice.
-
-Why this matters
-
-This is a strong candidate explanation for the “rapid-fire different voices” problem.
-
-A convincing spirit-box texture may need speech to be intermittent, while the sweep/noise continues continuously.
-
-This should be A/B tested before making larger changes.
+Remaining occupancy question: whether ~25–33% is the right listening-test density, not whether noise-only slots exist.
 
 B. The source speaker can change every slot
 
@@ -222,7 +232,7 @@ That may sound less like scanning across speech and more like a randomized voice
 
 We need to test whether some vocal bursts should keep one underlying speaker/source family alive across multiple sweep steps.
 
-This is a perceptual question, not something we should assume.
+This is a perceptual question, not something we should assume. Run 3 confirmed every 2-slot vocal cluster switched performers. That is current canonical behavior (Source of Truth §6.2), not a defect. TEST 2 still requires an explicit product-owner override of §6.2 before it can ship.
 
 C. Sweep rate currently also defines the fragment exposure window
 

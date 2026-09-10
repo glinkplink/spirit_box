@@ -42,6 +42,6 @@ public enum RelaxedConstraint: String, CaseIterable, Equatable, Sendable {
 
 /// Canonical 15–20 minute listening gate. Dev fixtures cannot satisfy it.
 public enum AudioGateStatus {
-    public static let notYetRunWaitingForPhase1Corpus =
-        "NOT YET RUN — WAITING FOR PHASE 1 CORPUS"
+    public static let phase1CandidateBundledHumanGateNotYetPassed =
+        "PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED"
 }

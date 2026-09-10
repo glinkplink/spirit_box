@@ -37,7 +37,7 @@ final class HarnessViewModel: ObservableObject {
     @Published var filesLocationInstruction = ""
     @Published var documentsDebugPath = ""
 
-    let audioGateStatus = AudioGateStatus.notYetRunWaitingForPhase1Corpus
+    let audioGateStatus = AudioGateStatus.phase1CandidateBundledHumanGateNotYetPassed
 
     private let engine = SweepAudioEngine()
     private let appDisplayName: String
@@ -139,6 +139,16 @@ final class HarnessViewModel: ObservableObject {
         } catch {
             lastMessage = "Corpus upload failed: \(error.localizedDescription)"
         }
+    }
+
+    func useBundledCorpus() {
+        if isRunning {
+            lastMessage = "Stop the sweep before switching the corpus."
+            return
+        }
+        DocumentsCorpusOverridePolicy().rememberDocumentsOverride(forBundleIdentity: nil)
+        reloadCorpus()
+        lastMessage = "Using bundled Phase 1 corpus (\(corpusCount) assets)."
     }
 
     func start() {
