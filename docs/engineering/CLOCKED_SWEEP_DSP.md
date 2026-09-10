@@ -49,32 +49,32 @@ checks -18 to -16 LUFS, <= -1 dBTP, <5% energy below 250 Hz, >35% at 1–3.5 kHz
 >15 dB empty-slot envelope range and correlation at the dwell lag. Existing CI
 also compares PCM/event prefixes, other rates, reverse and longer sessions.
 
-## Validation status after macOS run 34426367231
+## Validation status after macOS runs 34426367231 and 34431053760
 
-The real AVAudioEngine outputs at commit `82774222` passed scheduling,
+The real AVAudioEngine outputs at commit `dbdecd85` (run 34431053760) passed scheduling,
 30/60-second seeded PCM/event prefix identity, all four rates, reverse,
-and the 12-minute diversity test. The 60-second acoustic measurements were:
+the level audit, and the 12-minute diversity test. The 60-second acoustic measurements are:
 
 | Metric | 300 ms | 200 ms |
 |---|---:|---:|
-| Integrated LUFS | -17.51 | -17.58 |
-| True peak dBTP | -9.01 | -9.01 |
-| Energy below 250 Hz | 0.251% | 0.226% |
-| Energy 1–3.5 kHz | 68.76% | 68.30% |
-| Empty-slot p90–p10 RMS range | 24.51 dB | 24.54 dB |
-| Dwell-lag correlation | 0.859 | 0.860 |
+| Integrated LUFS | -21.56 | -21.42 |
+| True peak dBTP | -2.41 | -2.42 |
+| Energy below 250 Hz | 1.83% | 1.26% |
+| Energy 1–3.5 kHz | 61.40% | 59.88% |
+| Empty-slot p90–p10 RMS range | 27.82 dB | 27.63 dB |
+| Dwell-lag correlation | 0.600 | 0.683 |
 
-Samples are copied to `build/test-60s-300ms/` and `build/test-60s-200ms/`,
-with commit/run provenance. They are actual engine output, not Python previews.
+Samples are stored with commit/run provenance in the CI artifact `actual-engine-listening-samples`.
+They are actual engine output, not Python previews.
 
-**Headroom, Limiter, and Glimpse Coordination Updates:**
+**Headroom, Limiter, and Glimpse Coordination Updates (verified in run 34431053760):**
 1. Vocal glimpses balanced toward 0.105 RMS with 4x bounded lift and 0.65 peak ceiling.
 2. Glimpse placement coordinated after the 10 ms commutation quiet shelf, eliminating the 20.6% glimpse muting bug.
 3. Master limiter sample ceiling calibrated to -2.5 dBFS (0.7498942) with ~1.5 dB true-peak margin, replacing the punitive 2.605 Lanczos norm ceiling.
 4. Output gain adjusted to 2.4, giving the static bed ~10 dB of clean headroom below the limiter ceiling.
-5. Commutation dip shortened to 10 ms with 5 ms transitions, replacing the 18% (54 ms) synthetic tremolo with a realistic tuner PLL commutation step. Post-limiter vocal emergence reaches +3.0 to +3.8 dB whole-slot and +7.2 dB active-window, with 0% of vocal slots quieter than the noise bed.
+5. Commutation dip shortened to 10 ms with 5 ms transitions, replacing the 18% (54 ms) synthetic tremolo with a realistic tuner PLL commutation step. Post-limiter vocal emergence reaches +2.7 dB whole-slot and +7.3 dB active-window, with 0% of vocal slots quieter than the noise bed.
 
-These DSP updates require fresh macOS compilation, unit tests, PCM identity, level-audit and acoustic measurements.
+All macOS compilation, unit tests, PCM identity, level-audit and acoustic checks PASS.
 
 No 10/10 rating, release approval or physical-device listening gate is inferred
 from these technical results. Live-device versus offline PCM identity has not

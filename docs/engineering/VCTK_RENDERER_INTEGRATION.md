@@ -118,24 +118,24 @@ single default tuning location (also editable in the harness):
 | Setting                      | Value                                                           |
 | ---------------------------- | --------------------------------------------------------------- |
 | Vocal event probability      | 0.33                                                            |
-| Gap/cluster stickiness       | 0.45                                                            |
-| Procedural static gain       | 0.032                                                           |
-| Vocal player gain            | 0.88                                                            |
-| Final mixer gain             | 0.82                                                            |
-| Vocal exposure               | 50–130 ms, 22–48% of dwell                                      |
-| High-pass / low-pass         | 280 / 4200 Hz, first-order stages, slight per-glimpse variation |
+| Gap/cluster stickiness       | 0.18                                                            |
+| Procedural static gain       | 0.10                                                            |
+| Vocal player gain            | 0.48                                                            |
+| Output gain                  | 2.40 (with -2.5 dBFS sample limiter)                            |
+| Vocal exposure               | 50–85 ms (75 ms hard limit at 300 ms), 22–48% of dwell           |
+| High-pass / low-pass         | 500 / 3600 Hz 2-pole Butterworth, +3.5 dB @ 2350 Hz presence    |
 | Boundary fades               | 8 ms each, no vocal overlap                                     |
 | Per-window gain variation    | ±8%                                                             |
 | Processed vocal peak ceiling | 0.65, whole-window attenuation                                  |
 | Scheduler lookahead          | 40 ms                                                           |
-| Anti-repeat window           | 8 (plus VCTK cooldowns)                                         |
+| Anti-repeat window           | 8 (plus VCTK cooldowns and max 2-vocal run streak limit)        |
 
 
-The existing procedural filtered white/brown noise and sparse crackle continue
+Procedural shaped noise and commutation cadence continue across every slot,
 whether or not a vocal is scheduled. No stored static loop, reverb, echo, stacked
 vocals, pitch sweeps, semantic selection, microphone analysis, or sensor inputs
-were added. Worst-case bounded voice plus noise remains below full scale at these
-gains.
+were added. Both noise and vocal layers share the same 2-pole speaker shaping and
+are mixed into a single clocked slot buffer with master peak limiting.
 
 ## First listening sample
 
