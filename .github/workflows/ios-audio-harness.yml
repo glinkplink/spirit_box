@@ -74,14 +74,16 @@ jobs:
           ref: ${{ github.event.inputs.source_sha || github.sha }}
       - name: Bootstrap committed fixtures when absent
         run: |
+          python3 -m venv build/acoustic-venv
+          build/acoustic-venv/bin/pip install numpy
+          command -v ffmpeg || brew install ffmpeg
+          export PATH="$PWD/build/acoustic-venv/bin:$PATH"
           if [[ ! -f tools/fixtures/archived-pcm-regression/pcm-prefix.sha256 ]]; then
             ./scripts/bootstrap-listening-fixtures.sh
           fi
       - name: Render evaluation matrix and primary 60s candidate
         run: |
-          python3 -m venv build/acoustic-venv
-          build/acoustic-venv/bin/pip install numpy
-          command -v ffmpeg || brew install ffmpeg
+          export PATH="$PWD/build/acoustic-venv/bin:$PATH"
           ./scripts/render-evaluation-matrix.sh --preset listening-test --seed 12648430 \
             --output-dir build/evaluation-matrix/listening-test
           mkdir -p build/listening-60s-300ms

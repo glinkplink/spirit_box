@@ -7,6 +7,13 @@ CORPUS="$ROOT/ios/Phase1"
 BUILD="$ROOT/build/fixture-capture"
 mkdir -p "$BUILD"
 
+if ! python3 -c 'import numpy' 2>/dev/null; then
+  python3 -m venv "$BUILD/acoustic-venv"
+  "$BUILD/acoustic-venv/bin/pip" install numpy
+  export PATH="$BUILD/acoustic-venv/bin:$PATH"
+fi
+command -v ffmpeg >/dev/null || { echo "FAIL: ffmpeg required for acoustic checks." >&2; exit 1; }
+
 if [[ "$(uname -s)" != Darwin ]]; then
   echo "FAIL: fixture capture requires macOS/Xcode." >&2
   exit 1

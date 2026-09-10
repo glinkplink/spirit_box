@@ -39,6 +39,14 @@ if [[ "$(uname -s)" != Darwin ]]; then
   exit 1
 fi
 
+if ! python3 -c 'import numpy' 2>/dev/null; then
+  VENV="$ROOT/build/acoustic-venv"
+  python3 -m venv "$VENV"
+  "$VENV/bin/pip" install numpy
+  export PATH="$VENV/bin:$PATH"
+fi
+command -v ffmpeg >/dev/null || { echo "FAIL: ffmpeg required for acoustic checks." >&2; exit 1; }
+
 if [[ -z "$OUTPUT" ]]; then
   STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
   OUTPUT="$ROOT/build/evaluation-matrix/${STAMP}-${PRESET}"

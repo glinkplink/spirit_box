@@ -125,7 +125,7 @@ final class VocalDensitySchedulerTests: XCTestCase {
         XCTAssertTrue(blob.contains("Configured vocal-event probability: 7.0%"))
         XCTAssertTrue(blob.contains("scheduler target, not measured density"))
         XCTAssertTrue(blob.contains("120.00–180.00 ms"))
-        XCTAssertTrue(blob.contains(SweepRendererSettings.configuredNoiseBedDescription))
+        XCTAssertTrue(blob.contains(settings.noiseBedDescription))
         XCTAssertTrue(blob.contains("Sample limiter ceiling"))
         XCTAssertTrue(blob.contains("App version:"))
         XCTAssertFalse(blob.contains("~1 in 14"))
