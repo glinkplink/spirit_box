@@ -13,7 +13,7 @@ Supporting documents never override canonical scope:
 - `docs/production/` — production execution inputs (e.g. audio corpus plan)
 - `docs/launch/` — ASO, conversion, and first-user acquisition playbooks
 
-Task-specific agents should also read the relevant execution doc: audio work → canonical + `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` + `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`; launch work → canonical + the relevant `docs/launch/` playbook.
+Task-specific agents should also read the relevant execution doc: audio work → canonical + `docs/research/SPIRIT-BOX-AUDIO-ENGINE-DECISION.md` + `docs/research/SPIRIT-BOX-AUDIO-RENDERER-RESEARCH.md` + `docs/production/AUDIO-CORPUS-ACQUISITION-AND-PRODUCTION-PLAN.md`; launch work → canonical + the relevant `docs/launch/` playbook.
 
 If any supporting document conflicts with the canonical document, the canonical document wins.
 

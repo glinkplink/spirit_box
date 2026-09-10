@@ -621,7 +621,7 @@ Do not mark future functionality as `PASS`.
 
 | Requirement | Canonical source | Test level | Primary test cases | Release gate | Status |
 |---|---|---|---|---|---|
-| Offline non-semantic sweep engine | §6, §18 | AUDIO-GATE, DEVICE | A-01–A-29, audio kill gate | AUDIO GATE | NOT YET RUN — WAITING FOR PHASE 1 CORPUS |
+| Offline non-semantic sweep engine | §6, §18 | AUDIO-GATE, DEVICE | A-01–A-29, audio kill gate | AUDIO GATE | PHASE 1 CANDIDATE BUNDLED — HUMAN GATE NOT YET PASSED |
 | Sweep rates 75/125/200/300 ms | §6.3 | DEVICE, AUDIO-GATE | A-04–A-07 | AUDIO GATE | NOT IMPLEMENTED |
 | Forward / reverse | §6, §9.3 | DEVICE | A-08–A-10, W-02 | CORE FUNCTIONAL | NOT IMPLEMENTED |
 | Power start/stop + hold-to-off | §9.2 | DEVICE, SIM | W-01, W-08, field usability | CORE FUNCTIONAL | NOT IMPLEMENTED |
@@ -641,7 +641,7 @@ Do not mark future functionality as `PASS`.
 | Core haptics (not detection) | §11 | DEVICE | Field haptics | DEVICE GATE | NOT IMPLEMENTED |
 | Interruption safety | §25, Phase 4 | DEVICE | Section 7 | DATA INTEGRITY | NOT IMPLEMENTED |
 | Offline core instrument | §20 | DEVICE | O-01–O-08 | OFFLINE | NOT IMPLEMENTED |
-| Anti-repetition scheduler | §6.2 | AUDIO-GATE | A-19–A-21, kill gate | AUDIO GATE | NOT YET RUN — WAITING FOR PHASE 1 CORPUS |
+| Anti-repetition scheduler | §6.2 | AUDIO-GATE | A-19–A-21, kill gate | AUDIO GATE | PHASE 1 CANDIDATE BUNDLED — HUMAN GATE NOT YET PASSED |
 | Source rights ledger complete | §6.1, §20 | Review | Production doc §14 | AUDIO GATE | NOT IMPLEMENTED |
 | App Store metadata accuracy | §16 | Review | Section 11 | TRUST | NOT IMPLEMENTED |
 
