@@ -84,7 +84,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
     public static let listeningTest = SweepRendererSettings(
         staticGain: 0.050,
         vocalGain: 0.58,
-        outputGain: 3.75,
+        outputGain: 4.15,
         usesDecoupledBedShape: true,
         bedHighPassHz: 200,
         bedLowPassHz: 4_500,
@@ -102,7 +102,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
     public static let listeningTestGainRebalance = SweepRendererSettings(
         staticGain: 0.050,
         vocalGain: 0.58,
-        outputGain: 3.75
+        outputGain: 4.15
     )
 
     /// PR #31 continuous-static / 8% density defaults, kept only so baseline clips
@@ -126,7 +126,7 @@ public struct SweepRendererSettings: Equatable, Sendable {
         clusteriness: Double = 0.0,
         staticGain: Float = 0.050,
         vocalGain: Float = 0.58,
-        outputGain: Float = 3.75,
+        outputGain: Float = 4.15,
         minVocalExposureSeconds: Double = 0.100,
         maxVocalExposureSeconds: Double = 0.180,
         minExposureFractionOfDwell: Double = 0.40,

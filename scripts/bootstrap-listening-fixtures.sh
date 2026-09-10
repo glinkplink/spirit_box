@@ -47,9 +47,5 @@ render_and_check "$ARCHIVED" 30 300 forward "$SEED" archived-continuous-static
 echo "=== Current listening-test candidate (Pass B) ==="
 CANDIDATE="$BUILD/listening-test-60s"
 render_and_check "$CANDIDATE" 60 300 forward "$SEED" listening-test
-cp -a "$CANDIDATE" "$ROOT/build/listening-60s-300ms"
-mkdir -p "$ROOT/build/evaluation-matrix-bootstrap"
-"$ROOT/scripts/render-evaluation-matrix.sh" --preset listening-test --seed "$SEED" \
-  --output-dir "$ROOT/build/evaluation-matrix-bootstrap/listening-test"
 
-echo "Fixtures captured under tools/fixtures/ and build/"
+echo "Fixtures captured under tools/fixtures/"
