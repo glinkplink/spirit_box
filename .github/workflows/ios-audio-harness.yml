@@ -44,6 +44,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.source_sha || github.sha }}
+
+      - name: Skip full iOS CI (no iOS-relevant changes)
         if: needs.classify-changes.outputs.ios_relevant != 'true'
         run: |
           echo "No iOS-relevant files changed in this event."
