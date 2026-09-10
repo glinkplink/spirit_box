@@ -66,7 +66,8 @@ final class VocalDensitySchedulerTests: XCTestCase {
     func testListeningTestMixUsesAudibleBed() {
         XCTAssertEqual(SweepRendererSettings.listeningTest.staticGain, 0.10, accuracy: 0.001)
         XCTAssertEqual(SweepRendererSettings.listeningTest.vocalGain, 0.48, accuracy: 0.001)
-        XCTAssertEqual(SweepRendererSettings.listeningTest.clusteriness, 0.18, accuracy: 0.001)
+        XCTAssertEqual(SweepRendererSettings.listeningTest.outputGain, 3.5, accuracy: 0.001)
+        XCTAssertEqual(SweepRendererSettings.listeningTest.clusteriness, 0.0, accuracy: 0.001)
         XCTAssertEqual(SweepRate.default, .ms300)
     }
 }

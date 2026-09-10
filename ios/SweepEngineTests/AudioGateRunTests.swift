@@ -116,6 +116,36 @@ final class AudioGateRunTests: XCTestCase {
         XCTAssertTrue(summary.isDocumentsPhase1)
         XCTAssertFalse(summary.isDevFixture)
         XCTAssertEqual(summary.performerPercents["P01"] ?? 0, 50.0, accuracy: 0.01)
+        XCTAssertTrue(summary.markdown().contains("A capture shorter than 15 minutes cannot pass the canonical 15–20 minute endurance listening gate."))
+    }
+
+    func testHarnessBannerMatchesBundledCorpusHumanGatePending() {
+        XCTAssertEqual(
+            AudioGateStatus.phase1CandidateBundledHumanGateNotYetPassed,
+            "PHASE 1 CANDIDATE BUNDLED (VCTK, 1,200 assets) — CANONICAL 15–20 MINUTE HUMAN GATE NOT YET PASSED"
+        )
+        XCTAssertFalse(
+            AudioGateStatus.phase1CandidateBundledHumanGateNotYetPassed.contains("WAITING FOR PHASE 1 CORPUS")
+        )
+    }
+
+    func testEnduranceDurationSummaryOmitsSmokeCaveat() {
+        let summary = AudioGateRunSummary.make(
+            runID: "endurance",
+            startedAt: Date(),
+            endedAt: Date(),
+            requestedDurationSeconds: 1200,
+            capturedDurationSeconds: 1200,
+            completion: .completed,
+            failureMessage: nil,
+            corpus: .empty,
+            startingSweepRate: .ms200,
+            startingDirection: .forward,
+            events: []
+        )
+        let markdown = summary.markdown()
+        XCTAssertTrue(markdown.contains("NOT YET PASSED BY THIS RUN"))
+        XCTAssertFalse(markdown.contains("A capture shorter than 15 minutes cannot pass the canonical 15–20 minute endurance listening gate."))
     }
 
     func testSummaryIgnoresEventsOutsideTheProvidedRunSet() {
@@ -298,6 +328,7 @@ final class AudioGateRunTests: XCTestCase {
         XCTAssertTrue(markdown.hasPrefix("AUDIO GATE STATUS:"))
         XCTAssertTrue(markdown.contains("NOT YET PASSED BY THIS RUN"))
         XCTAssertTrue(markdown.contains("DEV FIXTURES CANNOT PASS THE CANONICAL AUDIO GATE."))
+        XCTAssertTrue(markdown.contains("A capture shorter than 15 minutes cannot pass the canonical 15–20 minute endurance listening gate."))
         XCTAssertTrue(markdown.contains("INCOMPLETE / STOPPED EARLY"))
         XCTAssertFalse(markdown.contains("believable"))
         XCTAssertFalse(markdown.contains("authentic"))

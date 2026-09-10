@@ -28,10 +28,10 @@ public struct SweepRendererSettings: Equatable, Sendable {
 
     public init(
         vocalEventProbability: Double = 0.33,
-        clusteriness: Double = 0.18,
+        clusteriness: Double = 0.0,
         staticGain: Float = 0.10,
         vocalGain: Float = 0.48,
-        outputGain: Float = 2.4,
+        outputGain: Float = 3.5,
         minVocalExposureSeconds: Double = 0.050,
         maxVocalExposureSeconds: Double = 0.085,
         minExposureFractionOfDwell: Double = 0.22,

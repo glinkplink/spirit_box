@@ -268,6 +268,35 @@ final class CorpusModelTests: XCTestCase {
         XCTAssertEqual(loaded.assets.first?.assetID, "UPLOADED")
     }
 
+    func testClearingDocumentsOverrideRestoresBundledCorpus() throws {
+        let temp = try makeTempRoot()
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let documents = try writeCorpus(at: temp.appendingPathComponent("docs"), id: "UPLOADED")
+        let bundled = try writeCorpus(at: temp.appendingPathComponent("bundle"), id: "BUNDLED")
+        let defaults = isolatedDefaults()
+        let policy = DocumentsCorpusOverridePolicy(defaults: defaults)
+        let identity = CorpusLoader.manifestIdentity(at: bundled)
+        policy.rememberDocumentsOverride(forBundleIdentity: identity)
+
+        var loaded = CorpusLoader.loadFromRoots(
+            documentsRoot: documents,
+            bundlePhase1Root: bundled,
+            bundleDevFixturesRoot: nil,
+            overridePolicy: policy
+        )
+        XCTAssertEqual(loaded.source, .documentsPhase1)
+
+        policy.rememberDocumentsOverride(forBundleIdentity: nil)
+        loaded = CorpusLoader.loadFromRoots(
+            documentsRoot: documents,
+            bundlePhase1Root: bundled,
+            bundleDevFixturesRoot: nil,
+            overridePolicy: policy
+        )
+        XCTAssertEqual(loaded.source, .bundlePhase1)
+        XCTAssertEqual(loaded.assets.first?.assetID, "BUNDLED")
+    }
+
     func testDocumentsOverrideIsIgnoredAfterBundledCorpusChanges() throws {
         let temp = try makeTempRoot()
         defer { try? FileManager.default.removeItem(at: temp) }

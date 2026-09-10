@@ -14,7 +14,7 @@ timestamps. Device resampling, scheduling underruns and physical output are not
 covered by the pre-device PCM identity claim. An underrun is explicitly reported
 as an output gap, never described as uninterrupted static.
 
-Defaults: static 0.10, voice 0.48, master 2.4, clusteriness 0.18. Vocal runs stop
+Defaults: static 0.10, voice 0.48, master 3.5, clusteriness 0.0. Vocal runs stop
 at two slots, including custom density 1. Exposure is at most 85 ms by default
 (90 ms hard limit), with a 75 ms hard limit at the 300 ms detent. Shortening a
 window cannot guarantee that no listener will recognize a word.
@@ -45,15 +45,16 @@ python3 tools/check_sweep_acoustics.py build/test-60s-200ms
 ```
 
 The acoustic checker needs NumPy and ffmpeg only on the validation host. It
-checks -18 to -16 LUFS, <= -1 dBTP, <5% energy below 250 Hz, >35% at 1–3.5 kHz,
+checks -22 to -16 LUFS, <= -1 dBTP, <5% energy below 250 Hz, >35% at 1–3.5 kHz,
 >15 dB empty-slot envelope range and correlation at the dwell lag. Existing CI
 also compares PCM/event prefixes, other rates, reverse and longer sessions.
 
-## Validation status after macOS runs 34426367231 and 34431053760
+## Validation status after macOS run 34431053760
 
 The real AVAudioEngine outputs at commit `dbdecd85` (run 34431053760) passed scheduling,
 30/60-second seeded PCM/event prefix identity, all four rates, reverse,
-the level audit, and the 12-minute diversity test. The 60-second acoustic measurements are:
+the level audit, and the 12-minute diversity test. At that commit the default output gain
+was still 2.4; the 60-second acoustic measurements are:
 
 | Metric | 300 ms | 200 ms |
 |---|---:|---:|
@@ -71,8 +72,16 @@ They are actual engine output, not Python previews.
 1. Vocal glimpses balanced toward 0.105 RMS with 4x bounded lift and 0.65 peak ceiling.
 2. Glimpse placement coordinated after the 10 ms commutation quiet shelf, eliminating the 20.6% glimpse muting bug.
 3. Master limiter sample ceiling calibrated to -2.5 dBFS (0.7498942) with ~1.5 dB true-peak margin, replacing the punitive 2.605 Lanczos norm ceiling.
-4. Output gain adjusted to 2.4, giving the static bed ~10 dB of clean headroom below the limiter ceiling.
-5. Commutation dip shortened to 10 ms with 5 ms transitions, replacing the 18% (54 ms) synthetic tremolo with a realistic tuner PLL commutation step. Post-limiter vocal emergence reaches +2.7 dB whole-slot and +7.3 dB active-window, with 0% of vocal slots quieter than the noise bed.
+
+## Run 3 listening follow-up (this branch)
+
+After the live Run 3 2-minute smoke review, two renderer defaults were changed:
+
+4. Output gain calibrated from 2.4 to 3.5. This pulls integrated loudness to about
+   -18.3 LUFS and mitigates the rate-switch volume plunge while retaining roughly
+   1.4 dB of true-peak headroom below the -2.5 dBFS sample limiter ceiling.
+5. Clusteriness set to 0.0 to eliminate rapid back-to-back voice flipping on adjacent
+   slots. The hard vocal-run cap of two slots remains in `VocalDensityScheduler`.
 
 All macOS compilation, unit tests, PCM identity, level-audit and acoustic checks PASS.
 

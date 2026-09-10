@@ -336,6 +336,10 @@ public struct AudioGateRunSummary: Equatable, Sendable {
         lines.append("AUTOMATED METRICS ARE DIAGNOSTIC ONLY.")
         lines.append("THE CANONICAL AUDIO GATE REQUIRES HUMAN LISTENING.")
         lines.append("")
+        if capturedDurationSeconds < 15 * 60 {
+            lines.append("A capture shorter than 15 minutes cannot pass the canonical 15–20 minute endurance listening gate.")
+            lines.append("")
+        }
         if isDevFixture {
             lines.append("DEV FIXTURES CANNOT PASS THE CANONICAL AUDIO GATE.")
             lines.append("")
