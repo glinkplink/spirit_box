@@ -1,18 +1,23 @@
 # Ironwork / Structural Steel iOS Niche Deep Dive
 
 **Date:** 2026-09-10  
+**Addendum:** 2026-09-11 — work-order / invoice / signed-extras hypothesis (Invoice Fly, Joist, Bead Board)  
 **Role:** Exploratory commercial research. Supporting evidence. Does **not** override `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md`.  
 **Status of this file:** Research only. Do not treat as BUILD AUTHORIZED.  
 **Evidence labels:** VERIFIED FACT / INFERENCE / SPECULATION / UNKNOWN.  
-**Capture method:** US iTunes Search API (`country=us`, `entity=software`, 2026-09-10) plus public web sources (BLS, App Store listings, vendor pricing pages, RSS customer reviews). Rankings are API order, not a guaranteed on-device SERP clone.
+**Capture method:** US iTunes Search API (`country=us`, `entity=software`, 2026-09-10 and 2026-09-11) plus public web sources (BLS, App Store listings, vendor pricing pages, RSS customer reviews). Rankings are API order, not a guaranteed on-device SERP clone.
 
 ---
 
 ## Executive Verdict
 
-**INTERESTING BUT SMALL.**
+**Calculators / AISC pocket apps: INTERESTING BUT SMALL** (unchanged).  
+**Work-order + signed extras for solo/small-team welders: PROMISING — ONE CHEAP TEST.**  
+**Cloning Invoice Fly: KILL.**
 
 There is a real, paid, repetitive job in this industry — small fabricators and misc-metals shops already spend money on weight/quote math, pocket references, and (at the shop level) expensive estimating software. That is not the same thing as a better iPhone business than mileage, acreage, or Spirit Box.
+
+**2026-09-11 correction:** The more interesting product is not a steel calculator. It is a **work-order / invoice tracker that gets extras signed before the torch comes back on**, for solo and small-team welders. Invoice Fly is what those people **find** when they type `welding invoice`. It is not the closest product to that job. Joist, Bead Board, Jobkore, and MyChangeOrder are.
 
 What the evidence actually shows:
 
@@ -521,37 +526,203 @@ Fatal weaknesses (do not average away):
 
 ---
 
+## Addendum 2026-09-11 — Work orders, invoices, signed extras
+
+This is a different product than the calculator thesis. It was not assumed in the 2026-09-10 pass. Re-evaluate on evidence, not on familiarity.
+
+### What the user named
+
+Solo / small-team welder tool:
+
+1. Generate a work order fast.
+2. Get it signed on the phone.
+3. Stop scope creep (“can you just…”).
+4. Track the job through invoice / paid.
+
+Named competitor: **Invoice Fly**.
+
+### Invoice Fly is the search incumbent, not the job incumbent
+
+**VERIFIED FACT (iTunes Lookup, 2026-09-11):**
+
+| App | Job | US ratings | Price on listing / site | Notes |
+|---|---|---|---|---|
+| **Invoice Maker - Invoice Fly** (Labhouse Mobile SL, Barcelona) | Generic estimate/invoice/signature/payments | **103,899** @ 4.76★; released 2022-02 | Site: **$8.99/week** or **$98.99/year**. IAP also shows $17.99 monthly/premium SKUs | Claims 125,000+ small businesses. About page lists plumbers, landscapers, cleaners, carpenters — **not welders**. |
+| Invoice Simple | Same horizontal job | **122,724** | Freemium mill | Owns `invoice maker` |
+| Square Invoices | Invoice + get paid | **92,849** | **Free** (Square take-rate) | Default “good enough” |
+| Invoice2go | Same | **55,747** | ~$6/mo class historically | Mature |
+| **Joist** | Contractor estimates, invoices, **work orders**, signatures; **change orders on Elite** | **14,010** @ 4.75★ | **$10 / $17 / $32 per month** (Basics / Pro / Elite). Elite = change orders. | This is the actual closest **contractor** product. Claims 1.3M contractors / $85B transactions (vendor claim, not audited). |
+| Jobber | Full field-service OS | **20,832** | IAP from **$29.99–$399.99/mo** depending on plan | 250,000+ service pros (vendor). Lawn/clean/plumb-shaped. |
+| Housecall Pro | Same | **29,639** | From ~$40–$79/mo class | Home services |
+| Contractor+ | Estimate/invoice CRM | **1,872** | Reviews cite ~$15 → $30/mo, annual $360+ | 1-man shop praise **and** hostage-data hate |
+| **Bead Board: Welding** (Crux Labs) | Welding shop job board: quote → working → done → paid, PDFs, photos, offline | **0** ratings; released **2026-04-14**; still 0 on 2026-09-11 | **$99/month** whole shop | Native iOS/Android. The welding-vertical already exists. |
+| Jobkore | Welding/fab estimates, invoices, deposits, change orders | No iOS app in search | **$29/month** or $290/year | Phone **browser**, QBO push |
+| Work Order Maker | Generic WO PDF | **183** | Sub | Not welding; support/data-loss 1-stars |
+| Clearstory | Paperless T&M tags for construction | **34** @ 3.85★ | Company SaaS | GC/sub T&M, not solo welder |
+| `change order` SERP | Signed extras | **0-rating** 2026 apps (ScopeProof, ScopeLock, Change Order Pro) | — | The **scope-creep query is empty** on iOS |
+
+**VERIFIED FACT:** iTunes Search for `welding invoice` and `welder invoice` returns Invoice Fly at **#1**, then Invoice2go / Invoice Simple / Square. No welding-native invoicing app appears in the top 10.
+
+**INFERENCE:** Invoice Fly is the correct answer to “what does a welder download after Googling invoice app?” It is the **wrong** answer to “what software is purpose-built for signed work orders and extras.” Labhouse is a Barcelona invoice mill aimed at US home-service contractors. Signature on an **invoice** is not the same as a signature on a **work authorization before extra welding**.
+
+### The expensive small job (this time it might actually be expensive)
+
+Mobile / shop welders lose money on:
+
+- Verbal “while you’re here, weld this bracket too”
+- Jobs quoted by text, then unfindable
+- No deposit before steel is bought
+- T&M hours never written down
+- Customer disputes the invoice because nothing was signed
+
+One unpaid extra on a $1,500 mobile call **does** make $20–$30/month feel trivial. That WTP is in a different class than a $4.99 shape lookup.
+
+**Joist already sells this to contractors** at $17/mo (work orders) and $32/mo (change orders). **MyChangeOrder** sells *only* the extra-work ticket at $29/mo (or $3.99 per CO). **Jobkore** sells the welding/fab version at $29/mo. **Bead Board** sells the shop whiteboard replacement at $99/mo.
+
+So people pay. The open question is whether **welders** pay for a **welding-named** tool, or they just use Joist/Square/Invoice Fly.
+
+### Bead Board is the uncomfortable data point
+
+Bead Board is the product this hypothesis describes: welding-specific, phone-first, offline in metal buildings, quote/invoice PDF, job board, 1–10 person shops.
+
+**Five months on the App Store, 0 US ratings, $99/month.**
+
+Possible explanations (UNKNOWN which):
+
+1. Price is shop-tier; solo mobile welders bounce.
+2. No ASO / they sell via web and Facebook, not App Store search.
+3. Welding shops do not want this enough.
+4. Too new; ratings lag.
+
+Until (1) or (2) is proven, **do not assume a second welding job-tracker will do better**. $99/mo is also 3× Joist Elite. For a one-man truck, that is a bad price.
+
+### Who actually competes, ranked by job overlap
+
+| Rank | Product | Overlap with “fast WO + sign + stop extras + invoice” | Why they win or lose vs a welding V1 |
+|---|---|---|---|
+| 1 | **Joist** | High. Work orders + in-app signatures; change orders on Elite ($32/mo) | Cheaper than Bead Board. Not welding-flavored (no rod/gas/steel line defaults, no “hot work / T&M ticket” language). Reviews: price hikes, photo charges, VPN blocks, data lock-in. |
+| 2 | **Jobkore** | High for fab/weld shops | $29/mo, deposits, change orders, QBO. **Not a ranked iOS app.** Browser on the phone. |
+| 3 | **Bead Board** | Highest welding specificity | $99/mo, 0 ratings. Overpriced for solo. Weak on “get extras signed in 60 seconds” vs MyChangeOrder. |
+| 4 | **Invoice Fly / Invoice Simple / Square** | Invoice only | Own search. Square is free. Invoice Fly weekly SKU is a trap ($8.99/week = $467/year if someone misses annual). **Do not fight them on templates.** |
+| 5 | **Jobber / Housecall Pro** | Full FSM | Too much product, home-service DNA, $50–$150/mo. Welders who want this already left. |
+| 6 | **MyChangeOrder / Scope Order** | Scope creep only | Proves the extra-work ticket can be a product by itself. Horizontal, not welding. |
+
+**Closest competitor is Joist, not Invoice Fly.** Invoice Fly is the SEO/ASO gravity well.
+
+### Search intent for this wedge
+
+| Query | What ranks | Implication |
+|---|---|---|
+| `welding invoice` / `welder invoice` | Invoice Fly #1 | Any listing without “Invoice” in the title will be invisible here. A welding-named app still loses to 100k-rating mills on this head term. |
+| `work order` | CMMS (MaintainX, UpKeep) + Work Order Maker (183 ratings) | Facilities maintenance, not field welding tickets. |
+| `change order` | Empty / 0-rating indie apps + Clearstory | **Accessible and commercially relevant** — but tiny, and not welder-specific. |
+| `Jobber` / `Joist` | Brand | People who know the category search the brand. Cold start has no brand. |
+
+No invented volumes. The pattern is: **invoice keywords are a bloodbath; change-order keywords are empty; welding-vertical App Store demand is unproven (Bead Board = 0).**
+
+### Review-mined pain (this job)
+
+Invoice Fly RSS on this pass was thin on trade-specific complaints (generic “make it free” / “trash”). Broader public reviews: trial/card traps, weekly pricing, payout/Stripe confusion, “Square does this free.”
+
+Joist (better analogue):
+
+- “I would like them to enable a feature allowing the client to provide a genuine signature on **their own device**.”
+- Subscription increases shortly after signup; charges for photo uploads.
+- “Joist used to be free… pop ups and increased subscription fees.”
+- Data hostage after cancel.
+- Constant marketing email.
+
+Contractor+: 1-man electrical shop calls it the first CRM that works from the van — **and** users rage when free invoice caps appear and prices double.
+
+Work Order Maker: “created a work order in less than 10 minutes” / “great for small business” — then **all work orders gone** after reinstall. That is the SaaS support burden.
+
+Clearstory: “field guys no longer need to worry about keeping track of **paper tags**.” That is the T&M job, sold to companies, 34 ratings.
+
+**INFERENCE:** The “I use this constantly but I hate X” for this category is **not missing weld symbols**. It is **subscriptions, data lock-in, and signatures that aren’t really the customer’s**. A welding app that is just Invoice Fly with a bead icon inherits all of that hate plus none of the rating mass.
+
+### Build / liability / who pays
+
+| | |
+|---|---|
+| Who pays | Solo mobile welder or 2–5 person shop **owner**. App Store or Stripe. Not the union hall. |
+| Pricing that fits evidence | **$15–$29/month** or **~$149–$290/year**. Joist/Jobkore band. Not $99/mo (Bead Board). Not $9.99 lifetime (won’t fund backend). |
+| V1 that is actually the job | Client + line items (labor hours, mobile call-out, steel, rod/wire, gas, shop supplies) → work order PDF → **on-device customer signature** → optional extra/CO with a new signature → invoice from the signed lines → share/email. Offline draft, sync to send. Saved rate card. |
+| V1 that is a trap | Pretty invoice templates, Stripe Connect, QuickBooks, scheduling, CRM, team seats, AI. That is Jobber. |
+| Build time | **Not this month** if signatures + email delivery + accounts + sync are real. That is a small SaaS. A local-only PDF + signature + Files/share sheet could ship in weeks **without** payments. |
+| Hidden burden | Accounts, email deliverability, e-sign evidence (ESIGN/UETA claims), payment disputes, “restore my jobs,” App Store IAP vs web billing, support when a $8,000 invoice is “lost.” |
+| Liability | Low–medium. This is paperwork, not structural design. Do not claim “legally binding” without actually storing signer identity, timestamp, and hash. Square/Joist already set that bar. |
+| Maintenance | High vs a calculator. This is the original kill criterion #5 (meaningful revenue wants a backend). Here the backend **is** the product. |
+
+### Ceiling math (this wedge only)
+
+Self-employed welders are ~6% of ~457k = **~27k** (BLS). Plus small specialty-trade / mobile / farm / trailer / ornamental shops — reachable US buyers might be **20k–60k** (SPECULATION band).
+
+At **$29/month** after 15% Apple (if IAP): need **~406** paying accounts for $10k/mo developer revenue; **~812** for $20k; **~2,030** for $50k.
+
+That customer count is **plausible** in a way the $4.99 AISC app never was — **if** acquisition works. Jobber did this across all home services at 250k+ pros. Welding is a thin vertical. Bead Board’s 0 ratings say the App Store will not gift those 400 accounts.
+
+Web/Facebook welding groups could. That is a **sales/community** motion, not ASO.
+
+### Does this beat the calculator thesis?
+
+**Yes.** Higher WTP, clearer ROI (unsigned extras), owner pays, Invoice Fly proves people already pay ~$99/year for a worse job (invoices only).
+
+### Does this beat Invoice Fly by being “for welders”?
+
+**Not on search.** Vertical skin on a generic invoice app loses to 104k ratings. The only defensible wedge is **signed work authorization + extras + welding line-item defaults**, not templates.
+
+### Does this deserve priority over Spirit Box / mileage / acres?
+
+| vs | Result |
+|---|---|
+| Calculator ironwork | This is the better ironwork product. |
+| Spirit Box | Higher ARPU, much heavier build/support, no exact unique keyword. **Not an automatic winner.** Cheap test first. |
+| Mileage | Still smaller category; better founder-fit if we refuse GPS/tax. |
+| Acreage | Stronger WTP story than acres; worse cold-start than acres’ 10k-rating SERP. |
+
+**Not IRONWORK WINNER.** Do not pivot the repo on a hunch that Invoice Fly is weak. Invoice Fly is huge at the wrong job.
+
+### Cheapest test (do this before any code)
+
+**One question, ten solo/small-team welders** (mobile, farm, trailer, ornamental — not union shop floor):
+
+1. What do you use to bill today? (Square / Invoice Fly / Joist / QuickBooks / paper / text)
+2. Last time a customer added work mid-job, did you get it **signed**?
+3. Roughly how much unpaid extra did you eat in the last 90 days?
+4. Would you pay **$19/month** for: work order in 60 seconds, customer signs your phone, extras need a second signature, invoice from the signed lines — **no** scheduling, **no** QuickBooks?
+
+**Kill if:** ≥7/10 already get paid fine with Square/Invoice Fly **and** do not remember losing money on unsigned extras.
+
+**Also watch:** Bead Board ratings. If they are still ~0 after another quarter at $99/mo, drop the price in the pitch to Joist’s band or drop the vertical.
+
+### Addendum verdict
+
+**PROMISING — ONE CHEAP TEST** for a **signed work-order / extra-work ticket** aimed at solo welders, priced like Joist ($15–$29/mo), not like Invoice Fly (pretty invoices) and not like Bead Board ($99/mo shop OS).
+
+**KILL** a plan whose differentiation is “Invoice Fly, but for welders.”
+
+---
+
 ## Final Verdict
 
-### INTERESTING BUT SMALL
+### Split: calculators INTERESTING BUT SMALL; signed welder work orders PROMISING — ONE CHEAP TEST; Invoice Fly clone KILL
 
-Good indie product *shape*. **Insufficient ceiling** for the profitability objective that would justify switching off the current Spirit Box conditional path — and **no advantage** over mileage’s *category* economics or acreage’s *search* scale.
+This is **not** IRONWORK WINNER. Do not leave Spirit Box for a welding invoice skin.
 
-This is **not** IRONWORK WINNER.  
-This is **not** PROMISING-ONE-TEST in the sense of “one test then we build.” The cheap tests are optional **park-and-watch** items (Fabora ratings; 10 owner calls), not a reason to staff a product.
+**Calculators** still fail the original kill list (thin search, Android-free substitutes, AISC licensing, ~$5–10k/mo cap).
 
-Kill-criteria hit from the brief:
+**Signed work orders** reopen kill criterion 5 on purpose: the backend *is* the product. ARPU can support $10k–$20k/mo with hundreds of $29/mo accounts. That is only interesting if ten welders say they currently eat unsigned extras. Bead Board’s **0 ratings at $99/mo** is the bear case until disproven.
 
-1. Useful **ironworker** search demand is negligible (union SERP). Weight/shapes demand exists but is small.  
-3. Cheap calculators (especially Android) already satisfy the mass job.  
-4. The actually expensive job is estimating with plans — CAD/BIM/PDF.  
-5. Meaningful **$20k+/mo** requires B2B sales.  
-6. AISC licensing is a real cost if we try to beat Steel Profiles on data.  
-8. Plausible App Store ceiling still **~$5–10k/month**.  
-10. Calculator differentiation collapses to UI unless we steal Fabora’s entire roadmap.
-
-Criteria **not** fully hit: (2) not *everyone* is on employer software — small shops use Excel; (7) the *best remaining* job (quoting) is low liability; (9) first users are findable without a union relationship, just slowly.
-
-**Park ironwork as an iPhone initiative.** Do not staff it. Optionally glance at Fabora’s rating count in 90 days. Do not “just ship a steel calculator” because the jobsite is familiar.
+**Park calculators. Do not staff a build.** The only live ironwork action is the ten-welder script — or nothing.
 
 ---
 
 ## Exact Next Action
 
-1. **Do not start an ironwork app.**  
-2. **Keep Spirit Box on CONDITIONAL BUILD** as defined in the canonical file (audio disproof test remains the product-critical next step there).  
-3. If the commercial question is “what has the largest *proven* market,” that is **mileage** — and attacking it is a **separate, harder** decision (GPS, IRS, Microsoft), not a stealth pivot.  
-4. If someone insists on a steel test with **zero engineering**: ten owner conversations + Fabora rating watch. Budget: hours, not a branch of production code.
+1. **Do not start an Invoice Fly clone, a steel calculator, or a Bead Board clone.**  
+2. **Keep Spirit Box on CONDITIONAL BUILD** (audio disproof test remains the live product gate in the canonical file).  
+3. If pursuing the welder hypothesis at all: **ten conversations** using the addendum script (Square vs unsigned extras vs $19/mo). No backend until that returns a kill or a go.  
+4. Mileage remains the largest proven category; it is still a separate hard bet.
 
 ---
 
@@ -580,6 +751,13 @@ Selected rating stocks (API `userRatingCount`):
 | [steel shapes] | 113 | **$4.99** since 2009 |
 | Ironworker Pro | 6 | **$2.99** (2026) |
 | Fabora | 2 | **$47.99/yr** (2026-07-30) |
+| Invoice Fly | 103,899 | **$8.99/wk or $98.99/yr** (2026-09-11) |
+| Invoice Simple | 122,724 | Horizontal invoice mill |
+| Square Invoices | 92,849 | Free + processing |
+| Joist | 14,010 | **$10 / $17 / $32 per mo**; change orders on Elite |
+| Jobber | 20,832 | Field-service SaaS |
+| Housecall Pro | 29,639 | Field-service SaaS |
+| Bead Board: Welding | **0** | **$99/mo**; released 2026-04-14 |
 
 ## Appendix B — Sources
 
@@ -592,5 +770,6 @@ Selected rating stocks (API `userRatingCount`):
 - Reddit: r/Ironworker Ironworker Pro launch thread (2026).
 - ICC/SSTC Structural Welding Quality Handbook price; IMPACT pocket guide historical $15; Builder’s Book steel detail wheel ~$18.
 - Canonical Spirit Box economics: `docs/00_SPIRIT_BOX_PRODUCT_SOURCE_OF_TRUTH.md` and `docs/research/RESEARCH-REVALIDATION-2026-09-10.md`.
+- Addendum 2026-09-11: Invoice Fly / Joist / Jobber / Bead Board / Jobkore / MyChangeOrder listings and pricing pages; iTunes Search `welding invoice`, `work order`, `change order`.
 
 **UNKNOWN throughout:** true search volumes, true revenues of any steel iOS app, Fabora’s future trajectory, Apple commission actually paid by each developer.
